@@ -21,30 +21,33 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="acm学习">
-<meta property="og:type" content="website">
-<meta property="og:title" content="若泽">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="简单搜索[POJ3278](3278 – Catch That Cow (poj.org))题解该题注意剪枝，不让会RE（虽然我用的map），剪枝不可将x+1&gt;K和x*2&gt;k的情况剪掉，例如100-&gt;199 另外由于时间卡得比较紧，数量比较大所以不能用map，用map会TE poj3279题意大概说的是给定一个m*n的01矩阵，每次去翻一个位置周围四个方向的位置都会翻转，问能不能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kuangbin-简单搜索">
+<meta property="og:url" content="http://example.com/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/index.html">
 <meta property="og:site_name" content="若泽">
-<meta property="og:description" content="acm学习">
+<meta property="og:description" content="简单搜索[POJ3278](3278 – Catch That Cow (poj.org))题解该题注意剪枝，不让会RE（虽然我用的map），剪枝不可将x+1&gt;K和x*2&gt;k的情况剪掉，例如100-&gt;199 另外由于时间卡得比较紧，数量比较大所以不能用map，用map会TE poj3279题意大概说的是给定一个m*n的01矩阵，每次去翻一个位置周围四个方向的位置都会翻转，问能不能">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-19T16:03:54.000Z">
+<meta property="article:modified_time" content="2021-07-19T16:06:29.063Z">
 <meta property="article:author" content="Rouze">
+<meta property="article:tag" content="acm">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>若泽</title>
+  <title>Kuangbin-简单搜索 | 若泽</title>
   
 
 
@@ -196,9 +199,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -214,10 +218,9 @@
       <meta itemprop="name" content="若泽">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/" class="post-title-link" itemprop="url">Kuangbin-简单搜索</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          Kuangbin-简单搜索
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -255,7 +258,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="简单搜索"><a href="#简单搜索" class="headerlink" title="简单搜索"></a>简单搜索</h1><h2 id="POJ3278-3278-–-Catch-That-Cow-poj-org"><a href="#POJ3278-3278-–-Catch-That-Cow-poj-org" class="headerlink" title="[POJ3278](3278 – Catch That Cow (poj.org))"></a>[POJ3278](<a target="_blank" rel="noopener" href="http://poj.org/problem?id=3278">3278 – Catch That Cow (poj.org)</a>)</h2><h3 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h3><p>该题注意剪枝，不让会RE（虽然我用的map），剪枝不可将x+1&gt;K和x*2&gt;k的情况剪掉，例如100-&gt;199</p>
+        <h1 id="简单搜索"><a href="#简单搜索" class="headerlink" title="简单搜索"></a>简单搜索</h1><h2 id="POJ3278-3278-–-Catch-That-Cow-poj-org"><a href="#POJ3278-3278-–-Catch-That-Cow-poj-org" class="headerlink" title="[POJ3278](3278 – Catch That Cow (poj.org))"></a>[POJ3278](<a target="_blank" rel="noopener" href="http://poj.org/problem?id=3278">3278 – Catch That Cow (poj.org)</a>)</h2><h3 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h3><p>该题注意剪枝，不让会RE（虽然我用的map），剪枝不可将x+1&gt;K和x*2&gt;k的情况剪掉，例如100-&gt;199</p>
 <p>另外由于时间卡得比较紧，数量比较大所以不能用map，用map会TE</p>
 <h2 id="poj3279"><a href="#poj3279" class="headerlink" title="poj3279"></a><a target="_blank" rel="noopener" href="http://poj.org/problem?id=3279">poj3279</a></h2><p>题意大概说的是给定一个m*n的01矩阵，每次去翻一个位置周围四个方向的位置都会翻转，问能不能翻到全是0，能的话输出字典序最小的翻法</p>
 <h3 id="题解-1"><a href="#题解-1" class="headerlink" title="题解"></a>题解</h3><p>这是遇到的第一个枚举题，二进制枚举，首先确定的是每个位置只有翻和不翻两种情况，翻两次等于没翻，翻奇数次等于一次。如果去考察每一个位置的翻的情况就会有2^mn^次结果，显然时间超限，观察（看博客）易得出规律——==假设第一行的状态确定（就是第一行哪些位置翻不翻确定，确定之后会得到第一行确定的状态，哪些位置是0哪些是1），从第二行开始扫描，如果发现该位置上头上的位置为1那该位置一定要翻，因为头上的位置上左右都确定了==，以此扫描完整个数组，最后再对最后一行做一个检查，如果有1则不行，因为现在只能由下一行来翻转该位置，但没有下一行。</p>
@@ -285,105 +288,33 @@
 <h3 id="题解-6"><a href="#题解-6" class="headerlink" title="题解"></a>题解</h3><p>最近做这个专题发现基本上都是问最少步数，也基本上都是bfs,这道题的状态可以直接由一个数字本身确定，由于范围较小，可以提前将所有的四位素数计算出来，方便后面判断。代码如下</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">bool</span> prime[<span class="number">100000</span>];<span class="comment">//判断素数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (!prime[i]) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">2</span>; j * i &lt; <span class="number">100000</span>; j++) &#123;</span><br><span class="line">				prime[i * j] = <span class="literal">true</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="comment">//埃氏筛</span></span><br><span class="line">    </span><br><span class="line">	<span class="keyword">int</span> t, a, b;</span><br><span class="line">	cin &gt;&gt; t;</span><br><span class="line">	<span class="keyword">bool</span> flag = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">while</span> (t--) &#123;</span><br><span class="line">		cin &gt;&gt; a &gt;&gt; b;</span><br><span class="line">		queue&lt;<span class="keyword">int</span>&gt;que;</span><br><span class="line">		map&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; mp;<span class="comment">//bfs的标记数组，mp[1000]=1表示1000y</span></span><br><span class="line">		mp[a] = <span class="number">0</span>;</span><br><span class="line">		que.<span class="built_in">push</span>(a);</span><br><span class="line">		<span class="keyword">while</span> (!que.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">			<span class="keyword">int</span> tmp = que.<span class="built_in">front</span>();</span><br><span class="line">			que.<span class="built_in">pop</span>();</span><br><span class="line">			<span class="keyword">if</span> (tmp == b) &#123;</span><br><span class="line">				flag = <span class="literal">true</span>;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">            <span class="comment">//下面四个for循环分别对应修改四个位置上的数字</span></span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">				<span class="keyword">int</span> num = tmp % <span class="number">1000</span> + i * <span class="number">1000</span>;</span><br><span class="line">				<span class="keyword">if</span> (!prime[num] &amp;&amp; mp.<span class="built_in">count</span>(num) == <span class="number">0</span>&amp;&amp;num&gt;<span class="number">1000</span>) &#123;</span><br><span class="line">					mp[num] = mp[tmp] + <span class="number">1</span>;</span><br><span class="line">					que.<span class="built_in">push</span>(num);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">				<span class="keyword">int</span> num = tmp - ((tmp / <span class="number">100</span>) % <span class="number">10</span>) * <span class="number">100</span> + i * <span class="number">100</span>;</span><br><span class="line">				<span class="keyword">if</span> (!prime[num] &amp;&amp; mp.<span class="built_in">count</span>(num) == <span class="number">0</span>&amp;&amp;num&gt;<span class="number">1000</span>) &#123;</span><br><span class="line">					mp[num] = mp[tmp] + <span class="number">1</span>;</span><br><span class="line">					que.<span class="built_in">push</span>(num);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">				<span class="keyword">int</span> num = tmp - ((tmp / <span class="number">10</span>) % <span class="number">10</span>) * <span class="number">10</span> + i * <span class="number">10</span>;</span><br><span class="line">				<span class="keyword">if</span> (!prime[num] &amp;&amp; mp.<span class="built_in">count</span>(num) == <span class="number">0</span>&amp;&amp;num&gt;<span class="number">1000</span>) &#123;</span><br><span class="line">					mp[num] = mp[tmp] + <span class="number">1</span>;</span><br><span class="line">					que.<span class="built_in">push</span>(num);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">				<span class="keyword">int</span> num = tmp -(tmp%<span class="number">10</span>) + i;</span><br><span class="line">				<span class="keyword">if</span> (!prime[num] &amp;&amp; mp.<span class="built_in">count</span>(num) == <span class="number">0</span>&amp;&amp;num&gt;<span class="number">1000</span>) &#123;</span><br><span class="line">					mp[num] = mp[tmp] + <span class="number">1</span>;</span><br><span class="line">					que.<span class="built_in">push</span>(num);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (flag)</span><br><span class="line">			cout &lt;&lt; mp[b]&lt;&lt;endl;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			cout &lt;&lt; <span class="string">&quot;impossible&quot;</span> &lt;&lt; endl;</span><br><span class="line">		</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/acm/" rel="tag"># acm</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/18/hello-world/">
+        
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="若泽">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/18/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-18 09:15:06" itemprop="dateCreated datePublished" datetime="2021-07-18T09:15:06+08:00">2021-07-18</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span></span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>NaN:aN</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/18/hello-world/" rel="prev" title="Hello World">
+      <i class="fa fa-chevron-left"></i> Hello World
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -436,6 +367,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2"><span class="nav-number">1.</span> <span class="nav-text">简单搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#POJ3278-3278-%E2%80%93-Catch-That-Cow-poj-org"><span class="nav-number">1.1.</span> <span class="nav-text">[POJ3278](3278 – Catch That Cow (poj.org))</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3"><span class="nav-number">1.1.1.</span> <span class="nav-text">题解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#poj3279"><span class="nav-number">1.2.</span> <span class="nav-text">poj3279</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">题解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POJ1426-%E2%80%93-Find-The-Multiple"><span class="nav-number">1.3.</span> <span class="nav-text">POJ1426 – Find The Multiple </span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3-2"><span class="nav-number">1.3.1.</span> <span class="nav-text">题解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hdu2612"><span class="nav-number">1.4.</span> <span class="nav-text">hdu2612</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3-3"><span class="nav-number">1.4.1.</span> <span class="nav-text">题解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hdu1401"><span class="nav-number">1.5.</span> <span class="nav-text">hdu1401 </span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3-4"><span class="nav-number">1.5.1.</span> <span class="nav-text">题解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hdu1495"><span class="nav-number">1.6.</span> <span class="nav-text">hdu1495 </span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3-5"><span class="nav-number">1.6.1.</span> <span class="nav-text">题解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3-6"><span class="nav-number">1.6.2.</span> <span class="nav-text">题解</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
