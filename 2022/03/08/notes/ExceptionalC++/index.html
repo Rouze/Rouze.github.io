@@ -21,19 +21,19 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="条款2-3:大小写不敏感的字符串 要求实现一个大小写不敏感的string类这里主要利用traits技术   从STL的源码当中可以看到string是一个模板生成的类型1234typedef basic_string&lt;char&gt; string;&#x2F;&#x2F;进一步看basic_string的声明如下template&lt;class charT,class traits&#x3D;char_traits&amp;l">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://example.com/2021/07/18/hello-world/index.html">
+<meta property="og:title" content="若泽">
+<meta property="og:url" content="http://example.com/2022/03/08/notes/ExceptionalC++/index.html">
 <meta property="og:site_name" content="若泽">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="条款2-3:大小写不敏感的字符串 要求实现一个大小写不敏感的string类这里主要利用traits技术   从STL的源码当中可以看到string是一个模板生成的类型1234typedef basic_string&lt;char&gt; string;&#x2F;&#x2F;进一步看basic_string的声明如下template&lt;class charT,class traits&#x3D;char_traits&amp;l">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-07-18T01:15:06.608Z">
-<meta property="article:modified_time" content="2021-07-18T01:15:06.608Z">
+<meta property="article:published_time" content="2022-03-08T06:56:20.965Z">
+<meta property="article:modified_time" content="2022-03-13T07:09:13.115Z">
 <meta property="article:author" content="Rouze">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/07/18/hello-world/">
+<link rel="canonical" href="http://example.com/2022/03/08/notes/ExceptionalC++/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>Hello World | 若泽</title>
+  <title> | 若泽</title>
   
 
 
@@ -205,7 +205,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/18/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/08/notes/ExceptionalC++/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -218,7 +218,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Hello World
+          
         </h1>
 
         <div class="post-meta">
@@ -228,8 +228,15 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-07-18 09:15:06" itemprop="dateCreated datePublished" datetime="2021-07-18T09:15:06+08:00">2021-07-18</time>
+              <time title="创建时间：2022-03-08 14:56:20" itemprop="dateCreated datePublished" datetime="2022-03-08T14:56:20+08:00">2022-03-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-13 15:09:13" itemprop="dateModified" datetime="2022-03-13T15:09:13+08:00">2022-03-13</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="本文字数">
@@ -237,7 +244,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>367</span>
+              <span>1.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -256,19 +263,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+        <h3 id="条款2-3-大小写不敏感的字符串"><a href="#条款2-3-大小写不敏感的字符串" class="headerlink" title="条款2-3:大小写不敏感的字符串"></a>条款2-3:大小写不敏感的字符串</h3><blockquote>
+<p>要求实现一个大小写不敏感的string类<br><strong>这里主要利用traits技术</strong></p>
+</blockquote>
+<ol>
+<li>从STL的源码当中可以看到string是一个模板生成的类型<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> basic_string&lt;<span class="keyword">char</span>&gt; string;</span><br><span class="line"><span class="comment">//进一步看basic_string的声明如下</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">charT</span>,<span class="keyword">class</span> <span class="title">traits</span>=</span>char_traits&lt;charT&gt;,<span class="class"><span class="keyword">class</span> <span class="title">Allocator</span> =</span> allocator&lt;charT&gt;&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">basic_string</span>;</span></span><br></pre></td></tr></table></figure>
+<del>关于traits技术还不是很理解，后面学了在补上</del><br>basic_string提供了一些判断字符串大于小于等于的函数，这些函数建立在traits上，如果希望改变比较多的行为可以通过提供自定义的traits来实现<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//通过继承去改变那些需要替换的函数,其安全性后面讨论</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">my_char_traits</span>:</span><span class="keyword">public</span> char_traits&lt;<span class="keyword">char</span>&gt;&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="title">eq</span><span class="params">(<span class="keyword">char</span> c1,<span class="keyword">char</span> c2)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">toupper</span>(c1)==<span class="built_in">toupper</span>(c2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="title">lt</span><span class="params">(<span class="keyword">char</span> c1,<span class="keyword">char</span> c2)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">toupper</span>(c1)&lt;<span class="built_in">toupper</span>(c2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* s1,<span class="keyword">const</span> <span class="keyword">char</span>* s2,<span class="keyword">size_t</span> n)</span></span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i=<span class="number">0</span>;i&lt;n;++i)&#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">toupper</span>(*s1)!=<span class="built_in">toupper</span>(*s2))</span><br><span class="line">            <span class="keyword">return</span> i;</span><br><span class="line">        ++s1,++s2;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">find</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* s,<span class="keyword">int</span> n,<span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(n-- &gt; <span class="number">0</span>&amp;&amp;<span class="built_in">toupper</span>(*s)==<span class="built_in">toupper</span>(c))&#123;</span><br><span class="line">            ++s;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> n&gt;=<span class="number">0</span>?s:<span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//现在只需像string一样产生一个类型即可</span></span><br><span class="line"><span class="keyword">typedef</span> basic_string&lt;<span class="keyword">char</span>,my_char_traits&gt; Mystring;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="条款4-5-可用性最高的泛型容器"><a href="#条款4-5-可用性最高的泛型容器" class="headerlink" title="条款4-5:可用性最高的泛型容器"></a>条款4-5:可用性最高的泛型容器</h3><ul>
+<li>模板构造函数不是构造函数，因此即使在类里面定义了模板构造函数，编译器仍会生成对应的隐式构造函数，但就算是模板拷贝函数也会阻止编译器对默认构造函数的生成，</li>
+</ul>
+<h3 id="条款43-正确地使用const"><a href="#条款43-正确地使用const" class="headerlink" title="条款43:正确地使用const"></a>条款43:正确地使用const</h3><ul>
+<li>void f(int x)与void f(const int x)对编译器来说是同一个函数，但后者在定义体当中仍不可修改x,如果同时定义上述两个函数编译会报错</li>
+<li>但void f(int&amp;)与void f(const int&amp;)对编译器来说不一样</li>
+<li>对于非内置类型的返回类型，一般加一个const修饰，以帮助客户检查出类似A+B=C(实际想要操作A+B==C)的错误</li>
+</ul>
 
     </div>
 
@@ -283,11 +292,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/" rel="next" title="Kuangbin-简单搜索">
-      Kuangbin-简单搜索 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/02/24/notes/MoreEffectiveC++/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -346,7 +355,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E6%AC%BE2-3-%E5%A4%A7%E5%B0%8F%E5%86%99%E4%B8%8D%E6%95%8F%E6%84%9F%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">1.</span> <span class="nav-text">条款2-3:大小写不敏感的字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E6%AC%BE4-5-%E5%8F%AF%E7%94%A8%E6%80%A7%E6%9C%80%E9%AB%98%E7%9A%84%E6%B3%9B%E5%9E%8B%E5%AE%B9%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">条款4-5:可用性最高的泛型容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E6%AC%BE43-%E6%AD%A3%E7%A1%AE%E5%9C%B0%E4%BD%BF%E7%94%A8const"><span class="nav-number">3.</span> <span class="nav-text">条款43:正确地使用const</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
