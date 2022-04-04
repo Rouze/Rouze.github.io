@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title></title>
-    <url>/2022/03/08/ExceptionalC++/</url>
+    <title>Exceptional C++</title>
+    <url>/2021/07/20/ExceptionalC++/</url>
     <content><![CDATA[<h3 id="条款2-3-大小写不敏感的字符串"><a href="#条款2-3-大小写不敏感的字符串" class="headerlink" title="条款2-3:大小写不敏感的字符串"></a>条款2-3:大小写不敏感的字符串</h3><blockquote>
 <p>要求实现一个大小写不敏感的string类<br><strong>这里主要利用traits技术</strong></p>
 </blockquote>
@@ -19,6 +19,9 @@
 <li>对于非内置类型的返回类型，一般加一个const修饰，以帮助客户检查出类似A+B=C(实际想要操作A+B==C)的错误</li>
 </ul>
 ]]></content>
+      <tags>
+        <tag>C++学习</tag>
+      </tags>
   </entry>
   <entry>
     <title>More Effective C++</title>
