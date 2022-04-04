@@ -21,8 +21,8 @@
 ]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/2022/02/24/MoreEffectiveC++/</url>
+    <title>More Effective C++</title>
+    <url>/2021/07/20/MoreEffectiveC++/</url>
     <content><![CDATA[<h4 id="条款8-各种意义下的new与delete"><a href="#条款8-各种意义下的new与delete" class="headerlink" title="条款8:各种意义下的new与delete"></a>条款8:各种意义下的new与delete</h4><blockquote>
 <p>1.new operator 与 operator new的区别是new operator 是在外面使用的new,是语言内建的无法改变其意义：申请一块空间并在改空间上构建对象。而这两件事它都通过调用两个函数完成，第一件申请空间就是调用operator new，这个操作符可以被重载，且第一个参数永远是size_t，它负责申请空间并返回指向这块空间的地址，当然可以重载也就意味着你可以自己设计空间申请的方式</p>
 </blockquote>
@@ -34,10 +34,13 @@
 <p>delete的行为则是调用析构函数然后调用operator delete，而如果是通过placement new创建的对象，要析构时需要手动调用析构函数，因为那块内存不是由operator new申请得到的，无权去释放，应该交给申请那块地方的人处理</p>
 </blockquote>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">mallocShared</span><span class="params">(<span class="keyword">size_t</span> size)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">freeShared</span><span class="params">(<span class="keyword">void</span>* memory)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function">Wiget* <span class="title">constructWidgetInBuffer</span><span class="params">(<span class="keyword">void</span> *buffer)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in"><span class="keyword">new</span></span>(buffer) Widget;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">void</span> *p = <span class="built_in">mallocShared</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(Widget));</span><br><span class="line">Widget*p2 = <span class="built_in">constructInBuffer</span>(p);</span><br><span class="line"><span class="keyword">delete</span> p;<span class="comment">//error!</span></span><br><span class="line">p2-&gt;~<span class="built_in">Widget</span>();<span class="comment">//OK</span></span><br><span class="line"><span class="built_in">freeShared</span>(p);<span class="comment">//OK</span></span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>C++学习</tag>
+      </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2021/11/10/EffectiveC++/</url>
+    <title>Effective C++</title>
+    <url>/2021/07/20/EffectiveC++/</url>
     <content><![CDATA[<h1 id="Effective-C"><a href="#Effective-C" class="headerlink" title="Effective C++"></a>Effective C++</h1><h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><ol>
 <li><p>defalut构造函数一般定义成explicit，防止编译器做一些预期外的转换</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">    	<span class="function"><span class="keyword">explicit</span> <span class="title">B</span><span class="params">(<span class="keyword">int</span> x=<span class="number">0</span>,<span class="keyword">bool</span> b=<span class="literal">true</span>)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(class B)</span></span>;</span><br><span class="line">B b1;</span><br><span class="line"><span class="built_in">doSomething</span>(b1);</span><br><span class="line"><span class="function">B <span class="title">b2</span><span class="params">(<span class="number">28</span>)</span></span>;</span><br><span class="line"><span class="built_in">doSomething</span>(<span class="number">28</span>);<span class="comment">//此处如果没有将构造函数声明为explicit,那编译器将用这个28去构造一个B传给doSomething,这就是预期之外的，由于声明了explicit此处就会报错。</span></span><br></pre></td></tr></table></figure></li>
@@ -158,6 +161,9 @@
 <li>直接调用abort或exit</li>
 </ol>
 ]]></content>
+      <tags>
+        <tag>C++学习</tag>
+      </tags>
   </entry>
   <entry>
     <title>Hello World</title>
