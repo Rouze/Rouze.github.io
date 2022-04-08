@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.1">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -21,12 +21,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="acm学习">
+  <meta name="description" content="菜~">
 <meta property="og:type" content="website">
 <meta property="og:title" content="若泽">
 <meta property="og:url" content="http://example.com/index.html">
 <meta property="og:site_name" content="若泽">
-<meta property="og:description" content="acm学习">
+<meta property="og:description" content="菜~">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="Rouze">
 <meta name="twitter:card" content="summary">
@@ -202,12 +202,170 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Rouze">
+      <meta itemprop="description" content="菜~">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="若泽">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" class="post-title-link" itemprop="url">数字图像处理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-06 23:13:23" itemprop="dateCreated datePublished" datetime="2022-04-06T23:13:23+08:00">2022-04-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-07 11:07:19" itemprop="dateModified" datetime="2022-04-07T11:07:19+08:00">2022-04-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 平滑处理</span></span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 边缘处理</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">im = cv2.imread(<span class="string">&#x27;../TestFigs/lenna.jpg&#x27;</span>)</span><br><span class="line">b,g,r = cv2.split(im)</span><br><span class="line"><span class="comment">#均衡化</span></span><br><span class="line">eb = cv2.equalizeHist(b)</span><br><span class="line"></span><br><span class="line"><span class="comment">#计算直方图</span></span><br><span class="line">hist = cv2.calcHist([b],[<span class="number">0</span>],<span class="literal">None</span>,[<span class="number">64</span>],[<span class="number">0</span>,<span class="number">256</span>])</span><br><span class="line">ehist = cv2.calcHist([eb],[<span class="number">0</span>],<span class="literal">None</span>,[<span class="number">64</span>],[<span class="number">0</span>,<span class="number">256</span>])</span><br><span class="line"><span class="comment">#画图</span></span><br><span class="line">fig,ax = plt.subplots(<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">ax[<span class="number">0</span>,<span class="number">0</span>].set_title(<span class="string">&#x27;orignHist&#x27;</span>)</span><br><span class="line">ax[<span class="number">0</span>,<span class="number">0</span>].plot(hist)</span><br><span class="line"></span><br><span class="line">ax[<span class="number">0</span>,<span class="number">1</span>].set_title(<span class="string">&#x27;equalHist&#x27;</span>)</span><br><span class="line">ax[<span class="number">0</span>,<span class="number">1</span>].plot(ehist)</span><br><span class="line"></span><br><span class="line">ax[<span class="number">1</span>,<span class="number">0</span>].set_title(<span class="string">&#x27;orign&#x27;</span>)</span><br><span class="line">ax[<span class="number">1</span>,<span class="number">0</span>].imshow(b,<span class="string">&#x27;gray&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ax[<span class="number">1</span>,<span class="number">1</span>].set_title(<span class="string">&#x27;equaled&#x27;</span>)</span><br><span class="line">ax[<span class="number">1</span>,<span class="number">1</span>].imshow(eb,<span class="string">&#x27;gray&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+<p><img data-src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/04/Windows%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Rouze">
+      <meta itemprop="description" content="菜~">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="若泽">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/04/Windows%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">Windows编程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-04 20:29:52" itemprop="dateCreated datePublished" datetime="2022-04-04T20:29:52+08:00">2022-04-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-05 14:25:12" itemprop="dateModified" datetime="2022-04-05T14:25:12+08:00">2022-04-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="键盘与鼠标"><a href="#键盘与鼠标" class="headerlink" title="键盘与鼠标"></a>键盘与鼠标</h4><ul>
+<li><p>WM_KEYDOWN中不区分大小写，字母的虚拟键码分别为’A’~’Z’对应的ascill码，如果要在这里判断是否CTRL，使用GetKeyState(VK_CONTROL)判断其值是否小于0即可，当按下的键可以产生一个可见字符时会发送一个WM_CHAR的消息，所以WM_KEYDOWN是先于WM_CHAR的</p>
+</li>
+<li><p>WM_CHAR中区分大小写,如果是CTRL+字符发送过来的wParam等于字母对应字母表的位置,CTRL+’A’以及CTRL+’a’为1，以此类推</p>
+</li>
+<li><p>Ctrl+鼠标左击的判断通过&amp;方式判断,如在WM_LBUTTONDOWN中判断是否按下Ctrl可以通过(wParam &amp; MK_CONTROL)判断</p>
+</li>
+<li><p>在鼠标移动过程中判断左键是否按下，(wParam &amp; MK_LBUTTON)</p>
+</li>
+</ul>
+<h4 id="资源在Windows中的应用"><a href="#资源在Windows中的应用" class="headerlink" title="资源在Windows中的应用"></a>资源在Windows中的应用</h4><blockquote>
+<p>由于这篇文章主要供自己在学习过程当中偶尔查阅使用，因此不展开对资源的代码生成，只是简单地记下一些使用方式</p>
+</blockquote>
+<ul>
+<li>菜单资源:1.窗口主菜单 2.菜单项(包含加速键标识于热键标识) 3.分隔符<br>手动的定义方式如下:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&quot;Menu.h&quot;</span></span></span><br><span class="line">My_menu MENU MOVEABLE 		<span class="comment">//My_menu是资源名字,用于载入菜单资源时使用,MENU是关键字，MOVEALBE是一种模式</span></span><br><span class="line">｛POPUP <span class="string">&quot;文件（&amp;F）&quot;</span>			<span class="comment">//POPUP是说定义一个弹出式菜单 后面就是要显示的文字,&amp;符号后面的文字显示出来会有下划线	</span></span><br><span class="line"> ｛  	MENUITEM 	<span class="string">&quot;新建（&amp;N）&quot;</span>，	IDM_NEW	     	MENUITEM 	<span class="string">&quot;打开（&amp;O）&quot;</span>，	IDM_OPEN</span><br><span class="line">     	MENUITEM 	<span class="string">&quot;关闭（&amp;C）&quot;</span>，	IDM_CLOSE</span><br><span class="line">     	MENUITEM 	<span class="string">&quot;保存（&amp;S）&quot;</span>，	IDM_SAVE</span><br><span class="line">     	MENUITEM 	<span class="string">&quot;另存为（&amp;A）&quot;</span>，	IDM_SAVEAS</span><br><span class="line">     	MENUITEM 	SEPARATOR      		<span class="comment">//分隔符</span></span><br><span class="line">		MENUITEM	“退出（&amp;X）”，	IDM_EXIT</span><br><span class="line">        <span class="comment">//IDM_NEW,IDM_CLOSE,...是在Menu.h里自己定义好的宏，是一个1~65535的整数，用以唯一标识一个菜单项</span></span><br><span class="line">  ｝</span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
+在VS里面可以点开资源文件，点开.rc文件，找到Menu点开里面的那个文件后就有一个GUI式的编写界面，按照提示编写即可，需要注意的是创建一个新的菜单项时如果想自定义它的ID对应的宏名字，可以点开旁边的属性，然后在ID那里输入想要的名字，VS会自动生成一个相应的宏,但要注意不要与已有的名字冲突</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/20/ExceptionalC++/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
+      <meta itemprop="description" content="菜~">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -236,21 +394,7 @@
                 <time title="修改时间：2022-04-04 19:44:25" itemprop="dateModified" datetime="2022-04-04T19:44:25+08:00">2022-04-04</time>
               </span>
 
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.3k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
+          
 
         </div>
       </header>
@@ -300,7 +444,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
+      <meta itemprop="description" content="菜~">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -329,21 +473,7 @@
                 <time title="修改时间：2022-04-04 19:13:59" itemprop="dateModified" datetime="2022-04-04T19:13:59+08:00">2022-04-04</time>
               </span>
 
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
+          
 
         </div>
       </header>
@@ -388,7 +518,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
+      <meta itemprop="description" content="菜~">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -417,21 +547,7 @@
                 <time title="修改时间：2022-04-04 19:12:10" itemprop="dateModified" datetime="2022-04-04T19:12:10+08:00">2022-04-04</time>
               </span>
 
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>12k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>11 分钟</span>
-            </span>
+          
 
         </div>
       </header>
@@ -585,7 +701,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
+      <meta itemprop="description" content="菜~">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -614,21 +730,7 @@
                 <time title="修改时间：2021-07-23 21:08:34" itemprop="dateModified" datetime="2021-07-23T21:08:34+08:00">2021-07-23</time>
               </span>
 
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>15k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>14 分钟</span>
-            </span>
+          
 
         </div>
       </header>
@@ -712,7 +814,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
+      <meta itemprop="description" content="菜~">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -741,21 +843,7 @@
                 <time title="修改时间：2021-07-22 20:41:36" itemprop="dateModified" datetime="2021-07-22T20:41:36+08:00">2021-07-22</time>
               </span>
 
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>14k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>13 分钟</span>
-            </span>
+          
 
         </div>
       </header>
@@ -825,7 +913,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="acm学习">
+      <meta itemprop="description" content="菜~">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -847,21 +935,7 @@
               <time title="创建时间：2021-07-18 09:15:06" itemprop="dateCreated datePublished" datetime="2021-07-18T09:15:06+08:00">2021-07-18</time>
             </span>
 
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>367</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
+          
 
         </div>
       </header>
@@ -959,14 +1033,14 @@
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">Rouze</p>
-  <div class="site-description" itemprop="description">acm学习</div>
+  <div class="site-description" itemprop="description">菜~</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1021,16 +1095,6 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Rouze</span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-chart-area"></i>
-    </span>
-    <span title="站点总字数">44k</span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-coffee"></i>
-    </span>
-    <span title="站点阅读时长">40 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
