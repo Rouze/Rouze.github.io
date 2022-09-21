@@ -1,254 +1,470 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.1">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
-  </script>
-
-  <meta name="description" content="键盘与鼠标 WM_KEYDOWN中不区分大小写，字母的虚拟键码分别为’A’~’Z’对应的ascill码，如果要在这里判断是否CTRL，使用GetKeyState(VK_CONTROL)判断其值是否小于0即可，当按下的键可以产生一个可见字符时会发送一个WM_CHAR的消息，所以WM_KEYDOWN是先于WM_CHAR的 WM_CHAR中区分大小写,如果是CTRL+字符发送过来的wParam等于字母对">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Windows编程">
-<meta property="og:url" content="http://example.com/2022/04/04/Windows%E7%BC%96%E7%A8%8B/index.html">
+  <meta charset="utf-8">
+  <title>Windows编程 | 若泽</title>
+  <meta name="keywords" content=" 专业学习 ">
+  <meta name="description" content="Windows编程 | 若泽">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="菜~">
+<meta property="og:type" content="website">
+<meta property="og:title" content="关于">
+<meta property="og:url" content="http://example.com/about/index.html">
 <meta property="og:site_name" content="若泽">
-<meta property="og:description" content="键盘与鼠标 WM_KEYDOWN中不区分大小写，字母的虚拟键码分别为’A’~’Z’对应的ascill码，如果要在这里判断是否CTRL，使用GetKeyState(VK_CONTROL)判断其值是否小于0即可，当按下的键可以产生一个可见字符时会发送一个WM_CHAR的消息，所以WM_KEYDOWN是先于WM_CHAR的 WM_CHAR中区分大小写,如果是CTRL+字符发送过来的wParam等于字母对">
+<meta property="og:description" content="菜~">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-04-04T12:29:52.000Z">
-<meta property="article:modified_time" content="2022-04-24T16:09:47.168Z">
+<meta property="article:published_time" content="2021-07-18T02:48:15.000Z">
+<meta property="article:modified_time" content="2021-07-18T02:49:26.598Z">
 <meta property="article:author" content="Rouze">
-<meta property="article:tag" content="专业学习">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/04/04/Windows%E7%BC%96%E7%A8%8B/">
 
+<link rel="icon" href="/img/avatar2.jpg">
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/sublime.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
 </script>
 
-  <title>Windows编程 | 若泽</title>
-  
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
 
 
 
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
 
+<script src="/js/iconfont.js?v=1.1.0" ></script>
 
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">若泽</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-        <i class="fa fa-search fa-fw fa-lg"></i>
-    </div>
-  </div>
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
 </div>
 
 
 
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-        <li class="menu-item menu-item-schedule">
-
-    <a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
-
-  </li>
-        <li class="menu-item menu-item-sitemap">
-
-    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
-
-  </li>
-        <li class="menu-item menu-item-commonweal">
-
-    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
-
-  </li>
-      <li class="menu-item menu-item-search">
-        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
-        </a>
-      </li>
-  </ul>
-</nav>
-
-
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup">
-        <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off"
-           placeholder="搜索..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div id="search-result">
-  <div id="no-result">
-    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
-  </div>
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar2.jpg"/>
+</a>
+<div class="author">
+    <span>Rouze</span>
 </div>
 
-    </div>
-  </div>
-
-</div>
-    </header>
-
+<div class="icon">
     
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/Rouze"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="facebook"
+               href="https://www.facebook.com/faker.tops"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-facebook"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="zhihu"
+               href="https://www.zhihu.com/people/jaytp/activities"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-zhihu"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:2128099421@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=2128099421&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
 
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
 
-          <div class="content post posts-expand">
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
             
+                <small>(13)</small>
+            
+        </div>
+    </li>
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="13">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>设计模式</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>专业学习</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>acm</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>acm学习</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>C++学习</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>Test</a>
+            </li>
+        
+    </div>
+
+</div>
 
     
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/04/Windows%E7%BC%96%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Rouze">
-      <meta itemprop="description" content="菜~">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="若泽">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          Windows编程
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-04-04 20:29:52" itemprop="dateCreated datePublished" datetime="2022-04-04T20:29:52+08:00">2022-04-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-25 00:09:47" itemprop="dateModified" datetime="2022-04-25T00:09:47+08:00">2022-04-25</time>
-              </span>
-
-          
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2022/07/04/git%E5%AD%A6%E4%B9%A0/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="git学习">git学习</span>
+            <span class="post-date" title="2022-07-04 08:40:38">2022/07/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/28/Effective-STL/"
+           data-tag="C++学习"
+           data-author="" >
+            <span class="post-title" title="Effective_STL">Effective_STL</span>
+            <span class="post-date" title="2022-04-28 18:57:17">2022/04/28</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/25/Test/"
+           data-tag="Test"
+           data-author="" >
+            <span class="post-title" title="Test">Test</span>
+            <span class="post-date" title="2022-04-25 00:22:36">2022/04/25</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="大话设计模式">大话设计模式</span>
+            <span class="post-date" title="2022-04-24 18:47:07">2022/04/24</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/23/%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/"
+           data-tag="专业学习"
+           data-author="" >
+            <span class="post-title" title="数字图像处理-图像增强">数字图像处理-图像增强</span>
+            <span class="post-date" title="2022-04-23 18:58:52">2022/04/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/23/ExceptionC++_%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2022-04-23 14:47:30">2022/04/23</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="数字图像处理">数字图像处理</span>
+            <span class="post-date" title="2022-04-06 23:13:23">2022/04/06</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/04/Windows%E7%BC%96%E7%A8%8B/"
+           data-tag="专业学习"
+           data-author="" >
+            <span class="post-title" title="Windows编程">Windows编程</span>
+            <span class="post-date" title="2022-04-04 20:29:52">2022/04/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/EffectiveC++/"
+           data-tag="C++学习"
+           data-author="" >
+            <span class="post-title" title="Effective C++">Effective C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/ExceptionalC++/"
+           data-tag="C++学习"
+           data-author="" >
+            <span class="post-title" title="Exceptional C++">Exceptional C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/Kuangbin-%E5%B9%B6%E6%9F%A5%E9%9B%86/"
+           data-tag="acm学习"
+           data-author="" >
+            <span class="post-title" title="Kuangbin-并查集">Kuangbin-并查集</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/"
+           data-tag="acm"
+           data-author="" >
+            <span class="post-title" title="Kuangbin-简单搜索">Kuangbin-简单搜索</span>
+            <span class="post-date" title="2021-07-20 00:03:54">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/18/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2021-07-18 09:15:06">2021/07/18</span>
+        </a>
+        
+        <div id="no-item-tips">
 
         </div>
-      </header>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
 
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-Windows编程" class="article article-type-post" itemscope itemprop="blogPost">
     
+        <h1 class="article-title">Windows编程</h1>
     
+    <div class="article-meta">
+        
+        
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">专业学习</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2022-04-25 00:09:47'>2022-04-04 20:29</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
     
-    <div class="post-body" itemprop="articleBody">
-
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%94%AE%E7%9B%98%E4%B8%8E%E9%BC%A0%E6%A0%87"><span class="toc-text">键盘与鼠标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E5%9C%A8Windows%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">资源在Windows中的应用</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
       
         <h4 id="键盘与鼠标"><a href="#键盘与鼠标" class="headerlink" title="键盘与鼠标"></a>键盘与鼠标</h4><ul>
 <li>WM_KEYDOWN中不区分大小写，字母的虚拟键码分别为’A’~’Z’对应的ascill码，如果要在这里判断是否CTRL，使用GetKeyState(VK_CONTROL)判断其值是否小于0即可，当按下的键可以产生一个可见字符时会发送一个WM_CHAR的消息，所以WM_KEYDOWN是先于WM_CHAR的</li>
@@ -262,235 +478,326 @@
 <ul>
 <li>菜单资源:<br>1.窗口主菜单<br>2.菜单项(包含加速键标识于热键标识)<br>3.分隔符<br>手动的定义方式如下:</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&quot;Menu.h&quot;</span></span></span><br><span class="line">My_menu MENU MOVEABLE 		<span class="comment">//My_menu是资源名字,用于载入菜单资源时使用,MENU是关键字，MOVEALBE是一种模式</span></span><br><span class="line">｛POPUP <span class="string">&quot;文件（&amp;F）&quot;</span>			<span class="comment">//POPUP是说定义一个弹出式菜单 后面就是要显示的文字,&amp;符号后面的文字显示出来会有下划线</span></span><br><span class="line"> ｛  	MENUITEM 	<span class="string">&quot;新建（&amp;N）&quot;</span>，	IDM_NEW	     	MENUITEM 	<span class="string">&quot;打开（&amp;O）&quot;</span>，	IDM_OPEN</span><br><span class="line">     	MENUITEM 	<span class="string">&quot;关闭（&amp;C）&quot;</span>，	IDM_CLOSE</span><br><span class="line">     	MENUITEM 	<span class="string">&quot;保存（&amp;S）&quot;</span>，	IDM_SAVE</span><br><span class="line">     	MENUITEM 	<span class="string">&quot;另存为（&amp;A）&quot;</span>，	IDM_SAVEAS</span><br><span class="line">     	MENUITEM 	SEPARATOR      		<span class="comment">//分隔符</span></span><br><span class="line">		MENUITEM	“退出（&amp;X）”，	IDM_EXIT</span><br><span class="line">        <span class="comment">//IDM_NEW,IDM_CLOSE,...是在Menu.h里自己定义好的宏，是一个1~65535的整数，用以唯一标识一个菜单项</span></span><br><span class="line">  ｝</span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
-
+<pre><code class="cpp">#include&quot;Menu.h&quot;
+My_menu MENU MOVEABLE         //My_menu是资源名字,用于载入菜单资源时使用,MENU是关键字，MOVEALBE是一种模式
+｛POPUP &quot;文件（&amp;F）&quot;            //POPUP是说定义一个弹出式菜单 后面就是要显示的文字,&amp;符号后面的文字显示出来会有下划线
+ ｛      MENUITEM     &quot;新建（&amp;N）&quot;，    IDM_NEW             MENUITEM     &quot;打开（&amp;O）&quot;，    IDM_OPEN
+         MENUITEM     &quot;关闭（&amp;C）&quot;，    IDM_CLOSE
+         MENUITEM     &quot;保存（&amp;S）&quot;，    IDM_SAVE
+         MENUITEM     &quot;另存为（&amp;A）&quot;，    IDM_SAVEAS
+         MENUITEM     SEPARATOR              //分隔符
+        MENUITEM    “退出（&amp;X）”，    IDM_EXIT
+        //IDM_NEW,IDM_CLOSE,...是在Menu.h里自己定义好的宏，是一个1~65535的整数，用以唯一标识一个菜单项
+  ｝
+｝
+</code></pre>
 <p>资源编辑器定义:<br>在VS里面可以点开资源文件，点开.rc文件，找到Menu点开里面的那个文件后就有一个GUI式的编写界面，按照提示编写即可，需要注意的是创建一个新的菜单项时如果想自定义它的ID对应的宏名字，可以点开旁边的属性，然后在ID那里输入想要的名字，VS会自动生成一个相应的宏,但要注意不要与已有的名字冲突</p>
 <p><em>菜单的加载</em><br>1.创建窗口时加载</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HMENU hMenu = <span class="built_in">LoadMenu</span>(hInstance,<span class="built_in">MAKEINTERSOURCE</span>(菜单ID))</span><br><span class="line"><span class="comment">//MAKEINTERSOURCE的作用跟一个数字转字符串的函数差不多</span></span><br><span class="line"><span class="built_in">CreateWindow</span>(...,hMenu,...);</span><br></pre></td></tr></table></figure>
-
+<pre><code class="cpp">HMENU hMenu = LoadMenu(hInstance,MAKEINTERSOURCE(菜单ID))
+//MAKEINTERSOURCE的作用跟一个数字转字符串的函数差不多
+CreateWindow(...,hMenu,...);
+</code></pre>
 <p>2.动态加载</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HMENU hMenu = <span class="built_in">LoadMenu</span>(...);</span><br><span class="line"><span class="built_in">SetMenu</span>(hWnd,hMenu);</span><br></pre></td></tr></table></figure>
-
+<pre><code class="cpp">HMENU hMenu = LoadMenu(...);
+SetMenu(hWnd,hMenu);
+</code></pre>
 <p><strong>与菜单项有关的一些函数</strong></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1．禁止或激活菜单项 </span></span><br><span class="line"><span class="function">BOOL <span class="title">EnableMenuItem</span></span></span><br><span class="line"><span class="function"><span class="params">(HMENU hmenu,</span></span></span><br><span class="line"><span class="params"><span class="function"> UlNT wIDEnableItem,<span class="comment">//被禁止或激活的菜单项标识</span></span></span></span><br><span class="line"><span class="params"><span class="function"> UINT dwEnable</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"><span class="comment">/*下面的一些宏是第三个参数*/</span></span></span><br><span class="line"><span class="function"><span class="comment">// MF_BYCOMMAND以ID值标识菜单项</span></span></span><br><span class="line"><span class="function"><span class="comment">// MF_ENABLED	激活菜单项</span></span></span><br><span class="line"><span class="function"><span class="comment">// MF_BYPOSITION	表明以位置标识菜单项</span></span></span><br><span class="line"><span class="function"><span class="comment">// MF_GRAYED	禁止菜单项并使其变灰显示</span></span></span><br><span class="line"><span class="function"><span class="comment">// MF_DISABLED	禁止菜单项</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">//2. 选中</span></span></span><br><span class="line"><span class="function">DWORD <span class="title">CheckMenuItem</span></span></span><br><span class="line"><span class="function"><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">HMENU hmenu,	</span></span></span><br><span class="line"><span class="params"><span class="function">UINT wIDCheckItem,	<span class="comment">//菜单项标识</span></span></span></span><br><span class="line"><span class="params"><span class="function">UINT dwCheck			<span class="comment">//操作标识MF_CHECKED和MF_UNCHECKED</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span> </span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">//3.增加菜单项 </span></span></span><br><span class="line"><span class="function"><span class="comment">//末尾添加</span></span></span><br><span class="line"><span class="function">BOOL <span class="title">AppendMenu</span></span></span><br><span class="line"><span class="function"><span class="params">( HMENU hmenu,</span></span></span><br><span class="line"><span class="params"><span class="function">  UINT dwFlags,		<span class="comment">// 新加入的菜单项类型标识</span></span></span></span><br><span class="line"><span class="params"><span class="function">  UINT dwIDNewItem,	<span class="comment">// 新加入菜单项的ID</span></span></span></span><br><span class="line"><span class="params"><span class="function">  LPCTSTR lpNewItem	<span class="comment">// 新加入的菜单项内容</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span> </span></span><br><span class="line"><span class="function"><span class="title">AppendMenu</span> <span class="params">(hmenu, MF_ENABLED,IDM_ABOUT, <span class="string">&quot;关于(&amp;A)&quot;</span>)</span></span></span><br><span class="line"><span class="function"><span class="comment">//插入</span></span></span><br><span class="line"><span class="function">BOOL <span class="title">InsertMenu</span></span></span><br><span class="line"><span class="function"><span class="params">(HMENU hmenu, 		<span class="comment">//菜单句柄</span></span></span></span><br><span class="line"><span class="params"><span class="function">UINT wPosition,	<span class="comment">//指定新菜单项插入的位置</span></span></span></span><br><span class="line"><span class="params"><span class="function">UINT dwFlag, 		<span class="comment">//新加入的菜单项的信息</span></span></span></span><br><span class="line"><span class="params"><span class="function">UINT dwIDNweItem,	<span class="comment">//新加入的菜单项的标识</span></span></span></span><br><span class="line"><span class="params"><span class="function">LPCTSTR lpNewItem	<span class="comment">//新插入的菜单项的内容</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span> </span></span><br><span class="line"><span class="function"><span class="title">InsertMenu</span> <span class="params">(hmenu,IDM_EXIT,</span></span></span><br><span class="line"><span class="params"><span class="function">MF_BYCOMMAND|MF_ENABLED,</span></span></span><br><span class="line"><span class="params"><span class="function">IDM_PRINT,<span class="string">&quot;打印（&amp;P）&quot;</span>)</span></span>;</span><br><span class="line"><span class="comment">/*还可以通过位置来插入,第二个参数为位置,第三个参数变为MF_BYPOSITION | MF_ENABLED*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//4 删除菜单项</span></span><br><span class="line"> <span class="function">BOOL <span class="title">DeleteMenu</span></span></span><br><span class="line"><span class="function"><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">HMENU hmenu,</span></span></span><br><span class="line"><span class="params"><span class="function">UINT wPosition, <span class="comment">//要删除的菜单项的位置</span></span></span></span><br><span class="line"><span class="params"><span class="function">UINT dwFlag	  <span class="comment">//对wPosition的解释,使用方式与InsertMenu类似,</span></span></span></span><br><span class="line"><span class="params"><span class="function">  )</span>  </span></span><br><span class="line"><span class="function"></span></span><br></pre></td></tr></table></figure>
+<pre><code class="cpp">//1．禁止或激活菜单项 
+BOOL EnableMenuItem
+(HMENU hmenu,
+ UlNT wIDEnableItem,//被禁止或激活的菜单项标识
+ UINT dwEnable
+)
+/*下面的一些宏是第三个参数*/
+// MF_BYCOMMAND以ID值标识菜单项
+// MF_ENABLED    激活菜单项
+// MF_BYPOSITION    表明以位置标识菜单项
+// MF_GRAYED    禁止菜单项并使其变灰显示
+// MF_DISABLED    禁止菜单项
+
+//2. 选中
+DWORD CheckMenuItem
+(
+HMENU hmenu,    
+UINT wIDCheckItem,    //菜单项标识
+UINT dwCheck            //操作标识MF_CHECKED和MF_UNCHECKED
+) 
+
+//3.增加菜单项 
+//末尾添加
+BOOL AppendMenu
+( HMENU hmenu,
+  UINT dwFlags,        // 新加入的菜单项类型标识
+  UINT dwIDNewItem,    // 新加入菜单项的ID
+  LPCTSTR lpNewItem    // 新加入的菜单项内容
+) 
+AppendMenu (hmenu, MF_ENABLED,IDM_ABOUT, &quot;关于(&amp;A)&quot;)
+//插入
+BOOL InsertMenu
+(HMENU hmenu,         //菜单句柄
+UINT wPosition,    //指定新菜单项插入的位置
+UINT dwFlag,         //新加入的菜单项的信息
+UINT dwIDNweItem,    //新加入的菜单项的标识
+LPCTSTR lpNewItem    //新插入的菜单项的内容
+) 
+InsertMenu (hmenu,IDM_EXIT,
+MF_BYCOMMAND|MF_ENABLED,
+IDM_PRINT,&quot;打印（&amp;P）&quot;);
+/*还可以通过位置来插入,第二个参数为位置,第三个参数变为MF_BYPOSITION | MF_ENABLED*/
+
+//4 删除菜单项
+ BOOL DeleteMenu
+(
+HMENU hmenu,
+UINT wPosition, //要删除的菜单项的位置
+UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
+  )  
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
 
     </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2022Rouze
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
-    
-    
-    
-
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/%E4%B8%93%E4%B8%9A%E5%AD%A6%E4%B9%A0/" rel="tag"># 专业学习</a>
-          </div>
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2021/07/20/EffectiveC++/" rel="prev" title="Effective C++">
-      <i class="fa fa-chevron-left"></i> Effective C++
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="next" title="数字图像处理">
-      数字图像处理 <i class="fa fa-chevron-right"></i>
-    </a></div>
     </div>
-      </footer>
-    
-  </article>
-  
-  
-  
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
 
-
-
-          </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%AE%E7%9B%98%E4%B8%8E%E9%BC%A0%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">键盘与鼠标</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%9C%A8Windows%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">资源在Windows中的应用</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Rouze</p>
-  <div class="site-description" itemprop="description">菜~</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">13</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">6</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
-  </nav>
+    </div>
 </div>
 
-
-
-      </div>
-    
-    <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
-    <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
-    <div class="widget-wrap">
-        <h3 class="widget-title">Tag Cloud</h3>
-        <div id="myCanvasContainer" class="widget tagcloud">
-            <canvas width="250" height="250" id="resCanvas" style="width=100%">
-                <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C-%E5%AD%A6%E4%B9%A0/" rel="tag">C++学习</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Test/" rel="tag">Test</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/acm/" rel="tag">acm</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/acm%E5%AD%A6%E4%B9%A0/" rel="tag">acm学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%93%E4%B8%9A%E5%AD%A6%E4%B9%A0/" rel="tag">专业学习</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li></ul>
-            </canvas>
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
         </div>
     </div>
-    
-        <div class="back-to-top motion-element">
-          <i class="fa fa-arrow-up"></i>
-          <span>0%</span>
-        </div>
-
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Rouze</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
-  </div>
 
-        
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
-  <script src="/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
-  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-  
-<script src="/js/local-search.js"></script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-  
 
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":300,"height":600},"mobile":{"show":true},"log":false});</script></body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().trim().split('\n').length, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: ;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+    #post .pjax article :not(pre) > code {
+        color: #24292e;
+        font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+        background-color: rgba(27,31,35,.05);
+        border-radius: 3px;
+        font-size: 85%;
+        margin: 0;
+        padding: .2em .4em;
+    }
+    
+</style>
+
+
+
+
+
+
+
 </html>
-    <!-- 页面点击小红心 -->
-    <script type="text/javascript" src="/js/clicklove.js"></script>
