@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>分类 | 若泽</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="分类 | 若泽">
+  <title>C语言里函数返回结构体的汇编分析 | 若泽</title>
+  <meta name="keywords" content=" C语言,汇编 ">
+  <meta name="description" content="C语言里函数返回结构体的汇编分析 | 若泽">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="菜~">
 <meta property="og:type" content="website">
@@ -422,19 +422,26 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope itemprop="blogPost">
+        <article id="post-C语言里函数返回结构体的汇编分析" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">分类</h1>
+        <h1 class="article-title">C语言里函数返回结构体的汇编分析</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color2">C语言,汇编</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2021-07-18 10:50:14'>2021-07-18 10:48</time>
+            发布时间 : <time class="date" title='最后更新: 2022-09-25 10:19:20'>2022-09-25 08:54</time>
         
     </div>
     <div class="article-meta">
@@ -472,7 +479,55 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>在之前写操作系统内核的过程中经常需要接触到汇编和C语言,发现一个函数的返回值通常是由寄存器-eax存储的,但是在C语言里是能返回一个结构体的,如果结构体很大那寄存器肯定放不下,所以就好奇编译查看了一下,下面是测试的代码:</p>
+<pre><code class="c">//test.c
+struct A&#123;
+        int a;
+        int b;
+        int c;
+&#125;;
+
+struct A f()&#123;
+        struct A b;
+        b.a =0;
+        b.b=2;
+        b.c=4;
+        return b;
+&#125;
+int main()&#123;
+        struct A a;
+        a.a=31;
+        a = f();
+        a.b = 64;
+        return 0;
+&#125;
+</code></pre>
+<p>下面是通过gcc test.c -m32 -S产生的test.s的部分结果</p>
+<p><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664069235498.png" alt="1664069235498"><br>可以看到在call f之前有一个类似将eax寄存器的值入栈的操作,即<code>movl %eax,(%esp)</code>,查看前面eax已经被赋值成ebp-12了(<code>leal -12(%ebp),%eax</code>),这个值就是变量a的地址(一个int这里是4字节,一个struct A占12个字节)进入f函数后前面几步是常规地在自己的栈内构建变量然后赋值,(如果对函数内构建变量不是很清楚的话建议先去翻翻CSAPP里汇编那一部分的内容)但是从13行开始后面几条命令是将刚构建好的结构体拷贝到另一个地方,拷贝的目的地是以eax里面的值为基址的,往前看可以看到eax被赋成了ebp+8处的内容(<code>movl 8(%ebp),%eax</code>),常规进入函数之后一般ebp+0处是主调函数的栈底,用来恢复主调函数的栈(即函数开头push %ebp的作用),ebp+4处是主调函数的返回地址,这是call指令自动压入的,再往上就是函数的参数,由于在main函数里call f之前最后一次压栈操作是<code>movl %eax,(%esp)</code>,所以现在f内的ebp+8就是main里那个eax的内容即a的地址,所以f内构建出来的变量b就直接拷贝到a那里去了,另外比较特别的是可以看到函数返回时有一个ret $4的操作,表示的就是从栈里取出ip后再弹出4个字节的值,而在ip(也就是主调函数的返回地址)后面的4个字节内容就是刚刚说的那个eax的内容即某个变量的地址。</p>
+<p>这里猜测和总结一下：<br>f函数本身没有函数参数,但在编译出来的汇编代码中会传入一个地址一样的值,f函数内部会将自己构建好的结构体拷贝到该地址去。<br>猜测:函数f本身不知道什么时候该拷贝什么时候不该拷贝,上面的代码中是a&#x3D;f();是需要拷贝的情况,但也存在单独调用的情况如f();所以可能的一个策略就是f不管该不该拷贝,反正它是一定会进行复制操作,也一定会拷到eax指定那个地方,至于这个eax指定哪由调用自己的那个地方决定。所以如果在main里调用f而不使用它的返回值那main里应该会有一个”腾出一个struct A”大小的操作,让f拷但又不去破坏到其它的变量。下面是进行测试的代码</p>
+<pre><code class="c">struct A&#123;
+        int a;
+        int b;
+        int c;
+&#125;;
+
+struct A f()&#123;
+        struct A a;
+        a.a =0;
+        a.b=2;
+        a.c=4;
+        return a;
+&#125;
+int main()&#123;
+        struct A a;
+        a.a=31;
+        f();
+        a.b = 64;
+        return 0;
+&#125;
+</code></pre>
+<p>同样使用gcc test.c -m32 -S产生test.s的部分结果:<br><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664072223777.png" alt="1664072223777"><br>可以看到这次是ebp-40传给了eax而不是ebp-12,所以符合上面的猜想</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
     </div>

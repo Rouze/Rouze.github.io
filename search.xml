@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>C语言里函数返回结构体的汇编分析</title>
+    <url>/2022/09/25/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<p>在之前写操作系统内核的过程中经常需要接触到汇编和C语言,发现一个函数的返回值通常是由寄存器-eax存储的,但是在C语言里是能返回一个结构体的,如果结构体很大那寄存器肯定放不下,所以就好奇编译查看了一下,下面是测试的代码:</p>
+<pre><code class="c">//test.c
+struct A&#123;
+        int a;
+        int b;
+        int c;
+&#125;;
+
+struct A f()&#123;
+        struct A b;
+        b.a =0;
+        b.b=2;
+        b.c=4;
+        return b;
+&#125;
+int main()&#123;
+        struct A a;
+        a.a=31;
+        a = f();
+        a.b = 64;
+        return 0;
+&#125;
+</code></pre>
+<p>下面是通过gcc test.c -m32 -S产生的test.s的部分结果</p>
+<p><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664069235498.png" alt="1664069235498"><br>可以看到在call f之前有一个类似将eax寄存器的值入栈的操作,即<code>movl %eax,(%esp)</code>,查看前面eax已经被赋值成ebp-12了(<code>leal -12(%ebp),%eax</code>),这个值就是变量a的地址(一个int这里是4字节,一个struct A占12个字节)进入f函数后前面几步是常规地在自己的栈内构建变量然后赋值,(如果对函数内构建变量不是很清楚的话建议先去翻翻CSAPP里汇编那一部分的内容)但是从13行开始后面几条命令是将刚构建好的结构体拷贝到另一个地方,拷贝的目的地是以eax里面的值为基址的,往前看可以看到eax被赋成了ebp+8处的内容(<code>movl 8(%ebp),%eax</code>),常规进入函数之后一般ebp+0处是主调函数的栈底,用来恢复主调函数的栈(即函数开头push %ebp的作用),ebp+4处是主调函数的返回地址,这是call指令自动压入的,再往上就是函数的参数,由于在main函数里call f之前最后一次压栈操作是<code>movl %eax,(%esp)</code>,所以现在f内的ebp+8就是main里那个eax的内容即a的地址,所以f内构建出来的变量b就直接拷贝到a那里去了,另外比较特别的是可以看到函数返回时有一个ret $4的操作,表示的就是从栈里取出ip后再弹出4个字节的值,而在ip(也就是主调函数的返回地址)后面的4个字节内容就是刚刚说的那个eax的内容即某个变量的地址。</p>
+<p>这里猜测和总结一下：<br>f函数本身没有函数参数,但在编译出来的汇编代码中会传入一个地址一样的值,f函数内部会将自己构建好的结构体拷贝到该地址去。<br>猜测:函数f本身不知道什么时候该拷贝什么时候不该拷贝,上面的代码中是a&#x3D;f();是需要拷贝的情况,但也存在单独调用的情况如f();所以可能的一个策略就是f不管该不该拷贝,反正它是一定会进行复制操作,也一定会拷到eax指定那个地方,至于这个eax指定哪由调用自己的那个地方决定。所以如果在main里调用f而不使用它的返回值那main里应该会有一个”腾出一个struct A”大小的操作,让f拷但又不去破坏到其它的变量。下面是进行测试的代码</p>
+<pre><code class="c">struct A&#123;
+        int a;
+        int b;
+        int c;
+&#125;;
+
+struct A f()&#123;
+        struct A a;
+        a.a =0;
+        a.b=2;
+        a.c=4;
+        return a;
+&#125;
+int main()&#123;
+        struct A a;
+        a.a=31;
+        f();
+        a.b = 64;
+        return 0;
+&#125;
+</code></pre>
+<p>同样使用gcc test.c -m32 -S产生test.s的部分结果:<br><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664072223777.png" alt="1664072223777"><br>可以看到这次是ebp-40传给了eax而不是ebp-12,所以符合上面的猜想</p>
+]]></content>
+      <tags>
+        <tag>C语言,汇编</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Effective_STL</title>
     <url>/2022/04/28/Effective-STL/</url>
     <content><![CDATA[]]></content>
@@ -609,6 +665,43 @@ int main()&#123;
       </tags>
   </entry>
   <entry>
+    <title></title>
+    <url>/2022/04/23/ExceptionC++_%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
+    <content><![CDATA[<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h3 id="区分几大内存区域"><a href="#区分几大内存区域" class="headerlink" title="区分几大内存区域"></a>区分几大内存区域</h3><table>
+<thead>
+<tr>
+<th>内存区域</th>
+<th>特性和对象的生存期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>常量数据</td>
+<td>常用于存储字符串和一些编译时就知道的常量。程序的整个生存期内数据都有效且只读,因为编译器可能会<br>对这个区域的数据进行一些特殊的存储优化,擅自修改可能会出现一些未定义的行为</td>
+</tr>
+<tr>
+<td>栈</td>
+<td>存自动变量。自动变量在定义时被立即构造,并在其作用域结束时被立即销毁。<br>栈内存的分配通常比动态内存快很多,因为每次栈的分配只涉及到栈指针的自增操作</td>
+</tr>
+<tr>
+<td>自由存储</td>
+<td>两种动态内存区域之一,<em>通过new&#x2F;delete来分配&#x2F;释放</em> 。<br>对象的生存周期可能小于所分配的的存储空间的生存期,因为这里的的对象不要求分配内存时立即进行初始化,销毁对象时也不要求立即归还空间</td>
+</tr>
+<tr>
+<td>堆</td>
+<td>另一种动态内存区域,<em>通过malloc&#x2F;free函数进行分配和释放</em>。堆还是不同于自由存储的,尽管可能有些地方默认的new和delete会调用malloc和free实现。但堆中的内存不能在自由内存中安全释放,反之亦然。也就是说new出来的内存不能用free安全释放。</td>
+</tr>
+<tr>
+<td>全局&#x2F;静态</td>
+<td>程序启动时,全局和静态变量就已经分配了内存,但只有程序执行时才会进行初始化。<br>对于跨域多个编译单元的全局变量,它们的初始化顺序是未定义的,因此在管理时要特别小心它们之间的依赖性</td>
+</tr>
+</tbody></table>
+<h3 id="实现自己特定的内存管理"><a href="#实现自己特定的内存管理" class="headerlink" title="实现自己特定的内存管理"></a>实现自己特定的内存管理</h3><blockquote>
+<p>如果要重载operator new与operator delete,记得显示的将它们声明为static,虽然会默认它们是static但这样可以增加可读性,因为一个对象是由它的类创建的,而不是一个对象去创建的,所以operator new函数一定是早于对象它不可能是一个非静态的成员函数</p>
+</blockquote>
+<p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
+]]></content>
+  </entry>
+  <entry>
     <title>Exceptional C++</title>
     <url>/2021/07/20/ExceptionalC++/</url>
     <content><![CDATA[<h4 id="条款2-3-大小写不敏感的字符串"><a href="#条款2-3-大小写不敏感的字符串" class="headerlink" title="条款2-3:大小写不敏感的字符串"></a>条款2-3:大小写不敏感的字符串</h4><blockquote>
@@ -848,43 +941,6 @@ Y::~Y()&#123;delete px_;px_=0;&#125;
       <tags>
         <tag>C++学习</tag>
       </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/2022/04/23/ExceptionC++_%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
-    <content><![CDATA[<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h3 id="区分几大内存区域"><a href="#区分几大内存区域" class="headerlink" title="区分几大内存区域"></a>区分几大内存区域</h3><table>
-<thead>
-<tr>
-<th>内存区域</th>
-<th>特性和对象的生存期</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>常量数据</td>
-<td>常用于存储字符串和一些编译时就知道的常量。程序的整个生存期内数据都有效且只读,因为编译器可能会<br>对这个区域的数据进行一些特殊的存储优化,擅自修改可能会出现一些未定义的行为</td>
-</tr>
-<tr>
-<td>栈</td>
-<td>存自动变量。自动变量在定义时被立即构造,并在其作用域结束时被立即销毁。<br>栈内存的分配通常比动态内存快很多,因为每次栈的分配只涉及到栈指针的自增操作</td>
-</tr>
-<tr>
-<td>自由存储</td>
-<td>两种动态内存区域之一,<em>通过new&#x2F;delete来分配&#x2F;释放</em> 。<br>对象的生存周期可能小于所分配的的存储空间的生存期,因为这里的的对象不要求分配内存时立即进行初始化,销毁对象时也不要求立即归还空间</td>
-</tr>
-<tr>
-<td>堆</td>
-<td>另一种动态内存区域,<em>通过malloc&#x2F;free函数进行分配和释放</em>。堆还是不同于自由存储的,尽管可能有些地方默认的new和delete会调用malloc和free实现。但堆中的内存不能在自由内存中安全释放,反之亦然。也就是说new出来的内存不能用free安全释放。</td>
-</tr>
-<tr>
-<td>全局&#x2F;静态</td>
-<td>程序启动时,全局和静态变量就已经分配了内存,但只有程序执行时才会进行初始化。<br>对于跨域多个编译单元的全局变量,它们的初始化顺序是未定义的,因此在管理时要特别小心它们之间的依赖性</td>
-</tr>
-</tbody></table>
-<h3 id="实现自己特定的内存管理"><a href="#实现自己特定的内存管理" class="headerlink" title="实现自己特定的内存管理"></a>实现自己特定的内存管理</h3><blockquote>
-<p>如果要重载operator new与operator delete,记得显示的将它们声明为static,虽然会默认它们是static但这样可以增加可读性,因为一个对象是由它的类创建的,而不是一个对象去创建的,所以operator new函数一定是早于对象它不可能是一个非静态的成员函数</p>
-</blockquote>
-<p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
-]]></content>
   </entry>
   <entry>
     <title>Kuangbin-并查集</title>
@@ -2168,14 +2224,6 @@ int main()
       </tags>
   </entry>
   <entry>
-    <title>Test</title>
-    <url>/2022/04/25/Test/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>Test</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Windows编程</title>
     <url>/2022/04/04/Windows%E7%BC%96%E7%A8%8B/</url>
     <content><![CDATA[<h4 id="键盘与鼠标"><a href="#键盘与鼠标" class="headerlink" title="键盘与鼠标"></a>键盘与鼠标</h4><ul>
@@ -2271,22 +2319,12 @@ UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/2021/07/18/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
+    <title>Test</title>
+    <url>/2022/04/25/Test/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>Test</tag>
+      </tags>
   </entry>
   <entry>
     <title>git学习</title>
@@ -2303,6 +2341,24 @@ UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
 <h4 id="差异对比"><a href="#差异对比" class="headerlink" title="差异对比"></a>差异对比</h4><p><code>git diff</code> 比较暂存区与工作区<br><code>git diff -cached</code> 版本区与暂存区<br><code>git diff master</code> 版本去与工作区</p>
 <h4 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h4><p><code>git log</code>打印所有日志<br><code>git reflog</code>显示所有提交的id</p>
 <h4 id="版本回退与穿梭"><a href="#版本回退与穿梭" class="headerlink" title="版本回退与穿梭"></a>版本回退与穿梭</h4><p><code>git reset --hard HEAD^</code>回退一次提交，两次就打两个^,三次就三个^,…，想要回退1000个版本或指定数量的话用<code>git reset --hard HEAD~1000</code>的形式<br><code>git reset --hard id</code>回退到指定id的版本<br><code>git reset HEAD</code>用版本库文件替换所有暂存区的文件<br><code>git checkout -- x.txt</code>用暂存区的指定文件区替换工作区的文件<br><code>git checkout HEAD x.txt</code>用版本库中的文件去替换暂存和工作区的文件</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2021/07/18/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;
+</code></pre>
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server
+</code></pre>
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate
+</code></pre>
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy
+</code></pre>
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
   </entry>
   <entry>
@@ -2351,50 +2407,6 @@ plt.show()
       <tags>
         <tag>专业学习</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>数字图像处理</title>
-    <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
-    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
-import cv2
-import matplotlib.pyplot as plt
-
-</code></pre>
-<pre><code class="python"># 边缘处理
-
-</code></pre>
-<pre><code class="python">
-</code></pre>
-<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
-import matplotlib.pyplot as plt
-
-im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
-b,g,r = cv2.split(im)
-#均衡化
-eb = cv2.equalizeHist(b)
-
-#计算直方图
-hist = cv2.calcHist([b],[0],None,[64],[0,256])
-ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
-#画图
-fig,ax = plt.subplots(2,2)
-ax[0,0].set_title(&#39;orignHist&#39;)
-ax[0,0].plot(hist)
-
-ax[0,1].set_title(&#39;equalHist&#39;)
-ax[0,1].plot(ehist)
-
-ax[1,0].set_title(&#39;orign&#39;)
-ax[1,0].imshow(b,&#39;gray&#39;)
-
-ax[1,1].set_title(&#39;equaled&#39;)
-ax[1,1].imshow(eb,&#39;gray&#39;)
-plt.show()
-</code></pre>
-<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
-<pre><code class="python">
-</code></pre>
-]]></content>
   </entry>
   <entry>
     <title>大话设计模式</title>
@@ -2518,5 +2530,49 @@ double result = opt-&gt;GetResult();
       <tags>
         <tag>设计模式</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>数字图像处理</title>
+    <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
+    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
+import cv2
+import matplotlib.pyplot as plt
+
+</code></pre>
+<pre><code class="python"># 边缘处理
+
+</code></pre>
+<pre><code class="python">
+</code></pre>
+<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
+import matplotlib.pyplot as plt
+
+im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
+b,g,r = cv2.split(im)
+#均衡化
+eb = cv2.equalizeHist(b)
+
+#计算直方图
+hist = cv2.calcHist([b],[0],None,[64],[0,256])
+ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
+#画图
+fig,ax = plt.subplots(2,2)
+ax[0,0].set_title(&#39;orignHist&#39;)
+ax[0,0].plot(hist)
+
+ax[0,1].set_title(&#39;equalHist&#39;)
+ax[0,1].plot(ehist)
+
+ax[1,0].set_title(&#39;orign&#39;)
+ax[1,0].imshow(b,&#39;gray&#39;)
+
+ax[1,1].set_title(&#39;equaled&#39;)
+ax[1,1].imshow(eb,&#39;gray&#39;)
+plt.show()
+</code></pre>
+<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
+<pre><code class="python">
+</code></pre>
+]]></content>
   </entry>
 </search>
