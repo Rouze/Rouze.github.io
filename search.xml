@@ -28,7 +28,7 @@ int main()&#123;
 </code></pre>
 <p>下面是通过gcc test.c -m32 -S产生的test.s的部分结果</p>
 <p><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664069235498.png" alt="1664069235498"><br>可以看到在call f之前有一个类似将eax寄存器的值入栈的操作,即<code>movl %eax,(%esp)</code>,查看前面eax已经被赋值成ebp-12了(<code>leal -12(%ebp),%eax</code>),这个值就是变量a的地址(一个int这里是4字节,一个struct A占12个字节)进入f函数后前面几步是常规地在自己的栈内构建变量然后赋值,(如果对函数内构建变量不是很清楚的话建议先去翻翻CSAPP里汇编那一部分的内容)但是从13行开始后面几条命令是将刚构建好的结构体拷贝到另一个地方,拷贝的目的地是以eax里面的值为基址的,往前看可以看到eax被赋成了ebp+8处的内容(<code>movl 8(%ebp),%eax</code>),常规进入函数之后一般ebp+0处是主调函数的栈底,用来恢复主调函数的栈(即函数开头push %ebp的作用),ebp+4处是主调函数的返回地址,这是call指令自动压入的,再往上就是函数的参数,由于在main函数里call f之前最后一次压栈操作是<code>movl %eax,(%esp)</code>,所以现在f内的ebp+8就是main里那个eax的内容即a的地址,所以f内构建出来的变量b就直接拷贝到a那里去了,另外比较特别的是可以看到函数返回时有一个ret $4的操作,表示的就是从栈里取出ip后再弹出4个字节的值,而在ip(也就是主调函数的返回地址)后面的4个字节内容就是刚刚说的那个eax的内容即某个变量的地址。</p>
-<p>这里猜测和总结一下：<br>f函数本身没有函数参数,但在编译出来的汇编代码中会传入一个地址一样的值,f函数内部会将自己构建好的结构体拷贝到该地址去。<br>猜测:函数f本身不知道什么时候该拷贝什么时候不该拷贝,上面的代码中是a&#x3D;f();是需要拷贝的情况,但也存在单独调用的情况如f();所以可能的一个策略就是f不管该不该拷贝,反正它是一定会进行复制操作,也一定会拷到eax指定那个地方,至于这个eax指定哪由调用自己的那个地方决定。所以如果在main里调用f而不使用它的返回值那main里应该会有一个”腾出一个struct A”大小的操作,让f拷但又不去破坏到其它的变量。下面是进行测试的代码</p>
+<p>这里猜测和总结一下：<br>f函数本身没有函数参数,但在编译出来的汇编代码中会传入一个地址一样的值,f函数内部会将自己构建好的结构体拷贝到该地址去。<br>猜测:函数f本身不知道什么时候该拷贝什么时候不该拷贝,上面的代码中是a&#x3D;f();是需要拷贝的情况,但也存在单独调用的情况如f();所以可能的一个策略就是f不管该不该拷贝,反正它是一定会进行复制操作,也一定会拷到eax指定那个地方,至于这个eax指定哪由调用自己的那个地方决定。所以如果在main里调用f而不使用它的返回值那main里应该会有一个”腾出一个struct A”大小的操作,让f拷但又不去破坏到其它的变量,同时也能符合为什么要ret 4而不是ret,因为f知道虽然自己没有显示声明参数但一定会传一个参数过来给自己拷贝,所以离开的时候顺便把这个参数出栈了。下面是进行测试的代码</p>
 <pre><code class="c">struct A&#123;
         int a;
         int b;
@@ -50,7 +50,31 @@ int main()&#123;
         return 0;
 &#125;
 </code></pre>
-<p>同样使用gcc test.c -m32 -S产生test.s的部分结果:<br><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664072223777.png" alt="1664072223777"><br>可以看到这次是ebp-40传给了eax而不是ebp-12,所以符合上面的猜想</p>
+<p>同样使用gcc test.c -m32 -S产生test.s的部分结果:<br><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664072223777.png" alt="1664072223777"><br>可以看到这次是ebp-40传给了eax而不是ebp-12,所以符合上面的猜想,只是这次分配的空间变成了20字节一个结构体,至于为什么要变大我也不是很清楚,CSAPP里面提过一下</p>
+<p>最后再用下面的代码去测试一下这个”腾出来的”空间制造的变量是不是可用的,我们可以把f的返回值当作另一个函数的参数,调用f之后栈里就会存在一个结构体,然后又将此结构体的值移一一入栈给另一个函数。</p>
+<pre><code class="c">struct A&#123;
+        int a;
+        int b;
+        int c;
+&#125;;
+
+struct A f()&#123;
+        struct A a;
+        a.a =0;
+        a.b=2;
+        a.c=4;
+        return a;
+&#125;
+void g(struct A x)
+&#123;&#125;
+int main()&#123;
+        struct A a;
+        a.a=31;
+        g(f());
+        a.b = 64;
+        return 0;
+&#125;
+</code></pre>
 ]]></content>
       <tags>
         <tag>C语言,汇编</tag>
@@ -665,43 +689,6 @@ int main()&#123;
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2022/04/23/ExceptionC++_%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
-    <content><![CDATA[<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h3 id="区分几大内存区域"><a href="#区分几大内存区域" class="headerlink" title="区分几大内存区域"></a>区分几大内存区域</h3><table>
-<thead>
-<tr>
-<th>内存区域</th>
-<th>特性和对象的生存期</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>常量数据</td>
-<td>常用于存储字符串和一些编译时就知道的常量。程序的整个生存期内数据都有效且只读,因为编译器可能会<br>对这个区域的数据进行一些特殊的存储优化,擅自修改可能会出现一些未定义的行为</td>
-</tr>
-<tr>
-<td>栈</td>
-<td>存自动变量。自动变量在定义时被立即构造,并在其作用域结束时被立即销毁。<br>栈内存的分配通常比动态内存快很多,因为每次栈的分配只涉及到栈指针的自增操作</td>
-</tr>
-<tr>
-<td>自由存储</td>
-<td>两种动态内存区域之一,<em>通过new&#x2F;delete来分配&#x2F;释放</em> 。<br>对象的生存周期可能小于所分配的的存储空间的生存期,因为这里的的对象不要求分配内存时立即进行初始化,销毁对象时也不要求立即归还空间</td>
-</tr>
-<tr>
-<td>堆</td>
-<td>另一种动态内存区域,<em>通过malloc&#x2F;free函数进行分配和释放</em>。堆还是不同于自由存储的,尽管可能有些地方默认的new和delete会调用malloc和free实现。但堆中的内存不能在自由内存中安全释放,反之亦然。也就是说new出来的内存不能用free安全释放。</td>
-</tr>
-<tr>
-<td>全局&#x2F;静态</td>
-<td>程序启动时,全局和静态变量就已经分配了内存,但只有程序执行时才会进行初始化。<br>对于跨域多个编译单元的全局变量,它们的初始化顺序是未定义的,因此在管理时要特别小心它们之间的依赖性</td>
-</tr>
-</tbody></table>
-<h3 id="实现自己特定的内存管理"><a href="#实现自己特定的内存管理" class="headerlink" title="实现自己特定的内存管理"></a>实现自己特定的内存管理</h3><blockquote>
-<p>如果要重载operator new与operator delete,记得显示的将它们声明为static,虽然会默认它们是static但这样可以增加可读性,因为一个对象是由它的类创建的,而不是一个对象去创建的,所以operator new函数一定是早于对象它不可能是一个非静态的成员函数</p>
-</blockquote>
-<p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
-]]></content>
-  </entry>
-  <entry>
     <title>Exceptional C++</title>
     <url>/2021/07/20/ExceptionalC++/</url>
     <content><![CDATA[<h4 id="条款2-3-大小写不敏感的字符串"><a href="#条款2-3-大小写不敏感的字符串" class="headerlink" title="条款2-3:大小写不敏感的字符串"></a>条款2-3:大小写不敏感的字符串</h4><blockquote>
@@ -937,9 +924,136 @@ Y::~Y()&#123;delete px_;px_=0;&#125;
 <li>如果没有虚函数,那dynamic_cast的操作都是错误的</li>
 </ul>
 </blockquote>
+<h3 id="区分几大内存区域"><a href="#区分几大内存区域" class="headerlink" title="区分几大内存区域"></a>区分几大内存区域</h3><table>
+<thead>
+<tr>
+<th>内存区域</th>
+<th>特性和对象的生存期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>常量数据</td>
+<td>常用于存储字符串和一些编译时就知道的常量。程序的整个生存期内数据都有效且只读,因为编译器可能会<br>对这个区域的数据进行一些特殊的存储优化,擅自修改可能会出现一些未定义的行为</td>
+</tr>
+<tr>
+<td>栈</td>
+<td>存自动变量。自动变量在定义时被立即构造,并在其作用域结束时被立即销毁。<br>栈内存的分配通常比动态内存快很多,因为每次栈的分配只涉及到栈指针的自增操作</td>
+</tr>
+<tr>
+<td>自由存储</td>
+<td>两种动态内存区域之一,<em>通过new&#x2F;delete来分配&#x2F;释放</em> 。<br>对象的生存周期可能小于所分配的的存储空间的生存期,因为这里的的对象不要求分配内存时立即进行初始化,销毁对象时也不要求立即归还空间</td>
+</tr>
+<tr>
+<td>堆</td>
+<td>另一种动态内存区域,<em>通过malloc&#x2F;free函数进行分配和释放</em>。堆还是不同于自由存储的,尽管可能有些地方默认的new和delete会调用malloc和free实现。但堆中的内存不能在自由内存中安全释放,反之亦然。也就是说new出来的内存不能用free安全释放。</td>
+</tr>
+<tr>
+<td>全局&#x2F;静态</td>
+<td>程序启动时,全局和静态变量就已经分配了内存,但只有程序执行时才会进行初始化。<br>对于跨域多个编译单元的全局变量,它们的初始化顺序是未定义的,因此在管理时要特别小心它们之间的依赖性</td>
+</tr>
+</tbody></table>
+<h3 id="实现自己特定的内存管理"><a href="#实现自己特定的内存管理" class="headerlink" title="实现自己特定的内存管理"></a>实现自己特定的内存管理</h3><blockquote>
+<p>如果要重载operator new与operator delete,记得显式地将它们声明为static,虽然会默认它们是static但这样可以增加可读性,因为一个对象是由它的类创建的,而不是一个对象去创建的,所以operator new函数一定是早于对象它不可能是一个非静态的成员函数</p>
+</blockquote>
+<p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
 ]]></content>
       <tags>
         <tag>C++学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Windows编程</title>
+    <url>/2022/04/04/Windows%E7%BC%96%E7%A8%8B/</url>
+    <content><![CDATA[<h4 id="键盘与鼠标"><a href="#键盘与鼠标" class="headerlink" title="键盘与鼠标"></a>键盘与鼠标</h4><ul>
+<li>WM_KEYDOWN中不区分大小写，字母的虚拟键码分别为’A’~’Z’对应的ascill码，如果要在这里判断是否CTRL，使用GetKeyState(VK_CONTROL)判断其值是否小于0即可，当按下的键可以产生一个可见字符时会发送一个WM_CHAR的消息，所以WM_KEYDOWN是先于WM_CHAR的</li>
+<li>WM_CHAR中区分大小写,如果是CTRL+字符发送过来的wParam等于字母对应字母表的位置,CTRL+’A’以及CTRL+’a’为1，以此类推</li>
+<li>Ctrl+鼠标左击的判断通过&amp;方式判断,如在WM_LBUTTONDOWN中判断是否按下Ctrl可以通过(wParam &amp; MK_CONTROL)判断</li>
+<li>在鼠标移动过程中判断左键是否按下，(wParam &amp; MK_LBUTTON)</li>
+</ul>
+<h4 id="资源在Windows中的应用"><a href="#资源在Windows中的应用" class="headerlink" title="资源在Windows中的应用"></a>资源在Windows中的应用</h4><blockquote>
+<p>由于这篇文章主要供自己在学习过程当中偶尔查阅使用，因此不展开对资源的代码生成，只是简单地记下一些使用方式</p>
+</blockquote>
+<ul>
+<li>菜单资源:<br>1.窗口主菜单<br>2.菜单项(包含加速键标识于热键标识)<br>3.分隔符<br>手动的定义方式如下:</li>
+</ul>
+<pre><code class="cpp">#include&quot;Menu.h&quot;
+My_menu MENU MOVEABLE         //My_menu是资源名字,用于载入菜单资源时使用,MENU是关键字，MOVEALBE是一种模式
+｛POPUP &quot;文件（&amp;F）&quot;            //POPUP是说定义一个弹出式菜单 后面就是要显示的文字,&amp;符号后面的文字显示出来会有下划线
+ ｛      MENUITEM     &quot;新建（&amp;N）&quot;，    IDM_NEW             MENUITEM     &quot;打开（&amp;O）&quot;，    IDM_OPEN
+         MENUITEM     &quot;关闭（&amp;C）&quot;，    IDM_CLOSE
+         MENUITEM     &quot;保存（&amp;S）&quot;，    IDM_SAVE
+         MENUITEM     &quot;另存为（&amp;A）&quot;，    IDM_SAVEAS
+         MENUITEM     SEPARATOR              //分隔符
+        MENUITEM    “退出（&amp;X）”，    IDM_EXIT
+        //IDM_NEW,IDM_CLOSE,...是在Menu.h里自己定义好的宏，是一个1~65535的整数，用以唯一标识一个菜单项
+  ｝
+｝
+</code></pre>
+<p>资源编辑器定义:<br>在VS里面可以点开资源文件，点开.rc文件，找到Menu点开里面的那个文件后就有一个GUI式的编写界面，按照提示编写即可，需要注意的是创建一个新的菜单项时如果想自定义它的ID对应的宏名字，可以点开旁边的属性，然后在ID那里输入想要的名字，VS会自动生成一个相应的宏,但要注意不要与已有的名字冲突</p>
+<p><em>菜单的加载</em><br>1.创建窗口时加载</p>
+<pre><code class="cpp">HMENU hMenu = LoadMenu(hInstance,MAKEINTERSOURCE(菜单ID))
+//MAKEINTERSOURCE的作用跟一个数字转字符串的函数差不多
+CreateWindow(...,hMenu,...);
+</code></pre>
+<p>2.动态加载</p>
+<pre><code class="cpp">HMENU hMenu = LoadMenu(...);
+SetMenu(hWnd,hMenu);
+</code></pre>
+<p><strong>与菜单项有关的一些函数</strong></p>
+<pre><code class="cpp">//1．禁止或激活菜单项 
+BOOL EnableMenuItem
+(HMENU hmenu,
+ UlNT wIDEnableItem,//被禁止或激活的菜单项标识
+ UINT dwEnable
+)
+/*下面的一些宏是第三个参数*/
+// MF_BYCOMMAND以ID值标识菜单项
+// MF_ENABLED    激活菜单项
+// MF_BYPOSITION    表明以位置标识菜单项
+// MF_GRAYED    禁止菜单项并使其变灰显示
+// MF_DISABLED    禁止菜单项
+
+//2. 选中
+DWORD CheckMenuItem
+(
+HMENU hmenu,    
+UINT wIDCheckItem,    //菜单项标识
+UINT dwCheck            //操作标识MF_CHECKED和MF_UNCHECKED
+) 
+
+//3.增加菜单项 
+//末尾添加
+BOOL AppendMenu
+( HMENU hmenu,
+  UINT dwFlags,        // 新加入的菜单项类型标识
+  UINT dwIDNewItem,    // 新加入菜单项的ID
+  LPCTSTR lpNewItem    // 新加入的菜单项内容
+) 
+AppendMenu (hmenu, MF_ENABLED,IDM_ABOUT, &quot;关于(&amp;A)&quot;)
+//插入
+BOOL InsertMenu
+(HMENU hmenu,         //菜单句柄
+UINT wPosition,    //指定新菜单项插入的位置
+UINT dwFlag,         //新加入的菜单项的信息
+UINT dwIDNweItem,    //新加入的菜单项的标识
+LPCTSTR lpNewItem    //新插入的菜单项的内容
+) 
+InsertMenu (hmenu,IDM_EXIT,
+MF_BYCOMMAND|MF_ENABLED,
+IDM_PRINT,&quot;打印（&amp;P）&quot;);
+/*还可以通过位置来插入,第二个参数为位置,第三个参数变为MF_BYPOSITION | MF_ENABLED*/
+
+//4 删除菜单项
+ BOOL DeleteMenu
+(
+HMENU hmenu,
+UINT wPosition, //要删除的菜单项的位置
+UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
+  )  
+</code></pre>
+]]></content>
+      <tags>
+        <tag>专业学习</tag>
       </tags>
   </entry>
   <entry>
@@ -2224,109 +2338,6 @@ int main()
       </tags>
   </entry>
   <entry>
-    <title>Windows编程</title>
-    <url>/2022/04/04/Windows%E7%BC%96%E7%A8%8B/</url>
-    <content><![CDATA[<h4 id="键盘与鼠标"><a href="#键盘与鼠标" class="headerlink" title="键盘与鼠标"></a>键盘与鼠标</h4><ul>
-<li>WM_KEYDOWN中不区分大小写，字母的虚拟键码分别为’A’~’Z’对应的ascill码，如果要在这里判断是否CTRL，使用GetKeyState(VK_CONTROL)判断其值是否小于0即可，当按下的键可以产生一个可见字符时会发送一个WM_CHAR的消息，所以WM_KEYDOWN是先于WM_CHAR的</li>
-<li>WM_CHAR中区分大小写,如果是CTRL+字符发送过来的wParam等于字母对应字母表的位置,CTRL+’A’以及CTRL+’a’为1，以此类推</li>
-<li>Ctrl+鼠标左击的判断通过&amp;方式判断,如在WM_LBUTTONDOWN中判断是否按下Ctrl可以通过(wParam &amp; MK_CONTROL)判断</li>
-<li>在鼠标移动过程中判断左键是否按下，(wParam &amp; MK_LBUTTON)</li>
-</ul>
-<h4 id="资源在Windows中的应用"><a href="#资源在Windows中的应用" class="headerlink" title="资源在Windows中的应用"></a>资源在Windows中的应用</h4><blockquote>
-<p>由于这篇文章主要供自己在学习过程当中偶尔查阅使用，因此不展开对资源的代码生成，只是简单地记下一些使用方式</p>
-</blockquote>
-<ul>
-<li>菜单资源:<br>1.窗口主菜单<br>2.菜单项(包含加速键标识于热键标识)<br>3.分隔符<br>手动的定义方式如下:</li>
-</ul>
-<pre><code class="cpp">#include&quot;Menu.h&quot;
-My_menu MENU MOVEABLE         //My_menu是资源名字,用于载入菜单资源时使用,MENU是关键字，MOVEALBE是一种模式
-｛POPUP &quot;文件（&amp;F）&quot;            //POPUP是说定义一个弹出式菜单 后面就是要显示的文字,&amp;符号后面的文字显示出来会有下划线
- ｛      MENUITEM     &quot;新建（&amp;N）&quot;，    IDM_NEW             MENUITEM     &quot;打开（&amp;O）&quot;，    IDM_OPEN
-         MENUITEM     &quot;关闭（&amp;C）&quot;，    IDM_CLOSE
-         MENUITEM     &quot;保存（&amp;S）&quot;，    IDM_SAVE
-         MENUITEM     &quot;另存为（&amp;A）&quot;，    IDM_SAVEAS
-         MENUITEM     SEPARATOR              //分隔符
-        MENUITEM    “退出（&amp;X）”，    IDM_EXIT
-        //IDM_NEW,IDM_CLOSE,...是在Menu.h里自己定义好的宏，是一个1~65535的整数，用以唯一标识一个菜单项
-  ｝
-｝
-</code></pre>
-<p>资源编辑器定义:<br>在VS里面可以点开资源文件，点开.rc文件，找到Menu点开里面的那个文件后就有一个GUI式的编写界面，按照提示编写即可，需要注意的是创建一个新的菜单项时如果想自定义它的ID对应的宏名字，可以点开旁边的属性，然后在ID那里输入想要的名字，VS会自动生成一个相应的宏,但要注意不要与已有的名字冲突</p>
-<p><em>菜单的加载</em><br>1.创建窗口时加载</p>
-<pre><code class="cpp">HMENU hMenu = LoadMenu(hInstance,MAKEINTERSOURCE(菜单ID))
-//MAKEINTERSOURCE的作用跟一个数字转字符串的函数差不多
-CreateWindow(...,hMenu,...);
-</code></pre>
-<p>2.动态加载</p>
-<pre><code class="cpp">HMENU hMenu = LoadMenu(...);
-SetMenu(hWnd,hMenu);
-</code></pre>
-<p><strong>与菜单项有关的一些函数</strong></p>
-<pre><code class="cpp">//1．禁止或激活菜单项 
-BOOL EnableMenuItem
-(HMENU hmenu,
- UlNT wIDEnableItem,//被禁止或激活的菜单项标识
- UINT dwEnable
-)
-/*下面的一些宏是第三个参数*/
-// MF_BYCOMMAND以ID值标识菜单项
-// MF_ENABLED    激活菜单项
-// MF_BYPOSITION    表明以位置标识菜单项
-// MF_GRAYED    禁止菜单项并使其变灰显示
-// MF_DISABLED    禁止菜单项
-
-//2. 选中
-DWORD CheckMenuItem
-(
-HMENU hmenu,    
-UINT wIDCheckItem,    //菜单项标识
-UINT dwCheck            //操作标识MF_CHECKED和MF_UNCHECKED
-) 
-
-//3.增加菜单项 
-//末尾添加
-BOOL AppendMenu
-( HMENU hmenu,
-  UINT dwFlags,        // 新加入的菜单项类型标识
-  UINT dwIDNewItem,    // 新加入菜单项的ID
-  LPCTSTR lpNewItem    // 新加入的菜单项内容
-) 
-AppendMenu (hmenu, MF_ENABLED,IDM_ABOUT, &quot;关于(&amp;A)&quot;)
-//插入
-BOOL InsertMenu
-(HMENU hmenu,         //菜单句柄
-UINT wPosition,    //指定新菜单项插入的位置
-UINT dwFlag,         //新加入的菜单项的信息
-UINT dwIDNweItem,    //新加入的菜单项的标识
-LPCTSTR lpNewItem    //新插入的菜单项的内容
-) 
-InsertMenu (hmenu,IDM_EXIT,
-MF_BYCOMMAND|MF_ENABLED,
-IDM_PRINT,&quot;打印（&amp;P）&quot;);
-/*还可以通过位置来插入,第二个参数为位置,第三个参数变为MF_BYPOSITION | MF_ENABLED*/
-
-//4 删除菜单项
- BOOL DeleteMenu
-(
-HMENU hmenu,
-UINT wPosition, //要删除的菜单项的位置
-UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
-  )  
-</code></pre>
-]]></content>
-      <tags>
-        <tag>专业学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Test</title>
-    <url>/2022/04/25/Test/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>Test</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>git学习</title>
     <url>/2022/07/04/git%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<p>参考：<a href="https://zhuanlan.zhihu.com/p/356166493">https://zhuanlan.zhihu.com/p/356166493</a></p>
@@ -2341,24 +2352,6 @@ UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
 <h4 id="差异对比"><a href="#差异对比" class="headerlink" title="差异对比"></a>差异对比</h4><p><code>git diff</code> 比较暂存区与工作区<br><code>git diff -cached</code> 版本区与暂存区<br><code>git diff master</code> 版本去与工作区</p>
 <h4 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h4><p><code>git log</code>打印所有日志<br><code>git reflog</code>显示所有提交的id</p>
 <h4 id="版本回退与穿梭"><a href="#版本回退与穿梭" class="headerlink" title="版本回退与穿梭"></a>版本回退与穿梭</h4><p><code>git reset --hard HEAD^</code>回退一次提交，两次就打两个^,三次就三个^,…，想要回退1000个版本或指定数量的话用<code>git reset --hard HEAD~1000</code>的形式<br><code>git reset --hard id</code>回退到指定id的版本<br><code>git reset HEAD</code>用版本库文件替换所有暂存区的文件<br><code>git checkout -- x.txt</code>用暂存区的指定文件区替换工作区的文件<br><code>git checkout HEAD x.txt</code>用版本库中的文件去替换暂存和工作区的文件</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2021/07/18/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy
-</code></pre>
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
   </entry>
   <entry>
@@ -2407,6 +2400,50 @@ plt.show()
       <tags>
         <tag>专业学习</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>数字图像处理</title>
+    <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
+    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
+import cv2
+import matplotlib.pyplot as plt
+
+</code></pre>
+<pre><code class="python"># 边缘处理
+
+</code></pre>
+<pre><code class="python">
+</code></pre>
+<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
+import matplotlib.pyplot as plt
+
+im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
+b,g,r = cv2.split(im)
+#均衡化
+eb = cv2.equalizeHist(b)
+
+#计算直方图
+hist = cv2.calcHist([b],[0],None,[64],[0,256])
+ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
+#画图
+fig,ax = plt.subplots(2,2)
+ax[0,0].set_title(&#39;orignHist&#39;)
+ax[0,0].plot(hist)
+
+ax[0,1].set_title(&#39;equalHist&#39;)
+ax[0,1].plot(ehist)
+
+ax[1,0].set_title(&#39;orign&#39;)
+ax[1,0].imshow(b,&#39;gray&#39;)
+
+ax[1,1].set_title(&#39;equaled&#39;)
+ax[1,1].imshow(eb,&#39;gray&#39;)
+plt.show()
+</code></pre>
+<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
+<pre><code class="python">
+</code></pre>
+]]></content>
   </entry>
   <entry>
     <title>大话设计模式</title>
@@ -2530,49 +2567,5 @@ double result = opt-&gt;GetResult();
       <tags>
         <tag>设计模式</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>数字图像处理</title>
-    <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
-    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
-import cv2
-import matplotlib.pyplot as plt
-
-</code></pre>
-<pre><code class="python"># 边缘处理
-
-</code></pre>
-<pre><code class="python">
-</code></pre>
-<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
-import matplotlib.pyplot as plt
-
-im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
-b,g,r = cv2.split(im)
-#均衡化
-eb = cv2.equalizeHist(b)
-
-#计算直方图
-hist = cv2.calcHist([b],[0],None,[64],[0,256])
-ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
-#画图
-fig,ax = plt.subplots(2,2)
-ax[0,0].set_title(&#39;orignHist&#39;)
-ax[0,0].plot(hist)
-
-ax[0,1].set_title(&#39;equalHist&#39;)
-ax[0,1].plot(ehist)
-
-ax[1,0].set_title(&#39;orign&#39;)
-ax[1,0].imshow(b,&#39;gray&#39;)
-
-ax[1,1].set_title(&#39;equaled&#39;)
-ax[1,1].imshow(eb,&#39;gray&#39;)
-plt.show()
-</code></pre>
-<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
-<pre><code class="python">
-</code></pre>
-]]></content>
   </entry>
 </search>

@@ -172,7 +172,7 @@
     <li>
         <div class="all active" data-rel="全部文章">全部文章
             
-                <small>(14)</small>
+                <small>(11)</small>
             
         </div>
     </li>
@@ -197,7 +197,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="14">
+<input type="hidden" id="yelog_site_posts_number" value="11">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -267,10 +267,6 @@
                 <i class="iconfont icon-tag"></i><a>C语言,汇编</a>
             </li>
         
-            <li class="article-tag-list-item">
-                <i class="iconfont icon-tag"></i><a>Test</a>
-            </li>
-        
     </div>
 
 </div>
@@ -307,15 +303,6 @@
         
         
         <a  class="全部文章 "
-           href="/2022/04/25/Test/"
-           data-tag="Test"
-           data-author="" >
-            <span class="post-title" title="Test">Test</span>
-            <span class="post-date" title="2022-04-25 00:22:36">2022/04/25</span>
-        </a>
-        
-        
-        <a  class="全部文章 "
            href="/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
            data-tag="设计模式"
            data-author="" >
@@ -330,15 +317,6 @@
            data-author="" >
             <span class="post-title" title="数字图像处理-图像增强">数字图像处理-图像增强</span>
             <span class="post-date" title="2022-04-23 18:58:52">2022/04/23</span>
-        </a>
-        
-        
-        <a  class="全部文章 "
-           href="/2022/04/23/ExceptionC++_%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title=""></span>
-            <span class="post-date" title="2022-04-23 14:47:30">2022/04/23</span>
         </a>
         
         
@@ -395,15 +373,6 @@
             <span class="post-date" title="2021-07-20 00:03:54">2021/07/20</span>
         </a>
         
-        
-        <a  class="全部文章 "
-           href="/2021/07/18/hello-world/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="Hello World">Hello World</span>
-            <span class="post-date" title="2021-07-18 09:15:06">2021/07/18</span>
-        </a>
-        
         <div id="no-item-tips">
 
         </div>
@@ -441,7 +410,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2022-09-25 10:19:20'>2022-09-25 08:54</time>
+            发布时间 : <time class="date" title='最后更新: 2022-09-25 10:38:08'>2022-09-25 08:54</time>
         
     </div>
     <div class="article-meta">
@@ -504,7 +473,7 @@ int main()&#123;
 </code></pre>
 <p>下面是通过gcc test.c -m32 -S产生的test.s的部分结果</p>
 <p><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664069235498.png" alt="1664069235498"><br>可以看到在call f之前有一个类似将eax寄存器的值入栈的操作,即<code>movl %eax,(%esp)</code>,查看前面eax已经被赋值成ebp-12了(<code>leal -12(%ebp),%eax</code>),这个值就是变量a的地址(一个int这里是4字节,一个struct A占12个字节)进入f函数后前面几步是常规地在自己的栈内构建变量然后赋值,(如果对函数内构建变量不是很清楚的话建议先去翻翻CSAPP里汇编那一部分的内容)但是从13行开始后面几条命令是将刚构建好的结构体拷贝到另一个地方,拷贝的目的地是以eax里面的值为基址的,往前看可以看到eax被赋成了ebp+8处的内容(<code>movl 8(%ebp),%eax</code>),常规进入函数之后一般ebp+0处是主调函数的栈底,用来恢复主调函数的栈(即函数开头push %ebp的作用),ebp+4处是主调函数的返回地址,这是call指令自动压入的,再往上就是函数的参数,由于在main函数里call f之前最后一次压栈操作是<code>movl %eax,(%esp)</code>,所以现在f内的ebp+8就是main里那个eax的内容即a的地址,所以f内构建出来的变量b就直接拷贝到a那里去了,另外比较特别的是可以看到函数返回时有一个ret $4的操作,表示的就是从栈里取出ip后再弹出4个字节的值,而在ip(也就是主调函数的返回地址)后面的4个字节内容就是刚刚说的那个eax的内容即某个变量的地址。</p>
-<p>这里猜测和总结一下：<br>f函数本身没有函数参数,但在编译出来的汇编代码中会传入一个地址一样的值,f函数内部会将自己构建好的结构体拷贝到该地址去。<br>猜测:函数f本身不知道什么时候该拷贝什么时候不该拷贝,上面的代码中是a&#x3D;f();是需要拷贝的情况,但也存在单独调用的情况如f();所以可能的一个策略就是f不管该不该拷贝,反正它是一定会进行复制操作,也一定会拷到eax指定那个地方,至于这个eax指定哪由调用自己的那个地方决定。所以如果在main里调用f而不使用它的返回值那main里应该会有一个”腾出一个struct A”大小的操作,让f拷但又不去破坏到其它的变量。下面是进行测试的代码</p>
+<p>这里猜测和总结一下：<br>f函数本身没有函数参数,但在编译出来的汇编代码中会传入一个地址一样的值,f函数内部会将自己构建好的结构体拷贝到该地址去。<br>猜测:函数f本身不知道什么时候该拷贝什么时候不该拷贝,上面的代码中是a&#x3D;f();是需要拷贝的情况,但也存在单独调用的情况如f();所以可能的一个策略就是f不管该不该拷贝,反正它是一定会进行复制操作,也一定会拷到eax指定那个地方,至于这个eax指定哪由调用自己的那个地方决定。所以如果在main里调用f而不使用它的返回值那main里应该会有一个”腾出一个struct A”大小的操作,让f拷但又不去破坏到其它的变量,同时也能符合为什么要ret 4而不是ret,因为f知道虽然自己没有显示声明参数但一定会传一个参数过来给自己拷贝,所以离开的时候顺便把这个参数出栈了。下面是进行测试的代码</p>
 <pre><code class="c">struct A&#123;
         int a;
         int b;
@@ -526,7 +495,31 @@ int main()&#123;
         return 0;
 &#125;
 </code></pre>
-<p>同样使用gcc test.c -m32 -S产生test.s的部分结果:<br><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664072223777.png" alt="1664072223777"><br>可以看到这次是ebp-40传给了eax而不是ebp-12,所以符合上面的猜想</p>
+<p>同样使用gcc test.c -m32 -S产生test.s的部分结果:<br><img src="/image/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/1664072223777.png" alt="1664072223777"><br>可以看到这次是ebp-40传给了eax而不是ebp-12,所以符合上面的猜想,只是这次分配的空间变成了20字节一个结构体,至于为什么要变大我也不是很清楚,CSAPP里面提过一下</p>
+<p>最后再用下面的代码去测试一下这个”腾出来的”空间制造的变量是不是可用的,我们可以把f的返回值当作另一个函数的参数,调用f之后栈里就会存在一个结构体,然后又将此结构体的值移一一入栈给另一个函数。</p>
+<pre><code class="c">struct A&#123;
+        int a;
+        int b;
+        int c;
+&#125;;
+
+struct A f()&#123;
+        struct A a;
+        a.a =0;
+        a.b=2;
+        a.c=4;
+        return a;
+&#125;
+void g(struct A x)
+&#123;&#125;
+int main()&#123;
+        struct A a;
+        a.a=31;
+        g(f());
+        a.b = 64;
+        return 0;
+&#125;
+</code></pre>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
