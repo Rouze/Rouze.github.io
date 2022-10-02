@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>关于 | 若泽</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="关于 | 若泽">
+  <title>Pratt-Parse的理解 | 若泽</title>
+  <meta name="keywords" content=" 基于项目acwj的编译器学习 ">
+  <meta name="description" content="Pratt-Parse的理解 | 若泽">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="菜~">
 <meta property="og:type" content="website">
@@ -417,19 +417,26 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope itemprop="blogPost">
+        <article id="post-Pratt-Parse的理解" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">关于</h1>
+        <h1 class="article-title">Pratt-Parse的理解</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">基于项目acwj的编译器学习</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2021-07-18 10:49:26'>2021-07-18 10:48</time>
+            发布时间 : <time class="date" title='最后更新: 2022-10-02 00:28:50'>2022-10-01 23:30</time>
         
     </div>
     <div class="article-meta">
@@ -467,7 +474,50 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>这一小节要处理的问题是运算的优先级问题<br>这里先得出一个显然但是对后面理解很重要的结论:<br><strong>在构建出来的AST中每个节点的优先级一定是以自己为根的这这颗子树里最小的</strong></p>
+<p>对2*3+4*5来说，下面这样的AST之所以不对就是因为顶端*的优先级大于了+</p>
+<pre><code>     *
+    / \
+   2   +
+      / \
+     3   *
+        / \
+       4   5
+</code></pre>
+<p>如果构建出这样的AST,那它就是对原表达的正确反映</p>
+<p>在之前的处理当中,对expr的定义如下：</p>
+<pre><code>expression: number
+          | expression &#39;*&#39; expression
+          | expression &#39;/&#39; expression
+          | expression &#39;+&#39; expression
+          | expression &#39;-&#39; expression
+          ;
+
+number:  T_INTLIT
+         ;
+</code></pre>
+<p>如果修改expr定义如下:</p>
+<pre><code>expression: additive_expression
+    ;
+
+additive_expression:
+      multiplicative_expression
+    | additive_expression &#39;+&#39; multiplicative_expression
+    | additive_expression &#39;-&#39; multiplicative_expression
+    ;
+
+multiplicative_expression:
+      number
+    | number &#39;*&#39; multiplicative_expression
+    | number &#39;/&#39; multiplicative_expression
+    ;
+
+number:  T_INTLIT
+         ;
+</code></pre>
+<p>把expr分为了两大类,additive和multive,对于addtive来说它操作的最小单位是multive,而multive操作的最小单位是number,这就使得multive的expr掌握了对number的优先结合权,还是对2*3+4*5,现在它就会会被解析成multive_expr+multive_expr,也就是一个additive_expr,其实不管怎样到了最后整个expr一定是一个additive_expr,</p>
+<p>参考文章:blog.huati365.com</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
     </div>
