@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Effective_STL</title>
+    <url>/2022/04/28/Effective-STL/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>C++学习</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C语言里函数返回结构体的汇编分析</title>
     <url>/2022/09/25/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<p>在之前写操作系统内核的过程中经常需要接触到汇编和C语言,发现一个函数的返回值通常是由寄存器-eax存储的,但是在C语言里是能返回一个结构体的,如果结构体很大那寄存器肯定放不下,所以就好奇编译查看了一下,下面是测试的代码:</p>
@@ -79,14 +87,6 @@ int main()&#123;
 ]]></content>
       <tags>
         <tag>C语言,汇编</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Effective_STL</title>
-    <url>/2022/04/28/Effective-STL/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>C++学习</tag>
       </tags>
   </entry>
   <entry>
@@ -1610,57 +1610,6 @@ int main()
       </tags>
   </entry>
   <entry>
-    <title>Pratt-Parse的理解</title>
-    <url>/2022/10/01/Pratt-Parse%E7%9A%84%E7%90%86%E8%A7%A3/</url>
-    <content><![CDATA[<p>这一小节要处理的问题是运算的优先级问题<br>这里先得出一个显然但是对后面理解很重要的结论:<br><strong>在构建出来的AST中每个节点的优先级一定是以自己为根的这这颗子树里最小的</strong></p>
-<p>对2*3+4*5来说，下面这样的AST之所以不对就是因为顶端*的优先级大于了+</p>
-<pre><code>     *
-    / \
-   2   +
-      / \
-     3   *
-        / \
-       4   5
-</code></pre>
-<p>如果构建出这样的AST,那它就是对原表达的正确反映</p>
-<p>在之前的处理当中,对expr的定义如下：</p>
-<pre><code>expression: number
-          | expression &#39;*&#39; expression
-          | expression &#39;/&#39; expression
-          | expression &#39;+&#39; expression
-          | expression &#39;-&#39; expression
-          ;
-
-number:  T_INTLIT
-         ;
-</code></pre>
-<p>如果修改expr定义如下:</p>
-<pre><code>expression: additive_expression
-    ;
-
-additive_expression:
-      multiplicative_expression
-    | additive_expression &#39;+&#39; multiplicative_expression
-    | additive_expression &#39;-&#39; multiplicative_expression
-    ;
-
-multiplicative_expression:
-      number
-    | number &#39;*&#39; multiplicative_expression
-    | number &#39;/&#39; multiplicative_expression
-    ;
-
-number:  T_INTLIT
-         ;
-</code></pre>
-<p>把expr分为了两大类,additive和multive,对于addtive来说它操作的最小单位是multive,而multive操作的最小单位是number,这就使得multive的expr掌握了对number的优先结合权,还是对2*3+4*5,现在它就会会被解析成multive_expr+multive_expr,也就是一个additive_expr,其实不管怎样到了最后整个expr一定是一个additive_expr,</p>
-<p>参考文章:blog.huati365.com</p>
-]]></content>
-      <tags>
-        <tag>基于项目acwj的编译器学习</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Kuangbin-简单搜索</title>
     <url>/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/</url>
     <content><![CDATA[<h1 id="简单搜索"><a href="#简单搜索" class="headerlink" title="简单搜索"></a>简单搜索</h1><p>[poj1321](##<a href="http://poj.org/problem?id=1321">POJ1321 – 棋盘问题 </a>)</p>
@@ -2295,6 +2244,57 @@ int main()
       </tags>
   </entry>
   <entry>
+    <title>Pratt-Parse的理解</title>
+    <url>/2022/10/01/Pratt-Parse%E7%9A%84%E7%90%86%E8%A7%A3/</url>
+    <content><![CDATA[<p>这一小节要处理的问题是运算的优先级问题<br>这里先得出一个显然但是对后面理解很重要的结论:<br><strong>在构建出来的AST中每个节点的优先级一定是以自己为根的这这颗子树里最小的</strong></p>
+<p>对2*3+4*5来说，下面这样的AST之所以不对就是因为顶端*的优先级大于了+</p>
+<pre><code>     *
+    / \
+   2   +
+      / \
+     3   *
+        / \
+       4   5
+</code></pre>
+<p>如果构建出这样的AST,那它就是对原表达的正确反映</p>
+<p>在之前的处理当中,对expr的定义如下：</p>
+<pre><code>expression: number
+          | expression &#39;*&#39; expression
+          | expression &#39;/&#39; expression
+          | expression &#39;+&#39; expression
+          | expression &#39;-&#39; expression
+          ;
+
+number:  T_INTLIT
+         ;
+</code></pre>
+<p>如果修改expr定义如下:</p>
+<pre><code>expression: additive_expression
+    ;
+
+additive_expression:
+      multiplicative_expression
+    | additive_expression &#39;+&#39; multiplicative_expression
+    | additive_expression &#39;-&#39; multiplicative_expression
+    ;
+
+multiplicative_expression:
+      number
+    | number &#39;*&#39; multiplicative_expression
+    | number &#39;/&#39; multiplicative_expression
+    ;
+
+number:  T_INTLIT
+         ;
+</code></pre>
+<p>把expr分为了两大类,additive和multive,对于addtive来说它操作的最小单位是multive,而multive操作的最小单位是number,这就使得multive的expr掌握了对number的优先结合权,还是对2*3+4*5,现在它就会会被解析成multive_expr+multive_expr,也就是一个additive_expr,其实不管怎样到了最后整个expr一定是一个additive_expr,</p>
+<p>参考文章:blog.huati365.com</p>
+]]></content>
+      <tags>
+        <tag>基于项目acwj的编译器学习</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Windows编程</title>
     <url>/2022/04/04/Windows%E7%BC%96%E7%A8%8B/</url>
     <content><![CDATA[<h4 id="键盘与鼠标"><a href="#键盘与鼠标" class="headerlink" title="键盘与鼠标"></a>键盘与鼠标</h4><ul>
@@ -2451,6 +2451,129 @@ plt.show()
 ]]></content>
       <tags>
         <tag>专业学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>大话设计模式</title>
+    <url>/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h3><blockquote>
+<p>这个模式与面向对象相关,通过面向对象的三大特征来使得程序达到可复用,易修改,易扩展的效果</p>
+</blockquote>
+<p>本模式以写一个计算器功能,要求根据用户的输入输出相应的结果<br>如果没有使用任何模式代码可能如下</p>
+<pre><code class="cpp">int main()
+&#123;
+    try&#123;
+        std::cout&lt;&lt;&quot;请输入数字A:\n&quot;;
+        double a;
+        std::cin&gt;&gt;a;
+        std::cout&lt;&lt;&quot;请输入运算符号+,-,*,/:\n&quot;;
+        char opt;
+        std::cin&gt;&gt;opt;
+        //下面再类似地读入B
+        switch(opt)
+        &#123;
+            case &#39;*&#39;:
+            //操作
+            break;
+            case &#39;/&#39;:
+            //操作,注意除法需要自己判断除数是否为0,try catch不捕捉除零错误
+            break;
+            //类似的
+        &#125;
+    &#125;catch(...)&#123;
+        std::cout&lt;&lt;&quot;您的输入有误\n&quot;;
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<p>上面的代码想要复用就必须拷贝粘贴代码,如果有多个地方要使用那多个地方就会出现重复的代码,这是在编码时应该避免的。下面通过面向的封装特性将该功能进行封装,使得其<strong>复用性</strong>大大提高</p>
+<pre><code class="cpp">class Operation&#123;
+    public:
+    static double GetResult(double numA,double numB,string operate)&#123;
+        double result = 0;
+        switch(operate)&#123;
+            case:
+            //实现相应功能
+        &#125;
+        return result;
+    &#125;
+&#125;;
+</code></pre>
+<p>将计算这个功能给封装起来,数据的读入和检查由客户完成,这样这个代码的复用性就大大提高了,不单是现在这个程序可以用它,只要是需要通过输入得到结果的地方都可以使用</p>
+<p>但是如果此时想要给这个功能添加一些新的计算如开根求幂等,就需要去修改switch case的结构,一方面需要将所有运算的源码交给修改人员,这不安全可能会破坏其它的运算,另一方面这样的修改会使得原来已有的运算重新编译,这是不合理的.说白了这里需要解开各个运算之间的编译<strong>耦合</strong><br>下面是利用继承的方式修改的代码</p>
+<pre><code class="cpp">class Operation&#123;
+    protected:
+    double numA_;
+    double numB_;
+    public:
+    void SetA(double val);
+    double GetA()const;
+    //numB_类似有get与set
+    virtual double GetResult()&#123;
+        double ans=0;
+        return ans;
+    &#125;
+&#125;;
+class OperationAdd:public Operation&#123;
+    public:
+    virtual double GetResult()&#123;
+        return numA_ + numB_;
+    &#125;   
+&#125;;
+
+class OperationDiv:public Operation&#123;
+    public:
+    virtual double GetResult()override &#123;
+        if(numB_ == 0 )
+            throw Error;
+        return numA_ / numB_;
+    &#125;
+&#125;;
+//原先其它运算符类似
+class OperationSqrt:public Opearation&#123;
+    if (numA_ &lt;0)
+        throw Error;
+    return sqrt(numA_);
+&#125;;
+</code></pre>
+<p>这样既增加了安全性又提高了扩展性,现在的问题就是客户必须要知道自己的运算需要调用什么样的类,但如果程序很大,对客户来说去众多类里面找到自己想要的类是很不方便的,利用<strong>多态的性质</strong>将这个任务交给一个特定的类去完成,这个类即工厂</p>
+<pre><code class="cpp">class OperationFactory&#123;
+    public:
+    static Operation* createOperate(char operate)&#123;
+        Operation* opt = nullptr;
+        switch(operate)&#123;
+            case &#39;*&#39;:
+            opt = new OperationMul();
+            break;
+            case &#39;+&#39;:
+            opt = new OperationAdd();
+            break;
+            //...
+        &#125;
+        return opt;
+    &#125;
+&#125;;
+//客户端的代码
+Operation *opt;
+opt = OperationFactory::createOperate(&#39;+&#39;);
+opt-&gt;setA(10);
+opt-&gt;setB(20);
+double result = opt-&gt;GetResult();
+</code></pre>
+<h3 id="策略模式-Stretagy"><a href="#策略模式-Stretagy" class="headerlink" title="策略模式(Stretagy)"></a>策略模式(Stretagy)</h3><h3 id="单一职责原则-SRP"><a href="#单一职责原则-SRP" class="headerlink" title="单一职责原则(SRP)"></a>单一职责原则(SRP)</h3><blockquote>
+<p>如果一个类承担的职责过多，就等于把这些职责耦合在一起，一个职责的变化可能会影响到其它职责的实现，这种耦合会导致脆弱的设计</p>
+</blockquote>
+<h3 id="开放封闭原则"><a href="#开放封闭原则" class="headerlink" title="开放封闭原则"></a>开放封闭原则</h3><blockquote>
+<p>对修改关闭,对扩展开放</p>
+</blockquote>
+<h3 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h3><blockquote>
+<p>抽象不应该依赖底层模块,两个都应该依赖抽象。抽象不应该依赖细节，细节应该依赖于抽象。<br>简单地说就是应该针对接口编程而不是针对实现编程</p>
+</blockquote>
+<p>假设在做一个大项目时需要访问数据库，常用代码会写成函数库，在上层模块中调用这些函数即可，这里就是上层模块对底层模块的依赖。但如果上层的逻辑没有变化但需要换掉访问的数据库，那就出现问题了，因为上层模块与底层是绑在一起的。</p>
+<p>再举一个例子就是主机,CPU，内存，硬盘都是根据接口标准制造的，如果说它们根据主板实现那主板一坏其它部件都不能使用了<br>@startuml<br>(登录论坛)<br>(发帖子) as (tiezi_add)<br>usecase 删帖子 as tiezi_del<br>@enduml</p>
+]]></content>
+      <tags>
+        <tag>设计模式</tag>
       </tags>
   </entry>
   <entry>
@@ -2853,128 +2976,5 @@ plt.show()
 <pre><code class="python">
 </code></pre>
 ]]></content>
-  </entry>
-  <entry>
-    <title>大话设计模式</title>
-    <url>/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h3><blockquote>
-<p>这个模式与面向对象相关,通过面向对象的三大特征来使得程序达到可复用,易修改,易扩展的效果</p>
-</blockquote>
-<p>本模式以写一个计算器功能,要求根据用户的输入输出相应的结果<br>如果没有使用任何模式代码可能如下</p>
-<pre><code class="cpp">int main()
-&#123;
-    try&#123;
-        std::cout&lt;&lt;&quot;请输入数字A:\n&quot;;
-        double a;
-        std::cin&gt;&gt;a;
-        std::cout&lt;&lt;&quot;请输入运算符号+,-,*,/:\n&quot;;
-        char opt;
-        std::cin&gt;&gt;opt;
-        //下面再类似地读入B
-        switch(opt)
-        &#123;
-            case &#39;*&#39;:
-            //操作
-            break;
-            case &#39;/&#39;:
-            //操作,注意除法需要自己判断除数是否为0,try catch不捕捉除零错误
-            break;
-            //类似的
-        &#125;
-    &#125;catch(...)&#123;
-        std::cout&lt;&lt;&quot;您的输入有误\n&quot;;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<p>上面的代码想要复用就必须拷贝粘贴代码,如果有多个地方要使用那多个地方就会出现重复的代码,这是在编码时应该避免的。下面通过面向的封装特性将该功能进行封装,使得其<strong>复用性</strong>大大提高</p>
-<pre><code class="cpp">class Operation&#123;
-    public:
-    static double GetResult(double numA,double numB,string operate)&#123;
-        double result = 0;
-        switch(operate)&#123;
-            case:
-            //实现相应功能
-        &#125;
-        return result;
-    &#125;
-&#125;;
-</code></pre>
-<p>将计算这个功能给封装起来,数据的读入和检查由客户完成,这样这个代码的复用性就大大提高了,不单是现在这个程序可以用它,只要是需要通过输入得到结果的地方都可以使用</p>
-<p>但是如果此时想要给这个功能添加一些新的计算如开根求幂等,就需要去修改switch case的结构,一方面需要将所有运算的源码交给修改人员,这不安全可能会破坏其它的运算,另一方面这样的修改会使得原来已有的运算重新编译,这是不合理的.说白了这里需要解开各个运算之间的编译<strong>耦合</strong><br>下面是利用继承的方式修改的代码</p>
-<pre><code class="cpp">class Operation&#123;
-    protected:
-    double numA_;
-    double numB_;
-    public:
-    void SetA(double val);
-    double GetA()const;
-    //numB_类似有get与set
-    virtual double GetResult()&#123;
-        double ans=0;
-        return ans;
-    &#125;
-&#125;;
-class OperationAdd:public Operation&#123;
-    public:
-    virtual double GetResult()&#123;
-        return numA_ + numB_;
-    &#125;   
-&#125;;
-
-class OperationDiv:public Operation&#123;
-    public:
-    virtual double GetResult()override &#123;
-        if(numB_ == 0 )
-            throw Error;
-        return numA_ / numB_;
-    &#125;
-&#125;;
-//原先其它运算符类似
-class OperationSqrt:public Opearation&#123;
-    if (numA_ &lt;0)
-        throw Error;
-    return sqrt(numA_);
-&#125;;
-</code></pre>
-<p>这样既增加了安全性又提高了扩展性,现在的问题就是客户必须要知道自己的运算需要调用什么样的类,但如果程序很大,对客户来说去众多类里面找到自己想要的类是很不方便的,利用<strong>多态的性质</strong>将这个任务交给一个特定的类去完成,这个类即工厂</p>
-<pre><code class="cpp">class OperationFactory&#123;
-    public:
-    static Operation* createOperate(char operate)&#123;
-        Operation* opt = nullptr;
-        switch(operate)&#123;
-            case &#39;*&#39;:
-            opt = new OperationMul();
-            break;
-            case &#39;+&#39;:
-            opt = new OperationAdd();
-            break;
-            //...
-        &#125;
-        return opt;
-    &#125;
-&#125;;
-//客户端的代码
-Operation *opt;
-opt = OperationFactory::createOperate(&#39;+&#39;);
-opt-&gt;setA(10);
-opt-&gt;setB(20);
-double result = opt-&gt;GetResult();
-</code></pre>
-<h3 id="策略模式-Stretagy"><a href="#策略模式-Stretagy" class="headerlink" title="策略模式(Stretagy)"></a>策略模式(Stretagy)</h3><h3 id="单一职责原则-SRP"><a href="#单一职责原则-SRP" class="headerlink" title="单一职责原则(SRP)"></a>单一职责原则(SRP)</h3><blockquote>
-<p>如果一个类承担的职责过多，就等于把这些职责耦合在一起，一个职责的变化可能会影响到其它职责的实现，这种耦合会导致脆弱的设计</p>
-</blockquote>
-<h3 id="开放封闭原则"><a href="#开放封闭原则" class="headerlink" title="开放封闭原则"></a>开放封闭原则</h3><blockquote>
-<p>对修改关闭,对扩展开放</p>
-</blockquote>
-<h3 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h3><blockquote>
-<p>抽象不应该依赖底层模块,两个都应该依赖抽象。抽象不应该依赖细节，细节应该依赖于抽象。<br>简单地说就是应该针对接口编程而不是针对实现编程</p>
-</blockquote>
-<p>假设在做一个大项目时需要访问数据库，常用代码会写成函数库，在上层模块中调用这些函数即可，这里就是上层模块对底层模块的依赖。但如果上层的逻辑没有变化但需要换掉访问的数据库，那就出现问题了，因为上层模块与底层是绑在一起的。</p>
-<p>再举一个例子就是主机,CPU，内存，硬盘都是根据接口标准制造的，如果说它们根据主板实现那主板一坏其它部件都不能使用了<br>@startuml<br>(登录论坛)<br>(发帖子) as (tiezi_add)<br>usecase 删帖子 as tiezi_del<br>@enduml</p>
-]]></content>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
   </entry>
 </search>
