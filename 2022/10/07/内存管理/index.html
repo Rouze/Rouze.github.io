@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Pratt-Parse的理解 | 若泽</title>
-  <meta name="keywords" content=" 基于项目acwj的编译器学习 ">
-  <meta name="description" content="Pratt-Parse的理解 | 若泽">
+  <title>内存管理 | 若泽</title>
+  <meta name="keywords" content=" 操作系统 ">
+  <meta name="description" content="内存管理 | 若泽">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="菜~">
 <meta property="og:type" content="website">
@@ -426,9 +426,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-Pratt-Parse的理解" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-内存管理" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">Pratt-Parse的理解</h1>
+        <h1 class="article-title">内存管理</h1>
     
     <div class="article-meta">
         
@@ -438,14 +438,14 @@
         <span class="tag">
             <i class="iconfont icon-tag"></i>
             
-            <a class="color5">基于项目acwj的编译器学习</a>
+            <a class="color5">操作系统</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2022-10-02 00:28:50'>2022-10-01 23:30</time>
+            发布时间 : <time class="date" title='最后更新: 2022-10-07 20:52:20'>2022-10-07 19:12</time>
         
     </div>
     <div class="article-meta">
@@ -467,7 +467,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Makefile"><span class="toc-text">Makefile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ASSERT%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">ASSERT的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0"><span class="toc-text">实现字符串的一些操作函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bitmap%E4%BD%8D%E5%9B%BE-%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">bitmap位图-资源管理结构的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="toc-text">内存管理系统</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E6%B1%A0%E7%9A%84%E8%A7%84%E5%88%92"><span class="toc-text">内存池的规划</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -483,49 +483,293 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>这一小节要处理的问题是运算的优先级问题<br>这里先得出一个显然但是对后面理解很重要的结论:<br><strong>在构建出来的AST中每个节点的优先级一定是以自己为根的这这颗子树里最小的</strong></p>
-<p>对2*3+4*5来说，下面这样的AST之所以不对就是因为顶端*的优先级大于了+</p>
-<pre><code>     *
-    / \
-   2   +
-      / \
-     3   *
-        / \
-       4   5
+        <h3 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h3><p>前面是一些基本的Makefile知识，这里不说打算以后单独写一篇关于项目管理工具的博客</p>
+<h3 id="ASSERT的实现"><a href="#ASSERT的实现" class="headerlink" title="ASSERT的实现"></a>ASSERT的实现</h3><p>之前的调试基本是靠while(1)的方式打断点实现,便于调试这里实现了ASSERT断言,是一个宏，此方法在很多语言中都有,一般形式是ASSERT(condition),一般情况是ASSERT里面的表达式为假的话就需要退出程序并反馈错误信息,因为断言里判断的错误一般都是严重的错误,需要的知识不多,这里是靠C的宏实现的。</p>
+<pre><code class="c">//debug.h
+#ifndef _KERNEL_DEBUG_H
+#define _KERNEL_DEBUG_H
+void panic_spin(char *filename,int line,const char *func,const char *condition);
+//__VA_ARGS__是预处理器支持的专用标识符
+#define PANIC(...) panic_spin (__FILE__,__LINE__,__func__,__VA_ARGS__)
+#ifndef NDEBUG
+        #define ASSERT(CONDITION) ((void)0)
+#else
+        #define ASSERT(CONDITION) if(CONDITION)&#123;&#125;else&#123;PANIC(#CONDITION);&#125;
+#endif
+#endif
 </code></pre>
-<p>如果构建出这样的AST,那它就是对原表达的正确反映</p>
-<p>在之前的处理当中,对expr的定义如下：</p>
-<pre><code>expression: number
-          | expression &#39;*&#39; expression
-          | expression &#39;/&#39; expression
-          | expression &#39;+&#39; expression
-          | expression &#39;-&#39; expression
-          ;
-
-number:  T_INTLIT
-         ;
+<p>可以看到这里是为debug模式的开关预留了一个开关的,即NDEBUG,如果想要使用ASSERT断言就要在#include”debug.h”之前#define NDEBUG,再者就是__FILE__,<strong>LINE</strong>,__func__这三个专用标识符也可以认识一下对调试挺有用</p>
+<pre><code class="c">#include&quot;debug.h&quot;
+#include&quot;print.h&quot;
+#include&quot;interrupt.h&quot;
+//报错和处理的函数
+void panic_spin(char *filename,\
+                int line,\
+                const char* func,\
+                const char* condition)\
+&#123;
+        intr_disable();
+        put_str(&quot;\n\n\n!!!!!error!!!!!\n&quot;);
+        put_str(&quot;filename:&quot;);
+        put_str(filename);
+        put_str(&quot;\n&quot;);
+        put_str(&quot;line:0x&quot;);
+        put_int(line);
+        put_str(&quot;\n&quot;);
+        put_str(&quot;function:&quot;);
+        put_str((char*)func);
+        put_str(&quot;\n&quot;);
+        put_str(&quot;condition:&quot;);
+        put_str((char*)condition);
+        put_str(&quot;\n&quot;);
+        while(1);
+&#125;
 </code></pre>
-<p>如果修改expr定义如下:</p>
-<pre><code>expression: additive_expression
-    ;
+<h3 id="实现字符串的一些操作函数"><a href="#实现字符串的一些操作函数" class="headerlink" title="实现字符串的一些操作函数"></a>实现字符串的一些操作函数</h3><p>虽然这里是为字符串的一些操作编写代码但是其中的memset与memcpy在其它地方用得很多,至于其具体实现这里都采用的朴素的算法比较简单,不赘述</p>
+<pre><code class="c">//string.h
+#ifndef _STRING_H
+#define _STRING_H
+#include&quot;stdint.h&quot;
 
-additive_expression:
-      multiplicative_expression
-    | additive_expression &#39;+&#39; multiplicative_expression
-    | additive_expression &#39;-&#39; multiplicative_expression
-    ;
+void memset(void *dst_,uint8_t value,uint32_t size);
 
-multiplicative_expression:
-      number
-    | number &#39;*&#39; multiplicative_expression
-    | number &#39;/&#39; multiplicative_expression
-    ;
+void memcpy(void *dst_,const void *src_,uint32_t size);
 
-number:  T_INTLIT
-         ;
+int memcmp(const void *a_,const void *b_,uint32_t size);
+
+//char在str中首次出现的地址
+char *strchr(const char *str,const uint8_t ch);
+
+//从后往前找版本
+char *strrchr(const char *str,const uint8_t ch);
+
+char *strcat(char *dst_,const char* src_);
+
+//ch出现次数
+uint32_t strchs(const char *str,uint8_t ch);
+//长度
+uint32_t strlen(const char *str);
+uint32_t strcpy(char *dst_,const char*src_);
+int8_t strcmp(const char *a,const char*b);
+#endif
 </code></pre>
-<p>把expr分为了两大类,additive和multive,对于addtive来说它操作的最小单位是multive,而multive操作的最小单位是number,这就使得multive的expr掌握了对number的优先结合权,还是对2*3+4*5,现在它就会会被解析成multive_expr+multive_expr,也就是一个additive_expr,其实不管怎样到了最后整个expr一定是一个additive_expr,</p>
-<p>参考文章:blog.huati365.com</p>
+<pre><code class="c">//string.c
+#include&quot;string.h&quot;
+#include&quot;global.h&quot;
+#include&quot;debug.h&quot;
+#define NULL 0
+void memset(void *dst_,uint8_t value,uint32_t size)&#123;
+        ASSERT(dst_ != NULL);
+        uint8_t *dst = (uint8_t*)dst_;
+        while(size-- &gt; 0)
+                *dst++ = value;
+&#125;
+
+void memcpy(void *dst_,const void *src_,uint32_t size)&#123;
+        ASSERT(dst_ != NULL &amp;&amp; src_ != NULL);
+        uint8_t *dst = (uint8_t*)dst_;
+        const uint8_t *src = src_;
+        while(size-- &gt; 0)
+                *dst++ = *src++;
+&#125;
+
+int memcmp(const void *a_,const void *b_,uint32_t size)&#123;
+        const char *a = a_;
+        const char *b = b_;
+        ASSERT(a != NULL &amp;&amp; b != NULL);
+        while(size-- &gt; 0)&#123;
+                if(*a!=*b)
+                        return *a&gt;*b?1:-1;
+                ++a;
+                ++b;
+        &#125;
+        return 0;
+&#125;
+
+char *strchr(const char *str,const uint8_t ch)&#123;
+        ASSERT(str != NULL);
+        while(*str!=0)&#123;
+                if (*str == ch)
+                        return (char*)str;
+        ++str;
+        &#125;
+        return NULL;
+&#125;
+
+char *strrchr(const char *str,const uint8_t ch)&#123;
+        ASSERT(str!=NULL);
+        const char *last = NULL;
+        while(*str!=0)&#123;
+                if(*str == ch)
+                        last = str;
+                ++str;
+        &#125;
+        return (char*)last;
+&#125;
+
+char *strcat(char *dst_,const char* src_)&#123;
+        ASSERT(dst != NULL &amp;&amp; src_!=NULL);
+        char *str = dst_;
+        while(*str++);
+        --str;
+        while((*str++=*src_++));
+        return dst_;
+
+&#125;
+
+uint32_t strchs(const char *str,uint8_t ch)&#123;
+        ASSERT(str != NULL);
+        uint32_t cnt=0;
+        while(*str!=0)&#123;
+                if(*str==ch)
+                        ++cnt;
+                ++str;
+        &#125;
+        return cnt;
+&#125;
+
+uint32_t strlen(const char *str)&#123;
+        ASSERT(str != NULL);
+        uint32_t len = 0;
+        while(*str++)
+                ++len;
+        return len;
+&#125;
+
+uint32_t strcpy(char *dst_,const char*src_)&#123;
+        uint32_t len = strlen(src_);
+        memcpy(dst_,src_,len);
+&#125;
+
+int8_t strcmp(const char *a,const char*b)&#123;
+        while(*a&amp;&amp;*b)&#123;
+                if(*a!=*b)
+                        return *a-*b;
+                ++a,++b;
+        &#125;
+        return *a-*b;
+&#125;
+</code></pre>
+<h3 id="bitmap位图-资源管理结构的实现"><a href="#bitmap位图-资源管理结构的实现" class="headerlink" title="bitmap位图-资源管理结构的实现"></a>bitmap位图-资源管理结构的实现</h3><p>bitmap是一种管理资源的方式,简单地理解就是用一个bit位来map映射某一块资源,至于后面这一个”一块资源”取多大取决于具体问题。<br>比如本章要实现的内存管理,管理的最小单元是一个页,一个bit的状态就对应着一个页的状态,为1表示已经用掉用为0表示还未使用。<br>可能看到这里还是很迷惑这是个什么,可以想象它是一个”数组”,每个元素是一个bit,每个bit对应着一个物理页。至于为什么要使用它来管理看后面的代码比较好理解。<br>下面是对bitmap的定义与实现：</p>
+<pre><code class="c">#ifndef __LIB_KERNEL_BITMAP_H
+#define __LIB_KERNEL_BITMAP_H
+#include&quot;global.h&quot;
+#define BITMAP_MASK 1
+struct bitmap&#123;
+        uint32_t btmp_bytes_len;//表示这个位图的长途
+        uint8_t *bits;//位图数组的起始地址
+&#125;;
+void bitmap_init(struct bitmap *btmp);
+//测试第bit_idx位是否为1
+int bitmap_scan_test(struct bitmap *btmp,uint32_t bit_idx);
+//在位图中连续申请cnt个位，成功返回起始下标，失败返回-1
+int bitmap_scan(struct bitmap *btmp,uint32_t cnt);
+void bitmap_set(struct bitmap *btmp,uint32_t bit_idx,int8_t value);
+#endif
+</code></pre>
+<p>可以看到这里采用的位图结构就真的是一个数组,但C语言里数组的最小元素是一个字节而非bit，但对于位运算来说又是确确实实能操作到每一个bit的，所以这里可以看作8个bit进行一个分组然后管理。</p>
+<pre><code class="c">//bitmap.c
+#include&quot;bitmap.h&quot;
+#include&quot;stdint.h&quot;
+#include&quot;string.h&quot;
+#include&quot;print.h&quot;
+#include&quot;interrupt.h&quot;
+#include&quot;debug.h&quot;
+
+//简单的置零，所有字节置零了那每个比特也肯定置零了
+void bitmap_init(struct bitmap *btmp)&#123;
+        memset(btmp-&gt;bits,0,btmp-&gt;btmp_bytes_len);
+&#125;
+
+//测试第bit_idx个bit是0还是1
+int bitmap_scan_test(struct bitmap *btmp,uint32_t bit_idx)&#123;
+        uint32_t byte_idx = bit_idx / 8;//是第几组
+        uint32_t bit_odd = bit_idx % 8;//组内第几个
+        return (btmp-&gt;bits[byte_idx] &amp; (BITMAP_MASK &lt;&lt; bit_odd));
+&#125;
+
+//扫描bitmap,看有没有连续的cnt个bit可以使用,有就返回起始地址，否则返回-1
+int bitmap_scan(struct bitmap *btmp,uint32_t cnt)&#123;
+        uint32_t idx_byte = 0;
+        //0xff表示8位全为1不可能有空的
+        while((0xff==btmp-&gt;bits[idx_byte])&amp;&amp;(idx_byte &lt; btmp-&gt;btmp_bytes_len))
+                ++idx_byte;
+        ASSERT(idx_byte &lt; btmp-&gt;btmp_bytes_len);
+        if(idx_byte == btmp-&gt;btmp_bytes_len)
+                return -1;
+        //现在btmp-&gt;bits[idx_byte]里有至少一个空位,开始找这个空位
+        int idx_bit=0;
+        while((uint8_t)(BITMAP_MASK&lt;&lt;idx_bit) &amp; btmp-&gt;bits[idx_byte])
+                ++idx_bit;
+
+        int bit_idx_start = idx_byte*8+idx_bit;
+        //只要1位直接返回
+        if(cnt == 1)
+                return bit_idx_start;
+        uint32_t bit_left = (btmp-&gt;btmp_bytes_len*8 - bit_idx_start);
+        uint32_t count=1;
+        uint32_t next_bit = bit_idx_start+1;
+        bit_idx_start = -1;
+        while(bit_left-- &gt; 0)&#123;
+            //这里要注意的是寻找的是连续的cnt个位,如果有cnt个不连续的空位也返回-1
+                if(!(bitmap_scan_test(btmp,next_bit)))
+                        ++count;
+                else
+                        count=0;
+                if(count == cnt)&#123;
+                        bit_idx_start = next_bit - cnt + 1;
+                        break;
+                &#125;
+                ++next_bit;
+        &#125;
+        return bit_idx_start;
+&#125;
+
+void bitmap_set(struct bitmap *btmp,uint32_t bit_idx,int8_t value)&#123;
+        ASSERT((value == 0)||(value == 1));
+        uint32_t byte_idx = bit_idx/8;
+        uint32_t bit_odd= bit_idx%8;
+        ASSERT(value == 0 || value == 1);
+        if(value)&#123;
+                btmp-&gt;bits[byte_idx] |= (BITMAP_MASK &lt;&lt; bit_odd);
+        &#125;else&#123;
+                btmp-&gt;bits[byte_idx] &amp;= ~(BITMAP_MASK &lt;&lt; bit_odd);
+        &#125;
+&#125;
+</code></pre>
+<h3 id="内存管理系统"><a href="#内存管理系统" class="headerlink" title="内存管理系统"></a>内存管理系统</h3><h4 id="内存池的规划"><a href="#内存池的规划" class="headerlink" title="内存池的规划"></a>内存池的规划</h4><p>其实内存池也是一种管理的手段,这里的内存池其实就是地址池,所谓的”池”其实就是相当于一个存储的地方，当需要用的时候去这里取，不用的时候再把地址丢回来。</p>
+<ul>
+<li>物理内存池：我们最终要管理的是物理上的这块4GB大小的内存，后面的实现中把剩下的物理地址(因为4GB里有一部分是内核代码，剩下的才是能使用的内存)平分给了内核和用户进程,把内核看作一个特权级非常高的进程，它在运行过程中也可能会申请释放内存，所以为它单独分配了一个内存池来使用，用户内存池则是所有用户进程所共享的内存池</li>
+<li>虚拟地址池：因为内核也是一个进程，所以它也有自己虚拟的一个地址空间，由于虚拟地址空间跟物理地址空间是不相干的，所以需要一个虚拟的地址池来管理内核的虚拟地址空间</li>
+</ul>
+<pre><code class="c">#ifndef __KERNEL_MEMORY_H
+#define __KERNEL_MEMORY_H
+#include&quot;stdint.h&quot;
+#include&quot;bitmap.h&quot;
+
+//虚拟地址池
+struct virtual_addr&#123;
+        //虚拟地址用到的位图结构
+        struct bitmap vaddr_bitmap;
+        uint32_t vaddr_start;
+&#125;;
+extern struct pool kernel_pool,user_pool;//两个物理地址池,具体定义在memory.c里面
+
+enum pool_flags&#123;
+        PF_KERNEL = 1,
+        PF_USER = 2
+&#125;;
+#define PG_P_1 1
+#define PG_P_0 0
+#define PG_RW_R 0
+#define PG_RW_W 2
+#define PG_US_S 0
+#define PG_US_U 4
+
+void mem_init();
+void *get_kernel_pages(uint32_t);
+#endif
+</code></pre>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
