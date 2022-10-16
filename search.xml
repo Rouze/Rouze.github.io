@@ -3237,7 +3237,7 @@ void bitmap_set(struct bitmap *btmp,uint32_t bit_idx,int8_t value)&#123;
 <h3 id="内存管理系统"><a href="#内存管理系统" class="headerlink" title="内存管理系统"></a>内存管理系统</h3><h4 id="内存池的规划"><a href="#内存池的规划" class="headerlink" title="内存池的规划"></a>内存池的规划</h4><p>其实内存池也是一种管理的手段,这里的内存池其实就是地址池,所谓的”池”其实就是相当于一个存储的地方，当需要用的时候去这里取，不用的时候再把地址丢回来。</p>
 <ul>
 <li>物理内存池：我们最终要管理的是物理上的这块4GB大小的内存，后面的实现中把剩下的物理地址(因为4GB里有一部分是内核代码，剩下的才是能使用的内存)平分给了内核和用户进程,把内核看作一个特权级非常高的进程，它在运行过程中也可能会申请释放内存，所以为它单独分配了一个内存池来使用，用户内存池则是所有用户进程所共享的内存池</li>
-<li>虚拟地址池：因为内核也是一个进程，所以它也有自己虚拟的一个地址空间，由于虚拟地址空间跟物理地址空间是不相干的，所以需要一个虚拟的地址池来管理内核的虚拟地址空间</li>
+<li>虚拟地址池：因为内核也是一个进程，所以它也有自己虚拟的一个地址空间，由于虚拟地址空间跟物理地址空间是不相干的，所以用一个虚拟的地址池来管理内核的虚拟地址空间，当然这个结构也可以用在后面管理用户进程的虚拟地址空间</li>
 </ul>
 <pre><code class="c">#ifndef __KERNEL_MEMORY_H
 #define __KERNEL_MEMORY_H
@@ -3256,6 +3256,7 @@ enum pool_flags&#123;
         PF_KERNEL = 1,
         PF_USER = 2
 &#125;;
+//一些用来组成页表项的宏
 #define PG_P_1 1
 #define PG_P_0 0
 #define PG_RW_R 0
@@ -3267,9 +3268,229 @@ void mem_init();
 void *get_kernel_pages(uint32_t);
 #endif
 </code></pre>
+<p>可以看到其实虚拟地址池就是用了一个位图来管理，位图反应了虚拟地址的使用情况而下面那个vaddr_start则表示管理的这块虚拟地址的起始地址是多少，这样可以使此结构管理任意一个虚拟地址开始的一片空间，否则光有位图就只能表示从0开始的虚拟空间</p>
+<pre><code class="c">#define NULL 0
+#include&quot;memory.h&quot;
+#include&quot;stdint.h&quot;
+#include&quot;print.h&quot;
+#include&quot;bitmap.h&quot;
+#include&quot;string.h&quot;
+#include&quot;debug.h&quot;
+#define PG_SIZE 4096
+
+#define MEM_BITMAP_BASE 0xc009a000
+
+#define K_HEAP_START 0xc0100000
+
+#define PDE_IDX(addr) ((addr &amp; 0xffc00000) &gt;&gt; 22)
+#define PTE_IDX(addr) ((addr &amp; 0x003ff000) &gt;&gt; 12)
+
+//跟虚拟池差不多，这是物理池的结构，多了一个池的大小，因为现实中物理内存是有限的
+struct pool&#123;
+        struct bitmap pool_bitmap;
+        uint32_t phy_addr_start;
+        uint32_t pool_size;
+&#125;;
+//定义好内核的物理池和用户物理池
+struct pool kernel_pool,user_pool;
+//目前只有内核这一个进程使用虚拟地址池
+struct virtual_addr kernel_vaddr;
+
+static void mem_pool_init(uint32_t all_mem)&#123;
+        //初始化，将all_mem的空间分配给内核和用户内存池
+        put_str(&quot;mem_pool_init\n&quot;);
+        //页表本身要用掉的空间
+        uint32_t page_table_size = PG_SIZE * 256;
+        /*256的由来:首先页目录表占一个页表大小，如果页目录表里每一项各异那就应该有1024页表
+        *也就是一共有1+1024=1025个页表，但是在前面开启分页的代码那里，把页目录表的第0和第768个目录
+        *项指向了同1个页表，第1~767个目录项没用，只有769~1022共254个目录项是分配了值的(因为这是属于内核的，而现在内核就已经有内容了)
+        *所以真正用掉的页表大小就是1+1+254 = 256*/
+
+        /*一个进程要有独立的地址空间，那就肯定有一张属于这个进程的页目录表，当前只有内核一个进程，所以当前这个页目录表就是内核的页目录表，所以低端的3GB内存所对应的页目录项内容是没有的，因为内核只使用高端的1G内存
+        *当然这里的什么低端3GB高端1GB是虚拟地址的低端高端，并非实际的物理内存。*/
+        //低端1MB和页表属于用掉的的内存
+        uint32_t used_mem = page_table_size + 0x100000;
+        //下面将空间平分给内核与用户
+        uint32_t free_mem = all_mem - used_mem;
+        uint16_t all_free_pages = free_mem / PG_SIZE;
+
+        uint16_t kernel_free_pages = all_free_pages / 2;
+        uint16_t user_free_pages = all_free_pages - kernel_free_pages;
+        //计算内核和用户物理内存池需要用到的位图长度,这里位图的一个bit映射到的是一个物理页
+        uint32_t kbm_length = kernel_free_pages / 8;
+        uint32_t ubm_length = user_free_pages /8;
+
+        //内核物理内存池紧接着用掉的内存后面，一点不浪费
+        uint32_t kp_start = used_mem;
+        uint32_t up_start = kp_start + kernel_free_pages * PG_SIZE;
+        //下面就是对两个物理内存池结构的一些初始化，比较简单
+        kernel_pool.phy_addr_start = kp_start;
+        user_pool.phy_addr_start = up_start;
+
+        kernel_pool.pool_size = kernel_free_pages * PG_SIZE;
+        user_pool.pool_size = user_free_pages * PG_SIZE;
+
+        kernel_pool.pool_bitmap.btmp_bytes_len = kbm_length;
+        user_pool.pool_bitmap.btmp_bytes_len = ubm_length;
+
+        /*写到这里不知道你有没有发现前面的某个计算是有错误的
+        *计算用掉的内存那里是算的低端的1MB+当前页表要用掉的内存
+        *但是有没有想过内存池这个结构体也是需要一个地方存放的，同时
+        *它内部的位图结构有个指针，指向一片区域用来映射管理物理页，
+        *但是目前还没有分配地方给它，下面两行代码就是在为这个问题分配空间*/
+        kernel_pool.pool_bitmap.bits = (void*)MEM_BITMAP_BASE;
+        user_pool.pool_bitmap.bits = (void*)(MEM_BITMAP_BASE+kbm_length);
+        /*所谓的分配空间其实就是把指针指到某个地方而已，至于这片区域能不能用是
+        *分配者考虑的问题，上面两行代码就是在充当分配者的角色分配空间。
+        *MEM_BITMAP_BASE的取值在代码外面解释，这里先用即可*/
+
+
+        put_str(&quot;kernel_pool_bitmap_start:&quot;);
+        put_int((int)(kernel_pool.pool_bitmap.bits));
+        put_str(&quot;kernel_pool_phy_addr:&quot;);
+        put_int((int)kernel_pool.phy_addr_start);
+        put_str(&quot;\n&quot;);
+
+        bitmap_init(&amp;kernel_pool.pool_bitmap);
+        bitmap_init(&amp;user_pool.pool_bitmap);
+        //下面是对内核进程虚拟地址池的初始化
+        kernel_vaddr.vaddr_bitmap.btmp_bytes_len = kbm_length;
+        kernel_vaddr.vaddr_bitmap.bits = (void*)(MEM_BITMAP_BASE+kbm_length+ubm_length);
+        /*K_HEAP_START的值为0xc0100000,这个好理解,在之前构造页表的时候
+        *0xc000 0000是映射到物理地址0的，由于已经用掉了1MB，所以要从0xc010 0000开始
+        */
+        kernel_vaddr.vaddr_start = K_HEAP_START;
+        bitmap_init(&amp;kernel_vaddr.vaddr_bitmap);
+        put_str(&quot;mem_pool_init done\n&quot;);
+        /*初始化完毕,此后申请内存的过程大致如下：
+        *从虚拟池找到空闲的空间-&gt;
+        *改变虚拟池的位图对应状态-&gt;
+        *将要用到的虚拟地址映射到物理地址(这可能涉及到一些汇编层面的代码)-&gt;
+        *改变物理池的位图对应状态-&gt;
+        *将虚拟地址提供给内核*/
+&#125;
+
+void mem_init()&#123;
+        put_str(&quot;mem_init start\n&quot;);
+        uint32_t mem_bytes_total = (*(uint32_t*)(0xb00));
+        mem_pool_init(mem_bytes_total);
+        put_str(&quot;mem_init done\n&quot;);
+&#125;
+//在pf所标识的内存池内申请pg_cnt个虚拟页，成功则返回起始地址，失败则为NULL
+static void *vaddr_get(enum pool_flags pf,uint32_t pg_cnt)&#123;
+        int vaddr_start = 0,bit_idx_start = -1;
+        uint32_t cnt = 0;
+        if(pf == PF_KERNEL)&#123;
+                bit_idx_start = bitmap_scan(&amp;kernel_vaddr.vaddr_bitmap,pg_cnt);
+                if(bit_idx_start == -1)
+                        return NULL;
+                while(cnt&lt;pg_cnt)&#123;
+                        bitmap_set(&amp;kernel_vaddr.vaddr_bitmap,bit_idx_start+cnt++,1);
+                &#125;
+                vaddr_start = kernel_vaddr.vaddr_start + bit_idx_start *PG_SIZE;
+        &#125;else&#123;
+
+        &#125;
+        return (void*)vaddr_start;
+&#125;
+
+//得到虚拟地址对应的pte指针
+uint32_t *pte_ptr(uint32_t vaddr)&#123;
+        uint32_t *pte = (uint32_t*)(0xffc00000+\
+                        ((vaddr &amp; 0xffc00000) &gt;&gt; 10) + \
+                        PTE_IDX(vaddr) * 4);
+        return pte;
+&#125;
+
+//得到虚拟地址对应的pde指针
+uint32_t *pde_ptr(uint32_t vaddr)&#123;
+        uint32_t *pde = (uint32_t*)((0xfffff000)+PDE_IDX(vaddr)*4);
+        return pde;
+&#125;
+
+//在m_pool指向的内存池分配1个物理页
+static void *palloc(struct pool *m_pool)&#123;
+        int bit_idx = bitmap_scan(&amp;m_pool-&gt;pool_bitmap,1);
+        if(bit_idx == -1)
+                return NULL;
+        bitmap_set(&amp;m_pool-&gt;pool_bitmap,bit_idx,1);
+        uint32_t page_phyaddr = ((bit_idx*PG_SIZE) + m_pool-&gt;phy_addr_start);
+        return (void*)page_phyaddr;
+&#125;
+
+//向页表中添加虚拟地址_vaddr与物理地址page_phyaddr的映射
+static void page_table_add(void *_vaddr,void *_page_phyaddr)&#123;
+        uint32_t vaddr = (uint32_t)_vaddr,page_phyaddr = (uint32_t)_page_phyaddr;
+        uint32_t *pde = pde_ptr(vaddr);
+        uint32_t *pte = pte_ptr(vaddr);
+        if(*pde &amp; 0x00000001)&#123;
+                ASSERT(!(*pte&amp;0x00000001));
+                if(!(*pte &amp; 0x00000001))&#123;
+                        *pte = (page_phyaddr | PG_US_U | PG_RW_W |PG_P_1);
+                &#125;else&#123;
+                        PANIC(&quot;pte repeat&quot;);
+                &#125;
+        &#125;else&#123;
+                uint32_t pde_phyaddr = (uint32_t)palloc(&amp;kernel_pool);
+                *pde = (pde_phyaddr | PG_US_U | PG_RW_W | PG_P_1);
+                memset((void*)((int)pte &amp; 0xfffff000),0,PG_SIZE);
+                ASSERT(!(*pte &amp; 0x00000001));
+                *pte = (page_phyaddr | PG_US_U | PG_RW_W |PG_P_1);
+        &#125;
+&#125;
+
+//分配pg_cnt个页空间
+void *malloc_page(enum pool_flags pf,uint32_t pg_cnt)&#123;
+        ASSERT(pg_cnt &gt; 0 &amp;&amp; pg_cnt &lt; 3840);
+
+        void *vaddr_start = vaddr_get(pf,pg_cnt);
+        if(vaddr_start == NULL)&#123;
+                return NULL;
+        &#125;
+        uint32_t vaddr = (uint32_t)vaddr_start,cnt = pg_cnt;
+        struct pool *mem_pool = pf &amp; PF_KERNEL ? &amp;kernel_pool:&amp;user_pool;
+        while(cnt-- &gt; 0)&#123;
+                void *page_phyaddr = palloc(mem_pool);
+                if(page_phyaddr == NULL)&#123;
+                        //此处应该有回滚
+                        return NULL;
+                &#125;
+                page_table_add((void*)vaddr,page_phyaddr);
+                vaddr += PG_SIZE;
+        &#125;
+        return vaddr_start;
+&#125;
+
+
+void *get_kernel_pages(uint32_t pg_cnt)&#123;
+        void *vaddr = malloc_page(PF_KERNEL,pg_cnt);
+        if(vaddr != NULL)&#123;
+                memset(vaddr,0,pg_cnt*PG_SIZE);
+        &#125;
+        return vaddr;
+&#125;
+</code></pre>
 ]]></content>
       <tags>
         <tag>操作系统</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计网-链路层</title>
+    <url>/2022/10/15/%E8%AE%A1%E7%BD%91-%E9%93%BE%E8%B7%AF%E5%B1%82/</url>
+    <content><![CDATA[<p>便于表达和理解，下面的例子大多基于连接两台电脑的连接为具体例子</p>
+<p><em>物理层把两台电脑(当然可以是多台)通过各种物理线路将它们连接了起来，现在两台电脑能互相发送和接收信号了，但也只是能发送和接收信号而已，对于接收者，通过调制解调器之后也就只能得到一堆01数据串，没有其它信息，无从解析。所以需要两台电脑之间形成一种约定，这个约定规定了每次发送的数据的格式等，有了这样的约定两者才能实现有意义的数据传输，来负责管理这个约定的就是链路层</em></p>
+<p>举例来说就像隔得很远的两个人要互相通信，现在给了他们两个人一人一个手电，他们可以通过手电的闪烁来传递信息，手电就是物理层的内容将他们”连接”了起来，但是如果只有手电闪烁两人也无法进行有效的通信，现在两人约定一个人要开始讲话时就让手电常亮5秒，然后中间用摩斯电码或者其它方法传递信息，表示讲话完毕就常亮手电7秒，这样双方才能进行有意义的通信，而”开始讲话时…7秒”的这种规定就是链路层要做的工作</p>
+<h4 id="概念辨析"><a href="#概念辨析" class="headerlink" title="概念辨析"></a>概念辨析</h4><p><strong>链路</strong>是物理上的将两台电脑连接起来的一条物理线路，而<strong>数据链路</strong>是在此基础上增加一些通信协议，这些协议具体实现到硬件和软件上，现在物理层和链路层的协议大多实现在网卡(网络适配器)上</p>
+<p><strong>链路层要解决的问题：1.封装成帧 2.透明传输 3.差错检测</strong></p>
+<h3 id="封装成帧"><a href="#封装成帧" class="headerlink" title="封装成帧"></a>封装成帧</h3><p>这个问题比较容易想到，如果传递的数据没有边界划分那接收者根本不知道改从何处开始解析，所以很自然地就需要对数据进行一个简单的封装，封装的方法就是在数据部分的首尾加上特殊的数据其实也就是特定的01串，至于用什么样的界定符是标准需要讨论的问题，一个这样加上头部和尾部的01串就是一个*帧(Fram)*。当然头部和尾部还可以加上一些控制信息这些是具体的实现细节。接收端只有看到SOH和EOT时才会认为这是一个完整的帧，否则将丢弃接收的数据<br>    帧开始符                        帧结束符<br>        |                              |<br>     —————————————<br>    | SOH |     封装的数据部分      |  EOT   |<br>     —————————————</p>
+<h3 id="透明传输"><a href="#透明传输" class="headerlink" title="透明传输"></a>透明传输</h3><p>上面的问题中要规定特殊的界定符，但是无论它取什么，都无法保证后面的数据部分不会出现跟其一样的01串出现，如果不采取某种措施那接收端就会错误地将一个帧给切分掉。</p>
+<p>这里解释一下透明传输，所谓透明是对使用者来说的，就像这里使用者不用知道界定符选了什么，他直观把自己的数据打包成上面的数据部分，不用担心自己的数据中会出现跟界定符一样的01串，因为当使用者把数据给到链路层的时候链路层会来处理这个问题，所以这个传输问题对使用者来说就像透明的一样，不存在</p>
+<p>现在回到链路层，如何解决这个问题，其实思路就跟C语言的字符转义一样，跟界定符重复了那就把它变成不一样的东西，接收者再把它翻译回去即可。具体做法就是发送端的链路层在数据部分出现跟界定符一样的地方的前面再插个特殊的”转义符(ESC)”，接收端看到这个转义符就不会把后面的01串当作界定符，并且在将数据传给自己的上层使用者之前把这个转义符给删掉。这种方法称为<strong>字符填充</strong></p>
+<h3 id="差错检测"><a href="#差错检测" class="headerlink" title="差错检测"></a>差错检测</h3><p>解决上面两个问题可以进行通信了，但现实中通信的链路并不完美，传输过程中可能会出现某些数据位的错误即某些位0变1，1变0，此时需要链路层来检测出这些错误。<br>目前广泛使用的一种方式就是**循环冗余检验(CRC)**，其原理如下：</p>
+]]></content>
+      <tags>
+        <tag>计网学习</tag>
       </tags>
   </entry>
 </search>

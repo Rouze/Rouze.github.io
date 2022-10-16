@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>关于 | 若泽</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="关于 | 若泽">
+  <title>计网-链路层 | 若泽</title>
+  <meta name="keywords" content=" 计网学习 ">
+  <meta name="description" content="计网-链路层 | 若泽">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="菜~">
 <meta property="og:type" content="website">
@@ -439,19 +439,26 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope itemprop="blogPost">
+        <article id="post-计网-链路层" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">关于</h1>
+        <h1 class="article-title">计网-链路层</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">计网学习</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2021-07-18 10:49:26'>2021-07-18 10:48</time>
+            发布时间 : <time class="date" title='最后更新: 2022-10-16 10:26:38'>2022-10-15 19:43</time>
         
     </div>
     <div class="article-meta">
@@ -473,7 +480,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E8%BE%A8%E6%9E%90"><span class="toc-text">概念辨析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%81%E8%A3%85%E6%88%90%E5%B8%A7"><span class="toc-text">封装成帧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%8F%E6%98%8E%E4%BC%A0%E8%BE%93"><span class="toc-text">透明传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%AE%E9%94%99%E6%A3%80%E6%B5%8B"><span class="toc-text">差错检测</span></a>
     
 <style>
     .left-col .switch-btn,
@@ -489,7 +496,17 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>便于表达和理解，下面的例子大多基于连接两台电脑的连接为具体例子</p>
+<p><em>物理层把两台电脑(当然可以是多台)通过各种物理线路将它们连接了起来，现在两台电脑能互相发送和接收信号了，但也只是能发送和接收信号而已，对于接收者，通过调制解调器之后也就只能得到一堆01数据串，没有其它信息，无从解析。所以需要两台电脑之间形成一种约定，这个约定规定了每次发送的数据的格式等，有了这样的约定两者才能实现有意义的数据传输，来负责管理这个约定的就是链路层</em></p>
+<p>举例来说就像隔得很远的两个人要互相通信，现在给了他们两个人一人一个手电，他们可以通过手电的闪烁来传递信息，手电就是物理层的内容将他们”连接”了起来，但是如果只有手电闪烁两人也无法进行有效的通信，现在两人约定一个人要开始讲话时就让手电常亮5秒，然后中间用摩斯电码或者其它方法传递信息，表示讲话完毕就常亮手电7秒，这样双方才能进行有意义的通信，而”开始讲话时…7秒”的这种规定就是链路层要做的工作</p>
+<h4 id="概念辨析"><a href="#概念辨析" class="headerlink" title="概念辨析"></a>概念辨析</h4><p><strong>链路</strong>是物理上的将两台电脑连接起来的一条物理线路，而<strong>数据链路</strong>是在此基础上增加一些通信协议，这些协议具体实现到硬件和软件上，现在物理层和链路层的协议大多实现在网卡(网络适配器)上</p>
+<p><strong>链路层要解决的问题：1.封装成帧 2.透明传输 3.差错检测</strong></p>
+<h3 id="封装成帧"><a href="#封装成帧" class="headerlink" title="封装成帧"></a>封装成帧</h3><p>这个问题比较容易想到，如果传递的数据没有边界划分那接收者根本不知道改从何处开始解析，所以很自然地就需要对数据进行一个简单的封装，封装的方法就是在数据部分的首尾加上特殊的数据其实也就是特定的01串，至于用什么样的界定符是标准需要讨论的问题，一个这样加上头部和尾部的01串就是一个*帧(Fram)*。当然头部和尾部还可以加上一些控制信息这些是具体的实现细节。接收端只有看到SOH和EOT时才会认为这是一个完整的帧，否则将丢弃接收的数据<br>    帧开始符                        帧结束符<br>        |                              |<br>     —————————————<br>    | SOH |     封装的数据部分      |  EOT   |<br>     —————————————</p>
+<h3 id="透明传输"><a href="#透明传输" class="headerlink" title="透明传输"></a>透明传输</h3><p>上面的问题中要规定特殊的界定符，但是无论它取什么，都无法保证后面的数据部分不会出现跟其一样的01串出现，如果不采取某种措施那接收端就会错误地将一个帧给切分掉。</p>
+<p>这里解释一下透明传输，所谓透明是对使用者来说的，就像这里使用者不用知道界定符选了什么，他直观把自己的数据打包成上面的数据部分，不用担心自己的数据中会出现跟界定符一样的01串，因为当使用者把数据给到链路层的时候链路层会来处理这个问题，所以这个传输问题对使用者来说就像透明的一样，不存在</p>
+<p>现在回到链路层，如何解决这个问题，其实思路就跟C语言的字符转义一样，跟界定符重复了那就把它变成不一样的东西，接收者再把它翻译回去即可。具体做法就是发送端的链路层在数据部分出现跟界定符一样的地方的前面再插个特殊的”转义符(ESC)”，接收端看到这个转义符就不会把后面的01串当作界定符，并且在将数据传给自己的上层使用者之前把这个转义符给删掉。这种方法称为<strong>字符填充</strong></p>
+<h3 id="差错检测"><a href="#差错检测" class="headerlink" title="差错检测"></a>差错检测</h3><p>解决上面两个问题可以进行通信了，但现实中通信的链路并不完美，传输过程中可能会出现某些数据位的错误即某些位0变1，1变0，此时需要链路层来检测出这些错误。<br>目前广泛使用的一种方式就是**循环冗余检验(CRC)**，其原理如下：</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
     </div>
