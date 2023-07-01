@@ -90,279 +90,6 @@ int main()&#123;
       </tags>
   </entry>
   <entry>
-    <title>Exceptional C++</title>
-    <url>/2021/07/20/ExceptionalC++/</url>
-    <content><![CDATA[<h4 id="条款2-3-大小写不敏感的字符串"><a href="#条款2-3-大小写不敏感的字符串" class="headerlink" title="条款2-3:大小写不敏感的字符串"></a>条款2-3:大小写不敏感的字符串</h4><blockquote>
-<p>要求实现一个大小写不敏感的string类<br><strong>这里主要利用traits技术</strong></p>
-</blockquote>
-<ol>
-<li><p>从STL的源码当中可以看到string是一个模板生成的类型</p>
-<pre><code class="cpp">typedef basic_string&lt;char&gt; string;
-//进一步看basic_string的声明如下
-template&lt;class charT,class traits=char_traits&lt;charT&gt;,class Allocator = allocator&lt;charT&gt;&gt;
-class basic_string;
-</code></pre>
-<p><del>关于traits技术还不是很理解，后面学了在补上</del><br>basic_string提供了一些判断字符串大于小于等于的函数，这些函数建立在traits上，如果希望改变比较多的行为可以通过提供自定义的traits来实现<br>&#96;&#96;&#96;cpp<br>&#x2F;&#x2F;通过继承去改变那些需要替换的函数,其安全性后面讨论<br>struct my_char_traits:public char_traits<char>{<br> static bool eq(char c1,char c2){<br> return toupper(c1)&#x3D;&#x3D;toupper(c2);<br> }</char></p>
-<p> static bool lt(char c1,char c2){<br> return toupper(c1)&lt;toupper(c2);<br> }</p>
-<p> static int compare(const char* s1,const char* s2,size_t n){<br> for(size_t i&#x3D;0;i&lt;n;++i){<br>     if(toupper(*s1)!&#x3D;toupper(*s2))<br>     return i;<br> ++s1,++s2;<br> }<br> }</p>
-<p> static const char* find(const char* s,int n,char c){<br> while(n– &gt; 0&amp;&amp;toupper(*s)&#x3D;&#x3D;toupper(c)){<br>     ++s;<br> }<br> return n&gt;&#x3D;0?s:0;<br> }</p>
-</li>
-</ol>
-<p>};<br>&#x2F;&#x2F;现在只需像string一样产生一个类型即可<br>typedef basic_string&lt;char,my_char_traits&gt; Mystring;</p>
-<pre><code>
-
-#### 条款4-5:可用性最高的泛型容器
-* 模板构造函数不是构造函数，因此即使在类里面定义了模板构造函数，编译器仍会生成对应的隐式构造函数，但就算是模板拷贝函数也会阻止编译器对默认构造函数的生成，
-
-#### 条款26- :编译防火墙和Pimpl技法
-&gt; 习惯性地#include一些不必要的头文件会严重降低编译的效率和依赖性,尤其是这些头文件又包含了其它的头文件
-
-
-~~简单地理解就是在你给客户看的头文件里能少用#include就少用#include,能不包含定义就不包含定义~~
-
-*这里插一段可以帮助理解但不一定正确的描述：在设计一个东西的时候，就假设一个类，你要把接口的这些声明放在头文件里，而具体的实现是放在.c文件里，因为这里面有你的&quot;核心&quot;算法之类的东西，然后你编译好后这个.c文件就成了一个.o文件(这里很有可能不对，但可以先暂时这样理解-_-)，类的使用者也就是客户#include你给的头文件然后编译的时候去链接这个.o文件就行了,因此客户能了解到的这个类的所有信息都来自你的头文件*
-
-```cpp
-//本章将优化下面的代码
-//下面的内容是x.h最初的内容,也即客户可以看到的代码
-#include&lt;iostream&gt;
-#include&lt;ostream&gt;
-#include&lt;list&gt;
-
-//A,B,C,D,E都不是模板
-//只有A和C定义了虚函数
-
-#include&quot;a.h&quot;
-#include&quot;b.h&quot;
-#include&quot;c.h&quot;
-#include&quot;d.h&quot;
-#include&quot;e.h&quot;
-//包含的头文件里有相关类的声明与定义
-
-class X:public A,private B&#123;
-    public:
-    X(const C&amp;);
-    B f(int,char*);
-    C f(int,C);
-    C&amp; g(B);
-    E h(E);
-    virtual std::ostream&amp; print(std::ostream&amp; )const;
-    private:
-    std::list&lt;C&gt; clist_;
-    D d_;
-&#125;;
-
-inline std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os,const X&amp; x)&#123;
-
-    return x.print(os);
-
-&#125;
-</code></pre>
-<p><strong>只需要声明就不要#include其定义</strong><br>比较明显的,E的定义在此头文件内是不需要的,<strong>函数返回类型，参数类型，引用类型，指针类型这些都不需要看到类的定义，只要有一个声明即可</strong>#include”e.h”可以改成Class E;<br>另外应该也清楚&lt;iostream&gt;里面是包含&lt;ostream&gt;的，所以#include&lt;ostream&gt;也是可以删除的.但是,<iostream>里面包含了ostream的声明跟定义,在这个头文件里,用到的只是ostream&amp;这个引用类型,所以有没有一个头文件只包含了ostream的声明但不含其定义呢,有,&lt;iosfwd&gt;(ios forward declare),这个头文件包含了输入输出流的各个组件的声明式,而这些组件的定义则分布在各个不同的头文件,客户根据需要包含相应的头文件.这样就达到了”尽量少包含定义”的要求,因为输入输出流的组件是非常多的,但客户不一定都会使用到它们,根据需要只包含需要的定义即可,这跟Effective的条款31那里是符合的</iostream></p>
-<pre><code class="cpp">//下面的代码会报错,说fstream这个类型是不完整的,因为fstream的定义在&lt;fstream&gt;里面
-#include&lt;iostream&gt;
-int main()
-&#123;
-    std::fstream out;
-    //&lt;iostream&gt;里肯定有一个#include&lt;iosfwd&gt;,而&lt;iosfwd&gt;里面有fstream这个组件的声明,所以不会报no declaration的错误而是incomplete type的错误
-    return 0;
-&#125;
-</code></pre>
-<p>所以经过初步优化，代码是这样的</p>
-<pre><code class="cpp">#include&lt;iosfwd&gt;
-#include&lt;list&gt;
-
-#include&quot;a.h&quot;
-#include&quot;b.h&quot;
-#include&quot;c.h&quot;
-#include&quot;d.h&quot;
-Class E;
-class X:public A,private B&#123;
-    public:
-    X(const C&amp;);
-    B f(int,char*);
-    C f(int,C);
-    C&amp; g(B);
-    E h(E);
-    virtual std::ostream&amp; print(std::ostream&amp; )const;
-    private:
-    std::list&lt;C&gt; clist_;
-    D d_;
-&#125;;
-
-inline std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os,const X&amp; x)&#123;
-
-    return x.print(os);
-
-&#125;
-</code></pre>
-<p>现在的代码达到了只要X的基类和公有接口不变,即使对X的结构做一些修改(比如加了一个private变量),使用了X的用户代码也不会受影响,只需要重新编译一下的地步,下面看能不能继续删除一些#include</p>
-<ol>
-<li>首先a.h和b.h现在不能删除的原因是X继承于A跟B,因此在此头文件内必须看到A与B的定义才能知道X的大小及其它一些必要信息如虚函数等</li>
-<li>list,c.h和d.h现在不能删除的原因是list<C>和D是X的私有数据成员(因为作者写这本书是很久之前了,其实作为模板参数的C现在也不需要看到其定义了,因为在这个头文件里这里的list<C>其实也只是一个”声明”类似的东西,模板还没有真正实例化的,这个模板的实例化应该在X对象的实例化那里,所以其实这里的#include”c.h”也可以用Class C代替)必须要知道其定义才能确定X的大小</C></C></li>
-</ol>
-<ul>
-<li>Pimpl(Pointer to implemention)出现<br>先上代码<pre><code class="cpp">#include&lt;iosfwd&gt;
-#include&quot;a.h&quot;
-#include&quot;b.h&quot;
-class C;
-class E;
-class X:public A,private B&#123;
-  public:
-  //内容不变
-  private:
-  struct Ximpl;
-  Ximpl* pimpl_;
-&#125;;
-</code></pre>
-跟前面的代码相比,又少了三个#include分别是c,d跟list的头文件,然后private部分变成了一个指针,再看下现在x.cpp里的内容<br>&#96;&#96;&#96;cpp<br>#include”x.h”<br>#include”c.h”<br>#include”d.h”<br>#include<list><br>&#x2F;*<br>public接口的实现细目</list></li>
-</ul>
-<p>*&#x2F;<br>&#x2F;&#x2F;对X::Ximpl的定义<br>struct X::Ximpl{<br>    std::list<C> clist_;<br>    D d;<br>};</C></p>
-<pre><code>可以看到删掉的三个#include被搬到x.cpp文件里来了,以及在X里的那个Ximpl的定义,其实就是把以前的private数据成员捆成了一个struct,然后让原来的类里面只有一个指针来访问这些成员
-
-看完了变化现在再来说原因
-&gt; cpp设置private是为了防止客户进行一些未授权的访问
-
-举个例子,假设你写了一个表示圆的类,它现在用的是xy垂直坐标系,然后你定义它的数据成员是一个圆心的坐标和半径,你也设计了供客户使用的计算面积的函数Square。在你提供给客户的头文件内,客户是可以看到你通过一个坐标和半径来定义一个圆,然后如果没有private,也就是说客户可以直接访问这两个数据成员,那这个时候有的客户就觉得自己很牛,要自己写一个函数计算面积,反正他可以直接访问这些成员的,然后他就写好了计算面积的函数,并且用得很开心,但是有一天你说你觉得用xy垂直坐标不好,想用极坐标来表示一个圆,然后你更改了圆这个类的定义当然之前那些数据成员也肯定改了,而客户的那个计算面积的函数是严重依赖这些内部&quot;细节&quot;的,你用垂直坐标的方法计算极坐标肯定是错的,也就导致客代码中所有依赖直接访问数据成员的地方全部需要重写,这肯定是一个噩梦
-
-上面的例子使用private就很好解决,将数据成员变成private,客户就算能看到细节也只能乖乖用提供的Square函数去,也就避免了客户写出一些依赖于这些细节的代码。
-
-而上面优化后的头文件,直接把private的内容也封装起来了,直接让客户看都看不到实现细节,更进一步地解决了这个依赖问题,同时在这个头文件里不需要看到D跟list,这里是声明都不需要看到,D被替换成class D;是因为前面有个函数使用了D类型。现在随便你怎么改X的私有成员,客户代码甚至连编译都不需要重新编译了(必须感叹一下这个方法很牛(⌐■_■))但这个方法也有一些不足的地方,放到最后再讨论,下面再再看下能不能优化
-
-上面不能优化的第二点已经被Pimpl给解决掉了,现在就剩a和b这两个头文件了
-注意到B是私有继承,且B没有虚函数,这就有机会了
-一般情况下,私有继承是能通过复合对象的方式给替换掉的,偏偏要使用私有继承一般都是为了能访问基类的protected成员和*重写其虚函数*
-
-又举个例子,假设你要设计一个青蛙类,这个类的对象要每秒调用一次自己的GuaGua函数,这个时候你翻到了一个写好的定时器类,定义如下
-```cpp
-class Timer&#123;
-    public:
-    explicit Timer(int tickFrequency);//它有一个自己频率
-    virtual void onTick()const; //依据频率,每多少秒就调用一次该函数
-&#125;
-//似乎可以这样定义Frog
-class Frog:public Timer&#123;
-    private:
-    virtual void ontick()const&#123;
-        GuaGua();
-    &#125;
-&#125;;
-//首先这个ontick一定要变成private,如果变成public会让用户认为他们可以调用它,而对于一个青蛙来说它不应该有一个tick接口,其次采用继承的方式可以去重写那个onTick函数
-</code></pre>
-<p>上面的代码就说明了一种偏偏要使用私有继承的情况,但这种方式也绝非必要,仍然可以通过一些方式来达到相同的效果,如下:</p>
-<pre><code class="cpp">class Frog&#123;
-    private:
-    class WidgetTimer:public Timer&#123;
-        public:
-        virtual void onTick()const;
-    &#125;;
-    WigetTimer timer_;
-&#125;;
-</code></pre>
-<p>现在回归正题,B这个类并没有虚函数,如果我们再假设B没有保护成员,那私有继承这种关系就太”强”了我们用不到这么”强”的关系,将其作为私有成员即可,这样就能把B纳入struct XImpl_中了<br>下面是最终的x.h文件</p>
-<pre><code class="cpp">#include&lt;iosfwd&gt;
-#include&quot;a.h&quot;
-class B;
-class C;
-class E;
-class X:public A
-&#123;
-    public:
-    X(const C&amp;);
-    B f(int,char*);
-    C f(int,C);
-    C&amp; g(B);
-    E h(E);
-    virtual std::ostream&amp; print(std::ostream&amp; os,const X&amp; x)const;
-    private:
-    struct XImpl_;
-    XImpl_ * pimpl_;
-&#125;;
-inline std::operator&lt;&lt;(std::ostream&amp; os,const X&amp; x)&#123;
-    return x.print(os);
-&#125;
-</code></pre>
-<p>现在这个头文件只有两个#include了!比起最初的代码真是非常大的改进( ⓛ ω ⓛ *)<br>但相应的还有一些代价问题需要讨论</p>
-<ol>
-<li>哪些部分应该放入XImpl？</li>
-<li>在XImpl中是否应该加入一个指向X的回指指针？</li>
-</ol>
-<p>第一个问题的常见做法有两种</p>
-<ol>
-<li>将所有的私有成员放进XImpl中,但要注意不能将虚函数放到这里面来。因为如果派生类需要对基类的虚函数进行覆盖(这里提一下子类就算不能访问基类的private函数但能覆盖private函数),那这个虚函数就必须出现在实际的派生类当中,当然如果你不想一个函数被覆盖,把这个函数放进XImpl就起到了一个类似final的效果</li>
-<li>将XImpl写成与原来的X完全一样的形式,X的作用就是去调用XImpl对应的接口,这种方法实现的X在继承时没什么大用,因为什么东西都在XImpl中,子类没法去覆盖相应的函数</li>
-</ol>
-<p>现在考虑第二个问题,首先想一想为什么要加一个回指指针,因为有些private函数操作会去调用public函数,如果没有这个回指指针XImpl就调用不了相应的函数在上面的方法一中有一个折中的方法就是把只有私有函数才会调用的非私有函数放到XImpl中这样就不需要一个回指指针了,这样的被调用的函数不一起放在XImpl的原因就是要给派生类覆盖.同理,方式2直接把所有的资源都放XImpl了更不需要回指指针了</p>
-<p>现在考虑一下Pimpl的性能问题<br>1.最明显的就是内存分配需要的时间</p>
-<pre><code class="cpp">//下面是可能的客户代码y.h与y.cpp
-//1
-#include&quot;x.h&quot;
-class Y&#123;
-    X x_;
-&#125;;
-Y::Y()&#123;&#125;
-//上面要求X是明确可见的,所以有下面这种代码
-//2,y.h
-class X;
-class Y&#123;
-    X *px_;
-&#125;;
-//y.cpp
-#include&quot;x.h&quot;
-Y::Y():px_(new X)&#123;&#125;
-Y::~Y()&#123;delete px_;px_=0;&#125;
-//第2种方法很好地隐藏了X但如果程序里大量使用Y那动态分配内存可能降低程序的性能
-</code></pre>
-<p>2.其次是由于资源的由一个指针访问多了至少一层间接操作,同时空间上的开销也至少多了一个指针的开销,如果考虑到对齐多出来的空间是大于等于一个指针的大小的</p>
-<h4 id="条款43-正确地使用const"><a href="#条款43-正确地使用const" class="headerlink" title="条款43:正确地使用const"></a>条款43:正确地使用const</h4><ul>
-<li>void f(int x)与void f(const int x)对编译器来说是同一个函数，但后者在定义体当中仍不可修改x,如果同时定义上述两个函数编译会报错</li>
-<li>但void f(int&amp;)与void f(const int&amp;)对编译器来说不一样</li>
-<li>对于非内置类型的返回类型，一般加一个const修饰，以帮助客户检查出类似A+B&#x3D;C(实际想要操作A+B&#x3D;&#x3D;C)的错误</li>
-</ul>
-<h4 id="条款44-类型转换"><a href="#条款44-类型转换" class="headerlink" title="条款44:类型转换"></a>条款44:类型转换</h4><blockquote>
-<ul>
-<li>新形式的类型转化中,只有dynamic_cast与C语言不等价</li>
-<li>如果没有虚函数,那dynamic_cast的操作都是错误的</li>
-</ul>
-</blockquote>
-<h3 id="区分几大内存区域"><a href="#区分几大内存区域" class="headerlink" title="区分几大内存区域"></a>区分几大内存区域</h3><table>
-<thead>
-<tr>
-<th>内存区域</th>
-<th>特性和对象的生存期</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>常量数据</td>
-<td>常用于存储字符串和一些编译时就知道的常量。程序的整个生存期内数据都有效且只读,因为编译器可能会<br>对这个区域的数据进行一些特殊的存储优化,擅自修改可能会出现一些未定义的行为</td>
-</tr>
-<tr>
-<td>栈</td>
-<td>存自动变量。自动变量在定义时被立即构造,并在其作用域结束时被立即销毁。<br>栈内存的分配通常比动态内存快很多,因为每次栈的分配只涉及到栈指针的自增操作</td>
-</tr>
-<tr>
-<td>自由存储</td>
-<td>两种动态内存区域之一,<em>通过new&#x2F;delete来分配&#x2F;释放</em> 。<br>对象的生存周期可能小于所分配的的存储空间的生存期,因为这里的的对象不要求分配内存时立即进行初始化,销毁对象时也不要求立即归还空间</td>
-</tr>
-<tr>
-<td>堆</td>
-<td>另一种动态内存区域,<em>通过malloc&#x2F;free函数进行分配和释放</em>。堆还是不同于自由存储的,尽管可能有些地方默认的new和delete会调用malloc和free实现。但堆中的内存不能在自由内存中安全释放,反之亦然。也就是说new出来的内存不能用free安全释放。</td>
-</tr>
-<tr>
-<td>全局&#x2F;静态</td>
-<td>程序启动时,全局和静态变量就已经分配了内存,但只有程序执行时才会进行初始化。<br>对于跨域多个编译单元的全局变量,它们的初始化顺序是未定义的,因此在管理时要特别小心它们之间的依赖性</td>
-</tr>
-</tbody></table>
-<h3 id="实现自己特定的内存管理"><a href="#实现自己特定的内存管理" class="headerlink" title="实现自己特定的内存管理"></a>实现自己特定的内存管理</h3><blockquote>
-<p>如果要重载operator new与operator delete,记得显式地将它们声明为static,虽然会默认它们是static但这样可以增加可读性,因为一个对象是由它的类创建的,而不是一个对象去创建的,所以operator new函数一定是早于对象它不可能是一个非静态的成员函数</p>
-</blockquote>
-<p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
-]]></content>
-      <tags>
-        <tag>C++学习</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Effective C++</title>
     <url>/2021/07/20/EffectiveC++/</url>
     <content><![CDATA[<h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><ol>
@@ -960,6 +687,913 @@ int main()&#123;
 ]]></content>
       <tags>
         <tag>C++学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Exceptional C++</title>
+    <url>/2021/07/20/ExceptionalC++/</url>
+    <content><![CDATA[<h4 id="条款2-3-大小写不敏感的字符串"><a href="#条款2-3-大小写不敏感的字符串" class="headerlink" title="条款2-3:大小写不敏感的字符串"></a>条款2-3:大小写不敏感的字符串</h4><blockquote>
+<p>要求实现一个大小写不敏感的string类<br><strong>这里主要利用traits技术</strong></p>
+</blockquote>
+<ol>
+<li><p>从STL的源码当中可以看到string是一个模板生成的类型</p>
+<pre><code class="cpp">typedef basic_string&lt;char&gt; string;
+//进一步看basic_string的声明如下
+template&lt;class charT,class traits=char_traits&lt;charT&gt;,class Allocator = allocator&lt;charT&gt;&gt;
+class basic_string;
+</code></pre>
+<p><del>关于traits技术还不是很理解，后面学了在补上</del><br>basic_string提供了一些判断字符串大于小于等于的函数，这些函数建立在traits上，如果希望改变比较多的行为可以通过提供自定义的traits来实现<br>&#96;&#96;&#96;cpp<br>&#x2F;&#x2F;通过继承去改变那些需要替换的函数,其安全性后面讨论<br>struct my_char_traits:public char_traits<char>{<br> static bool eq(char c1,char c2){<br> return toupper(c1)&#x3D;&#x3D;toupper(c2);<br> }</char></p>
+<p> static bool lt(char c1,char c2){<br> return toupper(c1)&lt;toupper(c2);<br> }</p>
+<p> static int compare(const char* s1,const char* s2,size_t n){<br> for(size_t i&#x3D;0;i&lt;n;++i){<br>     if(toupper(*s1)!&#x3D;toupper(*s2))<br>     return i;<br> ++s1,++s2;<br> }<br> }</p>
+<p> static const char* find(const char* s,int n,char c){<br> while(n– &gt; 0&amp;&amp;toupper(*s)&#x3D;&#x3D;toupper(c)){<br>     ++s;<br> }<br> return n&gt;&#x3D;0?s:0;<br> }</p>
+</li>
+</ol>
+<p>};<br>&#x2F;&#x2F;现在只需像string一样产生一个类型即可<br>typedef basic_string&lt;char,my_char_traits&gt; Mystring;</p>
+<pre><code>
+
+#### 条款4-5:可用性最高的泛型容器
+* 模板构造函数不是构造函数，因此即使在类里面定义了模板构造函数，编译器仍会生成对应的隐式构造函数，但就算是模板拷贝函数也会阻止编译器对默认构造函数的生成，
+
+#### 条款26- :编译防火墙和Pimpl技法
+&gt; 习惯性地#include一些不必要的头文件会严重降低编译的效率和依赖性,尤其是这些头文件又包含了其它的头文件
+
+
+~~简单地理解就是在你给客户看的头文件里能少用#include就少用#include,能不包含定义就不包含定义~~
+
+*这里插一段可以帮助理解但不一定正确的描述：在设计一个东西的时候，就假设一个类，你要把接口的这些声明放在头文件里，而具体的实现是放在.c文件里，因为这里面有你的&quot;核心&quot;算法之类的东西，然后你编译好后这个.c文件就成了一个.o文件(这里很有可能不对，但可以先暂时这样理解-_-)，类的使用者也就是客户#include你给的头文件然后编译的时候去链接这个.o文件就行了,因此客户能了解到的这个类的所有信息都来自你的头文件*
+
+```cpp
+//本章将优化下面的代码
+//下面的内容是x.h最初的内容,也即客户可以看到的代码
+#include&lt;iostream&gt;
+#include&lt;ostream&gt;
+#include&lt;list&gt;
+
+//A,B,C,D,E都不是模板
+//只有A和C定义了虚函数
+
+#include&quot;a.h&quot;
+#include&quot;b.h&quot;
+#include&quot;c.h&quot;
+#include&quot;d.h&quot;
+#include&quot;e.h&quot;
+//包含的头文件里有相关类的声明与定义
+
+class X:public A,private B&#123;
+    public:
+    X(const C&amp;);
+    B f(int,char*);
+    C f(int,C);
+    C&amp; g(B);
+    E h(E);
+    virtual std::ostream&amp; print(std::ostream&amp; )const;
+    private:
+    std::list&lt;C&gt; clist_;
+    D d_;
+&#125;;
+
+inline std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os,const X&amp; x)&#123;
+
+    return x.print(os);
+
+&#125;
+</code></pre>
+<p><strong>只需要声明就不要#include其定义</strong><br>比较明显的,E的定义在此头文件内是不需要的,<strong>函数返回类型，参数类型，引用类型，指针类型这些都不需要看到类的定义，只要有一个声明即可</strong>#include”e.h”可以改成Class E;<br>另外应该也清楚&lt;iostream&gt;里面是包含&lt;ostream&gt;的，所以#include&lt;ostream&gt;也是可以删除的.但是,<iostream>里面包含了ostream的声明跟定义,在这个头文件里,用到的只是ostream&amp;这个引用类型,所以有没有一个头文件只包含了ostream的声明但不含其定义呢,有,&lt;iosfwd&gt;(ios forward declare),这个头文件包含了输入输出流的各个组件的声明式,而这些组件的定义则分布在各个不同的头文件,客户根据需要包含相应的头文件.这样就达到了”尽量少包含定义”的要求,因为输入输出流的组件是非常多的,但客户不一定都会使用到它们,根据需要只包含需要的定义即可,这跟Effective的条款31那里是符合的</iostream></p>
+<pre><code class="cpp">//下面的代码会报错,说fstream这个类型是不完整的,因为fstream的定义在&lt;fstream&gt;里面
+#include&lt;iostream&gt;
+int main()
+&#123;
+    std::fstream out;
+    //&lt;iostream&gt;里肯定有一个#include&lt;iosfwd&gt;,而&lt;iosfwd&gt;里面有fstream这个组件的声明,所以不会报no declaration的错误而是incomplete type的错误
+    return 0;
+&#125;
+</code></pre>
+<p>所以经过初步优化，代码是这样的</p>
+<pre><code class="cpp">#include&lt;iosfwd&gt;
+#include&lt;list&gt;
+
+#include&quot;a.h&quot;
+#include&quot;b.h&quot;
+#include&quot;c.h&quot;
+#include&quot;d.h&quot;
+Class E;
+class X:public A,private B&#123;
+    public:
+    X(const C&amp;);
+    B f(int,char*);
+    C f(int,C);
+    C&amp; g(B);
+    E h(E);
+    virtual std::ostream&amp; print(std::ostream&amp; )const;
+    private:
+    std::list&lt;C&gt; clist_;
+    D d_;
+&#125;;
+
+inline std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os,const X&amp; x)&#123;
+
+    return x.print(os);
+
+&#125;
+</code></pre>
+<p>现在的代码达到了只要X的基类和公有接口不变,即使对X的结构做一些修改(比如加了一个private变量),使用了X的用户代码也不会受影响,只需要重新编译一下的地步,下面看能不能继续删除一些#include</p>
+<ol>
+<li>首先a.h和b.h现在不能删除的原因是X继承于A跟B,因此在此头文件内必须看到A与B的定义才能知道X的大小及其它一些必要信息如虚函数等</li>
+<li>list,c.h和d.h现在不能删除的原因是list<C>和D是X的私有数据成员(因为作者写这本书是很久之前了,其实作为模板参数的C现在也不需要看到其定义了,因为在这个头文件里这里的list<C>其实也只是一个”声明”类似的东西,模板还没有真正实例化的,这个模板的实例化应该在X对象的实例化那里,所以其实这里的#include”c.h”也可以用Class C代替)必须要知道其定义才能确定X的大小</C></C></li>
+</ol>
+<ul>
+<li>Pimpl(Pointer to implemention)出现<br>先上代码<pre><code class="cpp">#include&lt;iosfwd&gt;
+#include&quot;a.h&quot;
+#include&quot;b.h&quot;
+class C;
+class E;
+class X:public A,private B&#123;
+  public:
+  //内容不变
+  private:
+  struct Ximpl;
+  Ximpl* pimpl_;
+&#125;;
+</code></pre>
+跟前面的代码相比,又少了三个#include分别是c,d跟list的头文件,然后private部分变成了一个指针,再看下现在x.cpp里的内容<br>&#96;&#96;&#96;cpp<br>#include”x.h”<br>#include”c.h”<br>#include”d.h”<br>#include<list><br>&#x2F;*<br>public接口的实现细目</list></li>
+</ul>
+<p>*&#x2F;<br>&#x2F;&#x2F;对X::Ximpl的定义<br>struct X::Ximpl{<br>    std::list<C> clist_;<br>    D d;<br>};</C></p>
+<pre><code>可以看到删掉的三个#include被搬到x.cpp文件里来了,以及在X里的那个Ximpl的定义,其实就是把以前的private数据成员捆成了一个struct,然后让原来的类里面只有一个指针来访问这些成员
+
+看完了变化现在再来说原因
+&gt; cpp设置private是为了防止客户进行一些未授权的访问
+
+举个例子,假设你写了一个表示圆的类,它现在用的是xy垂直坐标系,然后你定义它的数据成员是一个圆心的坐标和半径,你也设计了供客户使用的计算面积的函数Square。在你提供给客户的头文件内,客户是可以看到你通过一个坐标和半径来定义一个圆,然后如果没有private,也就是说客户可以直接访问这两个数据成员,那这个时候有的客户就觉得自己很牛,要自己写一个函数计算面积,反正他可以直接访问这些成员的,然后他就写好了计算面积的函数,并且用得很开心,但是有一天你说你觉得用xy垂直坐标不好,想用极坐标来表示一个圆,然后你更改了圆这个类的定义当然之前那些数据成员也肯定改了,而客户的那个计算面积的函数是严重依赖这些内部&quot;细节&quot;的,你用垂直坐标的方法计算极坐标肯定是错的,也就导致客代码中所有依赖直接访问数据成员的地方全部需要重写,这肯定是一个噩梦
+
+上面的例子使用private就很好解决,将数据成员变成private,客户就算能看到细节也只能乖乖用提供的Square函数去,也就避免了客户写出一些依赖于这些细节的代码。
+
+而上面优化后的头文件,直接把private的内容也封装起来了,直接让客户看都看不到实现细节,更进一步地解决了这个依赖问题,同时在这个头文件里不需要看到D跟list,这里是声明都不需要看到,D被替换成class D;是因为前面有个函数使用了D类型。现在随便你怎么改X的私有成员,客户代码甚至连编译都不需要重新编译了(必须感叹一下这个方法很牛(⌐■_■))但这个方法也有一些不足的地方,放到最后再讨论,下面再再看下能不能优化
+
+上面不能优化的第二点已经被Pimpl给解决掉了,现在就剩a和b这两个头文件了
+注意到B是私有继承,且B没有虚函数,这就有机会了
+一般情况下,私有继承是能通过复合对象的方式给替换掉的,偏偏要使用私有继承一般都是为了能访问基类的protected成员和*重写其虚函数*
+
+又举个例子,假设你要设计一个青蛙类,这个类的对象要每秒调用一次自己的GuaGua函数,这个时候你翻到了一个写好的定时器类,定义如下
+```cpp
+class Timer&#123;
+    public:
+    explicit Timer(int tickFrequency);//它有一个自己频率
+    virtual void onTick()const; //依据频率,每多少秒就调用一次该函数
+&#125;
+//似乎可以这样定义Frog
+class Frog:public Timer&#123;
+    private:
+    virtual void ontick()const&#123;
+        GuaGua();
+    &#125;
+&#125;;
+//首先这个ontick一定要变成private,如果变成public会让用户认为他们可以调用它,而对于一个青蛙来说它不应该有一个tick接口,其次采用继承的方式可以去重写那个onTick函数
+</code></pre>
+<p>上面的代码就说明了一种偏偏要使用私有继承的情况,但这种方式也绝非必要,仍然可以通过一些方式来达到相同的效果,如下:</p>
+<pre><code class="cpp">class Frog&#123;
+    private:
+    class WidgetTimer:public Timer&#123;
+        public:
+        virtual void onTick()const;
+    &#125;;
+    WigetTimer timer_;
+&#125;;
+</code></pre>
+<p>现在回归正题,B这个类并没有虚函数,如果我们再假设B没有保护成员,那私有继承这种关系就太”强”了我们用不到这么”强”的关系,将其作为私有成员即可,这样就能把B纳入struct XImpl_中了<br>下面是最终的x.h文件</p>
+<pre><code class="cpp">#include&lt;iosfwd&gt;
+#include&quot;a.h&quot;
+class B;
+class C;
+class E;
+class X:public A
+&#123;
+    public:
+    X(const C&amp;);
+    B f(int,char*);
+    C f(int,C);
+    C&amp; g(B);
+    E h(E);
+    virtual std::ostream&amp; print(std::ostream&amp; os,const X&amp; x)const;
+    private:
+    struct XImpl_;
+    XImpl_ * pimpl_;
+&#125;;
+inline std::operator&lt;&lt;(std::ostream&amp; os,const X&amp; x)&#123;
+    return x.print(os);
+&#125;
+</code></pre>
+<p>现在这个头文件只有两个#include了!比起最初的代码真是非常大的改进( ⓛ ω ⓛ *)<br>但相应的还有一些代价问题需要讨论</p>
+<ol>
+<li>哪些部分应该放入XImpl？</li>
+<li>在XImpl中是否应该加入一个指向X的回指指针？</li>
+</ol>
+<p>第一个问题的常见做法有两种</p>
+<ol>
+<li>将所有的私有成员放进XImpl中,但要注意不能将虚函数放到这里面来。因为如果派生类需要对基类的虚函数进行覆盖(这里提一下子类就算不能访问基类的private函数但能覆盖private函数),那这个虚函数就必须出现在实际的派生类当中,当然如果你不想一个函数被覆盖,把这个函数放进XImpl就起到了一个类似final的效果</li>
+<li>将XImpl写成与原来的X完全一样的形式,X的作用就是去调用XImpl对应的接口,这种方法实现的X在继承时没什么大用,因为什么东西都在XImpl中,子类没法去覆盖相应的函数</li>
+</ol>
+<p>现在考虑第二个问题,首先想一想为什么要加一个回指指针,因为有些private函数操作会去调用public函数,如果没有这个回指指针XImpl就调用不了相应的函数在上面的方法一中有一个折中的方法就是把只有私有函数才会调用的非私有函数放到XImpl中这样就不需要一个回指指针了,这样的被调用的函数不一起放在XImpl的原因就是要给派生类覆盖.同理,方式2直接把所有的资源都放XImpl了更不需要回指指针了</p>
+<p>现在考虑一下Pimpl的性能问题<br>1.最明显的就是内存分配需要的时间</p>
+<pre><code class="cpp">//下面是可能的客户代码y.h与y.cpp
+//1
+#include&quot;x.h&quot;
+class Y&#123;
+    X x_;
+&#125;;
+Y::Y()&#123;&#125;
+//上面要求X是明确可见的,所以有下面这种代码
+//2,y.h
+class X;
+class Y&#123;
+    X *px_;
+&#125;;
+//y.cpp
+#include&quot;x.h&quot;
+Y::Y():px_(new X)&#123;&#125;
+Y::~Y()&#123;delete px_;px_=0;&#125;
+//第2种方法很好地隐藏了X但如果程序里大量使用Y那动态分配内存可能降低程序的性能
+</code></pre>
+<p>2.其次是由于资源的由一个指针访问多了至少一层间接操作,同时空间上的开销也至少多了一个指针的开销,如果考虑到对齐多出来的空间是大于等于一个指针的大小的</p>
+<h4 id="条款43-正确地使用const"><a href="#条款43-正确地使用const" class="headerlink" title="条款43:正确地使用const"></a>条款43:正确地使用const</h4><ul>
+<li>void f(int x)与void f(const int x)对编译器来说是同一个函数，但后者在定义体当中仍不可修改x,如果同时定义上述两个函数编译会报错</li>
+<li>但void f(int&amp;)与void f(const int&amp;)对编译器来说不一样</li>
+<li>对于非内置类型的返回类型，一般加一个const修饰，以帮助客户检查出类似A+B&#x3D;C(实际想要操作A+B&#x3D;&#x3D;C)的错误</li>
+</ul>
+<h4 id="条款44-类型转换"><a href="#条款44-类型转换" class="headerlink" title="条款44:类型转换"></a>条款44:类型转换</h4><blockquote>
+<ul>
+<li>新形式的类型转化中,只有dynamic_cast与C语言不等价</li>
+<li>如果没有虚函数,那dynamic_cast的操作都是错误的</li>
+</ul>
+</blockquote>
+<h3 id="区分几大内存区域"><a href="#区分几大内存区域" class="headerlink" title="区分几大内存区域"></a>区分几大内存区域</h3><table>
+<thead>
+<tr>
+<th>内存区域</th>
+<th>特性和对象的生存期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>常量数据</td>
+<td>常用于存储字符串和一些编译时就知道的常量。程序的整个生存期内数据都有效且只读,因为编译器可能会<br>对这个区域的数据进行一些特殊的存储优化,擅自修改可能会出现一些未定义的行为</td>
+</tr>
+<tr>
+<td>栈</td>
+<td>存自动变量。自动变量在定义时被立即构造,并在其作用域结束时被立即销毁。<br>栈内存的分配通常比动态内存快很多,因为每次栈的分配只涉及到栈指针的自增操作</td>
+</tr>
+<tr>
+<td>自由存储</td>
+<td>两种动态内存区域之一,<em>通过new&#x2F;delete来分配&#x2F;释放</em> 。<br>对象的生存周期可能小于所分配的的存储空间的生存期,因为这里的的对象不要求分配内存时立即进行初始化,销毁对象时也不要求立即归还空间</td>
+</tr>
+<tr>
+<td>堆</td>
+<td>另一种动态内存区域,<em>通过malloc&#x2F;free函数进行分配和释放</em>。堆还是不同于自由存储的,尽管可能有些地方默认的new和delete会调用malloc和free实现。但堆中的内存不能在自由内存中安全释放,反之亦然。也就是说new出来的内存不能用free安全释放。</td>
+</tr>
+<tr>
+<td>全局&#x2F;静态</td>
+<td>程序启动时,全局和静态变量就已经分配了内存,但只有程序执行时才会进行初始化。<br>对于跨域多个编译单元的全局变量,它们的初始化顺序是未定义的,因此在管理时要特别小心它们之间的依赖性</td>
+</tr>
+</tbody></table>
+<h3 id="实现自己特定的内存管理"><a href="#实现自己特定的内存管理" class="headerlink" title="实现自己特定的内存管理"></a>实现自己特定的内存管理</h3><blockquote>
+<p>如果要重载operator new与operator delete,记得显式地将它们声明为static,虽然会默认它们是static但这样可以增加可读性,因为一个对象是由它的类创建的,而不是一个对象去创建的,所以operator new函数一定是早于对象它不可能是一个非静态的成员函数</p>
+</blockquote>
+<p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
+]]></content>
+      <tags>
+        <tag>C++学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Kuangbin-简单搜索</title>
+    <url>/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/</url>
+    <content><![CDATA[<h1 id="简单搜索"><a href="#简单搜索" class="headerlink" title="简单搜索"></a>简单搜索</h1><p>[poj1321](##<a href="http://poj.org/problem?id=1321">POJ1321 – 棋盘问题 </a>)</p>
+<h2 id="POJ1321-–-棋盘问题"><a href="#POJ1321-–-棋盘问题" class="headerlink" title="POJ1321 – 棋盘问题"></a><a href="http://poj.org/problem?id=1321">POJ1321 – 棋盘问题</a></h2><h3 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h3><p>变版的八皇后问题，只不过棋盘不再规则只能在某些格子放棋子而已，思路不变。先假设前面k行已经摆好且没有相互矛盾，那在第k+1行就有摆和不摆两种选择，如果摆，那又有摆在哪一列的选择，用一个col数组记录前面哪些列已经用过了，如果col[x]的状态表示没有用过，那[k+1][x]就是一个可行的位置，把col[x]标记一下，然后继续向下一行探索。</p>
+<pre><code class="cpp">#include&lt;iostream&gt;
+#include&lt;cstring&gt;
+using namespace std;
+bool col[10];//存哪些列用过来了,false表示没用过
+char grid[10][10];//存图
+int n, k, ans;
+void dfs(int line, int num) &#123;//line表示现在在第几行，num表示前面填好了几个
+    if (line==n||num == k) &#123;//行号最多n-1,到n肯定不行了
+        if (num == k)//如果已经填好k个，总方案数加1
+            ans++;
+        return;
+    &#125;
+    for (int i = 0; i &lt; n; i++) &#123;
+        //在该行填，将改行的每一列遍历一遍，看看哪些列可以填
+        if (!col[i] &amp;&amp; grid[line][i] == &#39;#&#39;) &#123;
+            col[i] = true;
+            dfs(line + 1, num + 1);
+            col[i] = false;//j
+        &#125;
+    &#125;
+    //不在改行填，所以num没有加1
+    dfs(line + 1, num);
+&#125;
+int main()
+&#123;
+    while (cin &gt;&gt; n &gt;&gt; k) &#123;
+        if (n == k &amp;&amp; n == -1)
+            break;
+        memset(col, false, sizeof(col));//初始化
+        ans = 0;
+        for (int i = 0; i &lt; n; i++) &#123;
+            cin &gt;&gt; grid[i];
+        &#125;
+        dfs(0, 0);//从第0行开始，已经填好0个
+        cout &lt;&lt; ans &lt;&lt; endl;
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<h2 id="POJ3278-3278-–-Catch-That-Cow-poj-org"><a href="#POJ3278-3278-–-Catch-That-Cow-poj-org" class="headerlink" title="[POJ3278](3278 – Catch That Cow (poj.org))"></a>[POJ3278](<a href="http://poj.org/problem?id=3278">3278 – Catch That Cow (poj.org)</a>)</h2><h3 id="题解-1"><a href="#题解-1" class="headerlink" title="题解"></a>题解</h3><p>该题注意剪枝，不让会RE（虽然我用的map），剪枝不可将x+1&gt;K和x*2&gt;k的情况剪掉，例如100-&gt;199</p>
+<p>另外由于时间卡得比较紧，数量比较大所以不能用map，用map会TE</p>
+<h2 id="poj3279"><a href="#poj3279" class="headerlink" title="poj3279"></a><a href="http://poj.org/problem?id=3279">poj3279</a></h2><p>题意大概说的是给定一个m*n的01矩阵，每次去翻一个位置周围四个方向的位置都会翻转，问能不能翻到全是0，能的话输出字典序最小的翻法</p>
+<h3 id="题解-2"><a href="#题解-2" class="headerlink" title="题解"></a>题解</h3><p>这是遇到的第一个枚举题，二进制枚举，首先确定的是每个位置只有翻和不翻两种情况，翻两次等于没翻，翻奇数次等于一次。如果去考察每一个位置的翻的情况就会有2^mn^次结果，显然时间超限，观察（看博客）易得出规律——&#x3D;&#x3D;假设第一行的状态确定（就是第一行哪些位置翻不翻确定，确定之后会得到第一行确定的状态，哪些位置是0哪些是1），从第二行开始扫描，如果发现该位置上头上的位置为1那该位置一定要翻，因为头上的位置上左右都确定了&#x3D;&#x3D;，以此扫描完整个数组，最后再对最后一行做一个检查，如果有1则不行，因为现在只能由下一行来翻转该位置，但没有下一行。</p>
+<blockquote>
+<pre><code class="cpp">#include&lt;iostream&gt;
+#include&lt;cstdio&gt;
+#include&lt;cstring&gt;
+#include&lt;cstdlib&gt;
+using namespace std;
+const int maxn = 20;
+int n, m;
+int maze[maxn][maxn];
+int grid[maxn][maxn];
+int ans[maxn][maxn];
+int dir[5][2] = &#123; &#123;0,0&#125;,&#123;1,0&#125;,&#123;0,1&#125;,&#123;-1,0&#125;,&#123;0,-1&#125; &#125;;
+bool legal(int x, int y) &#123;
+    return (x &gt;= 0 &amp;&amp; x &lt; n&amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m);
+&#125;
+void flip(int x, int y) &#123;
+    ans[x][y] = 1;
+    int nx, ny;
+    for (int i = 0; i &lt; 5; i++) &#123;
+        nx = x + dir[i][0];
+        ny = y + dir[i][1];
+        if (legal(nx, ny)) &#123;
+            grid[nx][ny] ^= 1;
+        &#125;
+    &#125;
+&#125;
+void solve() &#123;
+    for (int i = 0; i &lt; n; i++) &#123;
+        for (int j = 0; j &lt; m; j++) &#123;
+            printf(&quot;%d%c&quot;, ans[i][j], &quot; \n&quot;[j == (m - 1)]);
+        &#125;
+    &#125;
+&#125;
+int main() &#123;
+    scanf(&quot;%d%d&quot;, &amp;n, &amp;m);
+    for (int i = 0; i &lt; n; i++) &#123;
+        for (int j = 0; j &lt; m; j++) &#123;
+            scanf(&quot;%d&quot;, &amp;maze[i][j]);
+        &#125;
+    &#125;
+    int end = 1 &lt;&lt; m;
+    int bsk;
+    bool ok = true;
+    for (int i = 0; i &lt; end; i++) &#123;
+        ok = true;
+        bsk = i;
+        memcpy(grid, maze, sizeof(maze));
+        memset(ans, 0, sizeof(ans));
+        for (int k = 0; k &lt; m; k++) &#123;
+            if (bsk &amp; 1)
+                flip(0, k);
+            bsk &gt;&gt;= 1;
+        &#125;
+        for (int j = 1; j &lt; n; j++) &#123;
+            for (int k = 0; k &lt; m; k++) &#123;
+                if (grid[j - 1][k])
+                    flip(j, k);
+            &#125;
+        &#125;
+        for (int k = 0, j = n - 1; k &lt; m; k++) &#123;
+            if (grid[j][k]) &#123;
+                ok = false;
+                continue;
+            &#125;
+        &#125;
+        if (ok) &#123;
+            solve();
+            break;
+        &#125;
+    &#125;
+    if (!ok)
+        printf(&quot;IMPOSSIBLE\n&quot;);
+    return 0;
+&#125;
+</code></pre>
+</blockquote>
+<h2 id="POJ1426-–-Find-The-Multiple"><a href="#POJ1426-–-Find-The-Multiple" class="headerlink" title="POJ1426 – Find The Multiple "></a><a href="http://poj.org/problem?id=1426">POJ1426 – Find The Multiple </a></h2><p>题意大概是给一个数字n,找出一个n的十进制倍数m，m只能由01组成</p>
+<h3 id="题解-3"><a href="#题解-3" class="headerlink" title="题解"></a>题解</h3><p>虽然这道题说m不超过100位，但用unsigned long long过了，要是完全按照题意的话就还要处理大数问题，看其它文章好像也没有很好的可以解决，就直接当unsigned long long 过了</p>
+<p>bfs和dfs都可以，dfs注意判断不要溢出,当然由于n比较小可以先得出200个结果打表然后再过，因为可能搜索会超时，时间卡得较紧</p>
+<pre><code class="c++">#include&lt;iostream&gt;
+#include&lt;queue&gt;
+using namespace std;
+
+int n;
+typedef unsigned long long ull;
+void bfs() &#123;
+    queue&lt;ull&gt; que;
+    que.push(1);
+
+    while (!que.empty()) &#123;
+        ull tmp = que.front();
+        que.pop();
+        if (tmp % n == 0) &#123;
+            cout &lt;&lt; tmp &lt;&lt; endl;
+            return;
+        &#125;
+        que.push(tmp * 10);
+        que.push(tmp * 10 + 1);
+    &#125;
+&#125;
+int main()
+&#123;
+    while (cin &gt;&gt; n&amp;&amp;n) &#123;
+        bfs();
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<h2 id="hdu2612"><a href="#hdu2612" class="headerlink" title="hdu2612"></a><a href="https://acm.dingbacode.com/showproblem.php?pid=2612">hdu2612</a></h2><p>题意为求两个人要到同一个@需要的最少步数乘以11.</p>
+<h3 id="题解-4"><a href="#题解-4" class="headerlink" title="题解"></a>题解</h3><p>两边bfs之后将每次每一个@的步数相加，最后找出最小的那个@即可，但是要注意可能有些@是两个人都到不了的，其步数一直为0所以最后需要特殊判断一下，我legal判断x&lt;n写成x&lt;m了，RE了好几发━┳━　━┳━</p>
+<pre><code class="cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+vector&lt;string&gt; maze;
+struct node &#123;
+    int x, y, v;
+    void init(int _x, int _y) &#123;
+        x = _x;
+        y = _y;
+        v = 0;
+    &#125;
+    node(int _x, int _y) &#123;
+        x = _x;
+        y = _y;
+        v = 0;
+    &#125;
+    node() &#123;&#125;
+&#125;;
+vector&lt;node&gt; End;
+node yifenfi, mercki;
+int n, m;
+int dir[4][2] = &#123; &#123;-1,0&#125;,&#123;1,0&#125;,&#123;0,-1&#125;,&#123;0,1&#125; &#125;;
+bool legal(int x, int y, vector&lt;string&gt;&amp; grid) &#123;
+    return (x &gt;= 0 &amp;&amp; x &lt; n&amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m&amp;&amp; grid[x][y] != &#39;#&#39;);
+&#125;
+void bfs(node&amp; start) &#123;
+    vector&lt;string&gt; grid(maze.begin(), maze.end());
+    int step[205][205];
+    memset(step, 0, sizeof(step));
+    queue&lt;node&gt; que;
+    grid[start.x][start.y] = &#39;#&#39;;
+    que.push(start);
+    while (!que.empty()) &#123;
+        node tmp = que.front();
+        que.pop();
+        int nx, ny;
+        for (int i = 0; i &lt; 4; i++) &#123;
+            nx = tmp.x + dir[i][0];
+            ny = tmp.y + dir[i][1];
+            if (legal(nx, ny, grid)) &#123;
+                step[nx][ny] = step[tmp.x][tmp.y] + 1;
+                grid[nx][ny] = &#39;#&#39;;
+                que.push(node(nx, ny));
+            &#125;
+        &#125;
+    &#125;
+    for (auto&amp; i : End) &#123;
+        i.v += step[i.x][i.y];
+    &#125;
+&#125;
+int main() &#123;
+
+    while (cin &gt;&gt; n &gt;&gt; m&amp;&amp;n&gt;=2&amp;&amp;m&gt;=2) &#123;
+        string s;
+        maze.clear();
+        End.clear();
+        yifenfi.x = yifenfi.y = 0;
+        mercki.x = mercki.y = 0;
+        for (int i = 0; i &lt; n; i++) &#123;
+            cin &gt;&gt; s;
+            for (int j = 0; j &lt; m; j++) &#123;
+                if (s[j] == &#39;@&#39;) &#123;
+                    End.push_back(node(i, j));
+                &#125;
+                else if (s[j] == &#39;Y&#39;) &#123;
+                    yifenfi.init(i, j);
+                &#125;
+                else if (s[j] == &#39;M&#39;)
+                    mercki.init(i, j);
+            &#125;
+            maze.push_back(s);
+        &#125;
+        bfs(yifenfi);
+        bfs(mercki);
+        int Min = 10000;
+        for (auto i : End) &#123;
+            if (Min &gt; i.v&amp;&amp;i.v!=0) &#123;
+                Min = i.v;
+            &#125;
+        &#125;
+        cout &lt;&lt; Min * 11 &lt;&lt; endl;
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<h2 id="hdu1401"><a href="#hdu1401" class="headerlink" title="hdu1401 "></a><a href="https://acm.dingbacode.com/showproblem.php?pid=1401">hdu1401 </a></h2><p>题意为给定一个8 $\times$ 8的棋盘，给定四个棋子的起始坐标和终止坐标，问是否能在8步以内从起始状态到终点状态</p>
+<h3 id="题解-5"><a href="#题解-5" class="headerlink" title="题解"></a>题解</h3><p>第一道双向广搜题，棋盘布局问题的一个重点是怎么查重，这就需要将每一步之后的棋盘状态给表示出来，这道题给的是一个8 $\times$ 8的棋盘，一共64个位置，因此整个棋盘的状态可以用一个long long数据来存储，64个bit位上分别可以对应棋盘上一个点是否摆放了棋子，再者还需要存储该状态是第几步得到，为了方便快速取出棋子，需要一个二维数组来存放四颗棋子的状态。中间再使用map来标记哪些状态已经到达，该map能记录每个状态需要多少步到达。</p>
+<pre><code class="c++">#include&lt;bits/stdc++.h&gt;
+#include&lt;unordered_map&gt;
+using namespace std;
+typedef unsigned long long ull;
+struct maze &#123;
+    int chess[4][2];//棋子状态
+    ull hash;//每个状态独有的hash值
+    bool grid[8][8];//棋盘状态
+&#125;Front, Tail;//定义开始棋盘与终点棋盘
+int dir1[4][2] = &#123; &#123;-1,0&#125;,&#123;1,0&#125;,&#123;0,1&#125;,&#123;0,-1&#125; &#125;;
+int dir2[4][2] = &#123; &#123;-2,0&#125;,&#123;2,0&#125;,&#123;0,2&#125;,&#123;0,-2&#125; &#125;;//遇到旁边有棋子的移动步数
+
+ull ToHash(maze&amp; m) &#123;
+    ull re = 0;
+    //将棋盘上每一个点的状态对应到long long 上每一个位
+    for (int i = 0; i &lt; 8; i++) &#123;
+        for (int j = 0; j &lt; 8; j++) &#123;
+            re = re &lt;&lt; 1 | m.grid[i][j];
+        &#125;
+    &#125;
+    return re;
+&#125;
+int solve(queue&lt;maze&gt;&amp; que, unordered_map&lt;ull, int&gt;&amp; mp1, unordered_map&lt;ull, int&gt;&amp; mp2) &#123;
+    //该函数相当于while循环当中的一次que.front()...que.push()...
+    maze tmp = que.front();
+    que.pop();
+    for (int i = 0; i &lt; 4; i++) &#123;
+        //第一重遍历，遍历四颗棋子
+        int x = tmp.chess[i][0], y = tmp.chess[i][1];
+        for (int j = 0; j &lt; 4; j++) &#123;
+            //第二重遍历，遍历四个方向
+            int nx = x + dir1[j][0];
+            int ny = y + dir1[j][1];
+            if (nx &gt;= 0 &amp;&amp; nx &lt; 8 &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; 8 &amp;&amp; tmp.grid[nx][ny] == false) &#123;//先尝试移动一步
+                maze next = tmp;
+                next.grid[nx][ny] = true;
+                next.grid[x][y] = false;//下一个状态里面,(x,y)已经变成了false，不用担心走回头路，因为当前棋盘的hash已经记录在map里面了
+                next.hash = ToHash(next);
+                next.chess[i][0] = nx, next.chess[i][1] = ny;
+                if (!mp1.count(next.hash)) &#123;//如果变化后是以前没有的状态
+                    mp1[next.hash] = mp1[tmp.hash] + 1;
+                    que.push(next);
+                    if (mp2.count(next.hash))//如果变化后与终点变过来的某一状态相同，则已经找到答案
+                        return mp1[next.hash] + mp2[next.hash];
+                &#125;
+            &#125;
+            else if (nx &gt;= 0 &amp;&amp; nx &lt; 8 &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; 8 &amp;&amp; tmp.grid[nx][ny] == true) &#123;//走一步遇到了棋子
+                 nx = x + dir2[j][0];
+                 ny = y + dir2[j][1];
+                 if (nx &gt;= 0 &amp;&amp; nx &lt; 8 &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; 8 &amp;&amp; tmp.grid[nx][ny] == false) &#123;//尝试走两步，后面代码同上
+                     maze next = tmp;
+                     next.grid[nx][ny] = true;
+                     next.grid[x][y] = false;
+                     next.hash = ToHash(next);
+                     next.chess[i][0] = nx, next.chess[i][1] = ny;
+                     if (!mp1.count(next.hash)) &#123;
+                         mp1[next.hash] = mp1[tmp.hash] + 1;
+                         que.push(next);
+                         if (mp2.count(next.hash))
+                             return mp1[next.hash] + mp2[next.hash];
+                     &#125;
+                 &#125;
+            &#125;
+        &#125;
+    &#125;
+    return -1;//四颗棋子遍历完发现都没有return，返回失败标记
+&#125;
+int bfs() &#123;
+    queue&lt;maze&gt; que1, que2;
+    que1.push(Front);
+    que2.push(Tail);
+    unordered_map&lt;ull, int&gt; mp1, mp2;
+    mp1[Front.hash] = 0;
+    mp2[Tail.hash] = 0;
+    //两个队列与map的初始化，que1代表从起始状态遍历，que2从终止状态开始，mp1和mp2分别对应两者出现过的状态
+    while (que1.size() &amp;&amp; que2.size()) &#123;
+        if (mp1[Front.hash] + mp2[Tail.hash] &gt; 8)//如果两者的步数和已经超过8，返回失败
+            return -1;
+        int re;
+        if (que1.size() &lt;= que2.size()) &#123;//size小的优先，这样就能达到双端遍历的效果
+            re = solve(que1, mp1, mp2);
+        &#125;
+        else
+            re = solve(que2, mp2, mp1);
+        if (re != -1 &amp;&amp; re &lt;= 8)
+            return re;
+        if (re &gt; 8)
+            return -1;
+    &#125;
+    return -1;
+&#125;
+int main()
+&#123;
+    int x, y;
+    while (cin &gt;&gt; x &gt;&gt; y) &#123;
+        x--, y--;
+        memset(Front.grid, false, sizeof(Front.grid));
+        memset(Tail.grid, false , sizeof(Tail.grid));
+        Front.grid[x][y] = true;
+        Front.chess[0][0] = x, Front.chess[0][1] = y;
+        for (int i = 1; i &lt;= 3; i++) &#123;
+            cin &gt;&gt; x &gt;&gt; y;
+            x--, y--;
+            Front.grid[x][y] = true;
+            Front.chess[i][0] = x, Front.chess[i][1] = y;
+        &#125;
+        for (int i = 0; i &lt; 4; i++) &#123;
+            cin &gt;&gt; x &gt;&gt; y;
+            x--, y--;
+            Tail.grid[x][y] = true;
+            Tail.chess[i][0] = x, Tail.chess[i][1] = y;
+        &#125;
+        Front.hash = ToHash(Front);
+        Tail.hash = ToHash(Tail);
+        if (Front.hash == Tail.hash)
+            cout &lt;&lt; &quot;YES&quot; &lt;&lt; endl;
+        else &#123;
+            int re = bfs();
+            if (re == -1)
+                cout &lt;&lt; &quot;NO&quot; &lt;&lt; endl;
+            else
+                cout &lt;&lt; &quot;YES&quot; &lt;&lt; endl;
+        &#125;
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<h2 id="hdu1495"><a href="#hdu1495" class="headerlink" title="hdu1495 "></a><a href="https://acm.dingbacode.com/showproblem.php?pid=1495">hdu1495 </a></h2><p>题意是给定三个杯子，第一个被子装满水，通过这三个被子互相倒进倒出能否把水平分</p>
+<h3 id="题解-6"><a href="#题解-6" class="headerlink" title="题解"></a>题解</h3><p>题目的要求是出现一个杯子为空，其它两个杯子装等量的水的情况（我第一次理解成了只要可以两个人喝到相同的水就行了，于是一边倒水一边喝，wa了老久━┳━　━┳━)。搜索的重点就是去记录状态，这道题将三个杯子当前的装水量为一个状态进行搜索，所以开一个三维的vis[s的水量][n的水量][m的水量]bool数组来记录当前状态，每一个状态有6个方向分别是s-&gt;n,s-&gt;m,n-&gt;s,n-&gt;m,m-&gt;s,m-&gt;n(看起来代码长其实很多都是重复操作)</p>
+<pre><code class="cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+#define MAXN 105
+bool vis[MAXN][MAXN][MAXN];
+int s, n, m;
+struct node &#123;
+    int s, n, m, step;
+&#125;;
+node start;
+node re;
+int bfs() &#123;
+    queue&lt;node&gt; que;
+    memset(vis, false, sizeof(vis));
+    vis[start.s][start.n][start.m] = true;
+    que.push(start);
+    while (!que.empty()) &#123;
+        node tmp = que.front();
+        que.pop();
+        if (tmp.s == 0 &amp;&amp; tmp.m == tmp.n || tmp.m == 0 &amp;&amp; tmp.s == tmp.n || tmp.n == 0 &amp;&amp; tmp.s == tmp.m)
+        &#123;
+            return tmp.step;
+        &#125;
+        //s--&gt;n
+    
+        if (tmp.s &amp;&amp; n &gt; tmp.n) &#123;//s有水并且n还没灌满
+            node x = tmp;
+            if (tmp.s &gt; n - tmp.n) &#123;//s的水比n现在能装的还多
+                x.s -= n - tmp.n;
+                x.n = n;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+            else &#123;
+                x.s = 0;
+                x.n += tmp.s;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+        &#125;
+        //s--&gt;m
+        if (tmp.s &amp;&amp; m &gt; tmp.m) &#123;//s有水并且m还没灌满
+            node x = tmp;
+            if (tmp.s &gt; m - tmp.m) &#123;//s的水比m现在能装的还多
+                x.s -= m - tmp.m;
+                x.m = m;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+            else &#123;
+                x.s = 0;
+                x.m += tmp.s;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+        &#125;
+        //n--&gt;s
+        if (tmp.n &amp;&amp; s &gt; tmp.s) &#123;//n有水并且s还没灌满
+            node x = tmp;
+            if (tmp.n &gt; s - tmp.s) &#123;//n的水比s现在能装的还多
+                x.n -= s - tmp.s;
+                x.s = s;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+            else &#123;
+                x.n = 0;
+                x.s += tmp.n;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+        &#125;
+        //n--&gt;m
+        if (tmp.n &amp;&amp; m &gt; tmp.m) &#123;//n有水并且m还没灌满
+            node x = tmp;
+            if (tmp.n &gt; m - tmp.m) &#123;//n的水比m现在能装的还多
+                x.n -= m - tmp.m;
+                x.m = m;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+            else &#123;
+                x.n = 0;
+                x.m += tmp.n;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+        &#125;
+        //m--&gt;n
+        if (tmp.m &amp;&amp; n &gt; tmp.n) &#123;//n有水并且n还没灌满
+            node x = tmp;
+            if (tmp.m &gt; n - tmp.n) &#123;//m的水比n现在能装的还多
+                x.m -= n - tmp.n;
+                x.n = n;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+            else &#123;
+                x.m = 0;
+                x.n += tmp.m;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+        &#125;
+        //m--&gt;s
+        if (tmp.m &amp;&amp; s &gt; tmp.s) &#123;//m有水并且s还没灌满
+            node x = tmp;
+            if (tmp.m &gt; s - tmp.s) &#123;//m的水比s现在能装的还多
+                x.m -= s - tmp.s;
+                x.s = s;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+            else &#123;
+                x.m = 0;
+                x.s += tmp.m;
+                x.step += 1;
+                if (!vis[x.s][x.n][x.m]) &#123;
+                    que.push(x);
+                    vis[x.s][x.n][x.m] = true;
+                &#125;
+            &#125;
+        &#125;
+    &#125;
+    return 0;
+&#125;
+int main()
+&#123;
+    while (cin &gt;&gt; s &gt;&gt; n &gt;&gt; m) &#123;
+        if (s == n &amp;&amp; n == m &amp;&amp; s == 0)
+            break;
+        start.s = s, start.n = 0, start.m = 0;
+        start.step = 0;
+        if (s &amp; 1) &#123;
+            cout &lt;&lt; &quot;NO&quot; &lt;&lt; endl;
+        &#125;
+        else &#123;
+            int re = bfs();
+            if (re) &#123;
+                cout &lt;&lt; re &lt;&lt; endl;
+            &#125;
+            else
+                cout &lt;&lt; &quot;NO&quot; &lt;&lt; endl;
+        &#125;
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<p><a href="http://poj.org/problem?id=3126">POJ3126 – Prime Path</a></p>
+<p><em>2021.7.19</em></p>
+<p>题意是给定一个起始的四位的素数和目标四位的素数，每一步可以变动一个位置上的数字，要求变动之后数字还是素数，且还是要四位数，求最少步数。</p>
+<h3 id="题解-7"><a href="#题解-7" class="headerlink" title="题解"></a>题解</h3><p>最近做这个专题发现基本上都是问最少步数，也基本上都是bfs,这道题的状态可以直接由一个数字本身确定，由于范围较小，可以提前将所有的四位素数计算出来，方便后面判断。代码如下</p>
+<pre><code class="cpp">#include&lt;iostream&gt;
+#include&lt;queue&gt;
+#include&lt;map&gt;
+using namespace std;
+bool prime[100000];//判断素数
+
+int main()
+&#123;
+    for (int i = 2; i &lt; 100000; i++) &#123;
+        if (!prime[i]) &#123;
+            for (int j = 2; j * i &lt; 100000; j++) &#123;
+                prime[i * j] = true;
+            &#125;
+        &#125;
+    &#125;//埃氏筛
+    
+    int t, a, b;
+    cin &gt;&gt; t;
+    bool flag = false;
+    while (t--) &#123;
+        cin &gt;&gt; a &gt;&gt; b;
+        queue&lt;int&gt;que;
+        map&lt;int, int&gt; mp;//bfs的标记数组，mp[1000]=1表示1000y
+        mp[a] = 0;
+        que.push(a);
+        while (!que.empty()) &#123;
+            int tmp = que.front();
+            que.pop();
+            if (tmp == b) &#123;
+                flag = true;
+                break;
+            &#125;
+            //下面四个for循环分别对应修改四个位置上的数字
+            for (int i = 0; i &lt; 10; i++) &#123;
+                int num = tmp % 1000 + i * 1000;
+                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
+                    mp[num] = mp[tmp] + 1;
+                    que.push(num);
+                &#125;
+            &#125;
+            for (int i = 0; i &lt; 10; i++) &#123;
+                int num = tmp - ((tmp / 100) % 10) * 100 + i * 100;
+                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
+                    mp[num] = mp[tmp] + 1;
+                    que.push(num);
+                &#125;
+            &#125;
+            for (int i = 0; i &lt; 10; i++) &#123;
+                int num = tmp - ((tmp / 10) % 10) * 10 + i * 10;
+                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
+                    mp[num] = mp[tmp] + 1;
+                    que.push(num);
+                &#125;
+            &#125;
+            for (int i = 0; i &lt; 10; i++) &#123;
+                int num = tmp -(tmp%10) + i;
+                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
+                    mp[num] = mp[tmp] + 1;
+                    que.push(num);
+                &#125;
+            &#125;
+        &#125;
+        if (flag)
+            cout &lt;&lt; mp[b]&lt;&lt;endl;
+        else
+            cout &lt;&lt; &quot;impossible&quot; &lt;&lt; endl;
+        
+
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+]]></content>
+      <tags>
+        <tag>acm</tag>
       </tags>
   </entry>
   <entry>
@@ -1610,643 +2244,9 @@ int main()
       </tags>
   </entry>
   <entry>
-    <title>Kuangbin-简单搜索</title>
-    <url>/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/</url>
-    <content><![CDATA[<h1 id="简单搜索"><a href="#简单搜索" class="headerlink" title="简单搜索"></a>简单搜索</h1><p>[poj1321](##<a href="http://poj.org/problem?id=1321">POJ1321 – 棋盘问题 </a>)</p>
-<h2 id="POJ1321-–-棋盘问题"><a href="#POJ1321-–-棋盘问题" class="headerlink" title="POJ1321 – 棋盘问题"></a><a href="http://poj.org/problem?id=1321">POJ1321 – 棋盘问题</a></h2><h3 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h3><p>变版的八皇后问题，只不过棋盘不再规则只能在某些格子放棋子而已，思路不变。先假设前面k行已经摆好且没有相互矛盾，那在第k+1行就有摆和不摆两种选择，如果摆，那又有摆在哪一列的选择，用一个col数组记录前面哪些列已经用过了，如果col[x]的状态表示没有用过，那[k+1][x]就是一个可行的位置，把col[x]标记一下，然后继续向下一行探索。</p>
-<pre><code class="cpp">#include&lt;iostream&gt;
-#include&lt;cstring&gt;
-using namespace std;
-bool col[10];//存哪些列用过来了,false表示没用过
-char grid[10][10];//存图
-int n, k, ans;
-void dfs(int line, int num) &#123;//line表示现在在第几行，num表示前面填好了几个
-    if (line==n||num == k) &#123;//行号最多n-1,到n肯定不行了
-        if (num == k)//如果已经填好k个，总方案数加1
-            ans++;
-        return;
-    &#125;
-    for (int i = 0; i &lt; n; i++) &#123;
-        //在该行填，将改行的每一列遍历一遍，看看哪些列可以填
-        if (!col[i] &amp;&amp; grid[line][i] == &#39;#&#39;) &#123;
-            col[i] = true;
-            dfs(line + 1, num + 1);
-            col[i] = false;//j
-        &#125;
-    &#125;
-    //不在改行填，所以num没有加1
-    dfs(line + 1, num);
-&#125;
-int main()
-&#123;
-    while (cin &gt;&gt; n &gt;&gt; k) &#123;
-        if (n == k &amp;&amp; n == -1)
-            break;
-        memset(col, false, sizeof(col));//初始化
-        ans = 0;
-        for (int i = 0; i &lt; n; i++) &#123;
-            cin &gt;&gt; grid[i];
-        &#125;
-        dfs(0, 0);//从第0行开始，已经填好0个
-        cout &lt;&lt; ans &lt;&lt; endl;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<h2 id="POJ3278-3278-–-Catch-That-Cow-poj-org"><a href="#POJ3278-3278-–-Catch-That-Cow-poj-org" class="headerlink" title="[POJ3278](3278 – Catch That Cow (poj.org))"></a>[POJ3278](<a href="http://poj.org/problem?id=3278">3278 – Catch That Cow (poj.org)</a>)</h2><h3 id="题解-1"><a href="#题解-1" class="headerlink" title="题解"></a>题解</h3><p>该题注意剪枝，不让会RE（虽然我用的map），剪枝不可将x+1&gt;K和x*2&gt;k的情况剪掉，例如100-&gt;199</p>
-<p>另外由于时间卡得比较紧，数量比较大所以不能用map，用map会TE</p>
-<h2 id="poj3279"><a href="#poj3279" class="headerlink" title="poj3279"></a><a href="http://poj.org/problem?id=3279">poj3279</a></h2><p>题意大概说的是给定一个m*n的01矩阵，每次去翻一个位置周围四个方向的位置都会翻转，问能不能翻到全是0，能的话输出字典序最小的翻法</p>
-<h3 id="题解-2"><a href="#题解-2" class="headerlink" title="题解"></a>题解</h3><p>这是遇到的第一个枚举题，二进制枚举，首先确定的是每个位置只有翻和不翻两种情况，翻两次等于没翻，翻奇数次等于一次。如果去考察每一个位置的翻的情况就会有2^mn^次结果，显然时间超限，观察（看博客）易得出规律——&#x3D;&#x3D;假设第一行的状态确定（就是第一行哪些位置翻不翻确定，确定之后会得到第一行确定的状态，哪些位置是0哪些是1），从第二行开始扫描，如果发现该位置上头上的位置为1那该位置一定要翻，因为头上的位置上左右都确定了&#x3D;&#x3D;，以此扫描完整个数组，最后再对最后一行做一个检查，如果有1则不行，因为现在只能由下一行来翻转该位置，但没有下一行。</p>
-<blockquote>
-<pre><code class="cpp">#include&lt;iostream&gt;
-#include&lt;cstdio&gt;
-#include&lt;cstring&gt;
-#include&lt;cstdlib&gt;
-using namespace std;
-const int maxn = 20;
-int n, m;
-int maze[maxn][maxn];
-int grid[maxn][maxn];
-int ans[maxn][maxn];
-int dir[5][2] = &#123; &#123;0,0&#125;,&#123;1,0&#125;,&#123;0,1&#125;,&#123;-1,0&#125;,&#123;0,-1&#125; &#125;;
-bool legal(int x, int y) &#123;
-    return (x &gt;= 0 &amp;&amp; x &lt; n&amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m);
-&#125;
-void flip(int x, int y) &#123;
-    ans[x][y] = 1;
-    int nx, ny;
-    for (int i = 0; i &lt; 5; i++) &#123;
-        nx = x + dir[i][0];
-        ny = y + dir[i][1];
-        if (legal(nx, ny)) &#123;
-            grid[nx][ny] ^= 1;
-        &#125;
-    &#125;
-&#125;
-void solve() &#123;
-    for (int i = 0; i &lt; n; i++) &#123;
-        for (int j = 0; j &lt; m; j++) &#123;
-            printf(&quot;%d%c&quot;, ans[i][j], &quot; \n&quot;[j == (m - 1)]);
-        &#125;
-    &#125;
-&#125;
-int main() &#123;
-    scanf(&quot;%d%d&quot;, &amp;n, &amp;m);
-    for (int i = 0; i &lt; n; i++) &#123;
-        for (int j = 0; j &lt; m; j++) &#123;
-            scanf(&quot;%d&quot;, &amp;maze[i][j]);
-        &#125;
-    &#125;
-    int end = 1 &lt;&lt; m;
-    int bsk;
-    bool ok = true;
-    for (int i = 0; i &lt; end; i++) &#123;
-        ok = true;
-        bsk = i;
-        memcpy(grid, maze, sizeof(maze));
-        memset(ans, 0, sizeof(ans));
-        for (int k = 0; k &lt; m; k++) &#123;
-            if (bsk &amp; 1)
-                flip(0, k);
-            bsk &gt;&gt;= 1;
-        &#125;
-        for (int j = 1; j &lt; n; j++) &#123;
-            for (int k = 0; k &lt; m; k++) &#123;
-                if (grid[j - 1][k])
-                    flip(j, k);
-            &#125;
-        &#125;
-        for (int k = 0, j = n - 1; k &lt; m; k++) &#123;
-            if (grid[j][k]) &#123;
-                ok = false;
-                continue;
-            &#125;
-        &#125;
-        if (ok) &#123;
-            solve();
-            break;
-        &#125;
-    &#125;
-    if (!ok)
-        printf(&quot;IMPOSSIBLE\n&quot;);
-    return 0;
-&#125;
-</code></pre>
-</blockquote>
-<h2 id="POJ1426-–-Find-The-Multiple"><a href="#POJ1426-–-Find-The-Multiple" class="headerlink" title="POJ1426 – Find The Multiple "></a><a href="http://poj.org/problem?id=1426">POJ1426 – Find The Multiple </a></h2><p>题意大概是给一个数字n,找出一个n的十进制倍数m，m只能由01组成</p>
-<h3 id="题解-3"><a href="#题解-3" class="headerlink" title="题解"></a>题解</h3><p>虽然这道题说m不超过100位，但用unsigned long long过了，要是完全按照题意的话就还要处理大数问题，看其它文章好像也没有很好的可以解决，就直接当unsigned long long 过了</p>
-<p>bfs和dfs都可以，dfs注意判断不要溢出,当然由于n比较小可以先得出200个结果打表然后再过，因为可能搜索会超时，时间卡得较紧</p>
-<pre><code class="c++">#include&lt;iostream&gt;
-#include&lt;queue&gt;
-using namespace std;
-
-int n;
-typedef unsigned long long ull;
-void bfs() &#123;
-    queue&lt;ull&gt; que;
-    que.push(1);
-
-    while (!que.empty()) &#123;
-        ull tmp = que.front();
-        que.pop();
-        if (tmp % n == 0) &#123;
-            cout &lt;&lt; tmp &lt;&lt; endl;
-            return;
-        &#125;
-        que.push(tmp * 10);
-        que.push(tmp * 10 + 1);
-    &#125;
-&#125;
-int main()
-&#123;
-    while (cin &gt;&gt; n&amp;&amp;n) &#123;
-        bfs();
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<h2 id="hdu2612"><a href="#hdu2612" class="headerlink" title="hdu2612"></a><a href="https://acm.dingbacode.com/showproblem.php?pid=2612">hdu2612</a></h2><p>题意为求两个人要到同一个@需要的最少步数乘以11.</p>
-<h3 id="题解-4"><a href="#题解-4" class="headerlink" title="题解"></a>题解</h3><p>两边bfs之后将每次每一个@的步数相加，最后找出最小的那个@即可，但是要注意可能有些@是两个人都到不了的，其步数一直为0所以最后需要特殊判断一下，我legal判断x&lt;n写成x&lt;m了，RE了好几发━┳━　━┳━</p>
-<pre><code class="cpp">#include&lt;bits/stdc++.h&gt;
-using namespace std;
-vector&lt;string&gt; maze;
-struct node &#123;
-    int x, y, v;
-    void init(int _x, int _y) &#123;
-        x = _x;
-        y = _y;
-        v = 0;
-    &#125;
-    node(int _x, int _y) &#123;
-        x = _x;
-        y = _y;
-        v = 0;
-    &#125;
-    node() &#123;&#125;
-&#125;;
-vector&lt;node&gt; End;
-node yifenfi, mercki;
-int n, m;
-int dir[4][2] = &#123; &#123;-1,0&#125;,&#123;1,0&#125;,&#123;0,-1&#125;,&#123;0,1&#125; &#125;;
-bool legal(int x, int y, vector&lt;string&gt;&amp; grid) &#123;
-    return (x &gt;= 0 &amp;&amp; x &lt; n&amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m&amp;&amp; grid[x][y] != &#39;#&#39;);
-&#125;
-void bfs(node&amp; start) &#123;
-    vector&lt;string&gt; grid(maze.begin(), maze.end());
-    int step[205][205];
-    memset(step, 0, sizeof(step));
-    queue&lt;node&gt; que;
-    grid[start.x][start.y] = &#39;#&#39;;
-    que.push(start);
-    while (!que.empty()) &#123;
-        node tmp = que.front();
-        que.pop();
-        int nx, ny;
-        for (int i = 0; i &lt; 4; i++) &#123;
-            nx = tmp.x + dir[i][0];
-            ny = tmp.y + dir[i][1];
-            if (legal(nx, ny, grid)) &#123;
-                step[nx][ny] = step[tmp.x][tmp.y] + 1;
-                grid[nx][ny] = &#39;#&#39;;
-                que.push(node(nx, ny));
-            &#125;
-        &#125;
-    &#125;
-    for (auto&amp; i : End) &#123;
-        i.v += step[i.x][i.y];
-    &#125;
-&#125;
-int main() &#123;
-
-    while (cin &gt;&gt; n &gt;&gt; m&amp;&amp;n&gt;=2&amp;&amp;m&gt;=2) &#123;
-        string s;
-        maze.clear();
-        End.clear();
-        yifenfi.x = yifenfi.y = 0;
-        mercki.x = mercki.y = 0;
-        for (int i = 0; i &lt; n; i++) &#123;
-            cin &gt;&gt; s;
-            for (int j = 0; j &lt; m; j++) &#123;
-                if (s[j] == &#39;@&#39;) &#123;
-                    End.push_back(node(i, j));
-                &#125;
-                else if (s[j] == &#39;Y&#39;) &#123;
-                    yifenfi.init(i, j);
-                &#125;
-                else if (s[j] == &#39;M&#39;)
-                    mercki.init(i, j);
-            &#125;
-            maze.push_back(s);
-        &#125;
-        bfs(yifenfi);
-        bfs(mercki);
-        int Min = 10000;
-        for (auto i : End) &#123;
-            if (Min &gt; i.v&amp;&amp;i.v!=0) &#123;
-                Min = i.v;
-            &#125;
-        &#125;
-        cout &lt;&lt; Min * 11 &lt;&lt; endl;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<h2 id="hdu1401"><a href="#hdu1401" class="headerlink" title="hdu1401 "></a><a href="https://acm.dingbacode.com/showproblem.php?pid=1401">hdu1401 </a></h2><p>题意为给定一个8 $\times$ 8的棋盘，给定四个棋子的起始坐标和终止坐标，问是否能在8步以内从起始状态到终点状态</p>
-<h3 id="题解-5"><a href="#题解-5" class="headerlink" title="题解"></a>题解</h3><p>第一道双向广搜题，棋盘布局问题的一个重点是怎么查重，这就需要将每一步之后的棋盘状态给表示出来，这道题给的是一个8 $\times$ 8的棋盘，一共64个位置，因此整个棋盘的状态可以用一个long long数据来存储，64个bit位上分别可以对应棋盘上一个点是否摆放了棋子，再者还需要存储该状态是第几步得到，为了方便快速取出棋子，需要一个二维数组来存放四颗棋子的状态。中间再使用map来标记哪些状态已经到达，该map能记录每个状态需要多少步到达。</p>
-<pre><code class="c++">#include&lt;bits/stdc++.h&gt;
-#include&lt;unordered_map&gt;
-using namespace std;
-typedef unsigned long long ull;
-struct maze &#123;
-    int chess[4][2];//棋子状态
-    ull hash;//每个状态独有的hash值
-    bool grid[8][8];//棋盘状态
-&#125;Front, Tail;//定义开始棋盘与终点棋盘
-int dir1[4][2] = &#123; &#123;-1,0&#125;,&#123;1,0&#125;,&#123;0,1&#125;,&#123;0,-1&#125; &#125;;
-int dir2[4][2] = &#123; &#123;-2,0&#125;,&#123;2,0&#125;,&#123;0,2&#125;,&#123;0,-2&#125; &#125;;//遇到旁边有棋子的移动步数
-
-ull ToHash(maze&amp; m) &#123;
-    ull re = 0;
-    //将棋盘上每一个点的状态对应到long long 上每一个位
-    for (int i = 0; i &lt; 8; i++) &#123;
-        for (int j = 0; j &lt; 8; j++) &#123;
-            re = re &lt;&lt; 1 | m.grid[i][j];
-        &#125;
-    &#125;
-    return re;
-&#125;
-int solve(queue&lt;maze&gt;&amp; que, unordered_map&lt;ull, int&gt;&amp; mp1, unordered_map&lt;ull, int&gt;&amp; mp2) &#123;
-    //该函数相当于while循环当中的一次que.front()...que.push()...
-    maze tmp = que.front();
-    que.pop();
-    for (int i = 0; i &lt; 4; i++) &#123;
-        //第一重遍历，遍历四颗棋子
-        int x = tmp.chess[i][0], y = tmp.chess[i][1];
-        for (int j = 0; j &lt; 4; j++) &#123;
-            //第二重遍历，遍历四个方向
-            int nx = x + dir1[j][0];
-            int ny = y + dir1[j][1];
-            if (nx &gt;= 0 &amp;&amp; nx &lt; 8 &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; 8 &amp;&amp; tmp.grid[nx][ny] == false) &#123;//先尝试移动一步
-                maze next = tmp;
-                next.grid[nx][ny] = true;
-                next.grid[x][y] = false;//下一个状态里面,(x,y)已经变成了false，不用担心走回头路，因为当前棋盘的hash已经记录在map里面了
-                next.hash = ToHash(next);
-                next.chess[i][0] = nx, next.chess[i][1] = ny;
-                if (!mp1.count(next.hash)) &#123;//如果变化后是以前没有的状态
-                    mp1[next.hash] = mp1[tmp.hash] + 1;
-                    que.push(next);
-                    if (mp2.count(next.hash))//如果变化后与终点变过来的某一状态相同，则已经找到答案
-                        return mp1[next.hash] + mp2[next.hash];
-                &#125;
-            &#125;
-            else if (nx &gt;= 0 &amp;&amp; nx &lt; 8 &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; 8 &amp;&amp; tmp.grid[nx][ny] == true) &#123;//走一步遇到了棋子
-                 nx = x + dir2[j][0];
-                 ny = y + dir2[j][1];
-                 if (nx &gt;= 0 &amp;&amp; nx &lt; 8 &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; 8 &amp;&amp; tmp.grid[nx][ny] == false) &#123;//尝试走两步，后面代码同上
-                     maze next = tmp;
-                     next.grid[nx][ny] = true;
-                     next.grid[x][y] = false;
-                     next.hash = ToHash(next);
-                     next.chess[i][0] = nx, next.chess[i][1] = ny;
-                     if (!mp1.count(next.hash)) &#123;
-                         mp1[next.hash] = mp1[tmp.hash] + 1;
-                         que.push(next);
-                         if (mp2.count(next.hash))
-                             return mp1[next.hash] + mp2[next.hash];
-                     &#125;
-                 &#125;
-            &#125;
-        &#125;
-    &#125;
-    return -1;//四颗棋子遍历完发现都没有return，返回失败标记
-&#125;
-int bfs() &#123;
-    queue&lt;maze&gt; que1, que2;
-    que1.push(Front);
-    que2.push(Tail);
-    unordered_map&lt;ull, int&gt; mp1, mp2;
-    mp1[Front.hash] = 0;
-    mp2[Tail.hash] = 0;
-    //两个队列与map的初始化，que1代表从起始状态遍历，que2从终止状态开始，mp1和mp2分别对应两者出现过的状态
-    while (que1.size() &amp;&amp; que2.size()) &#123;
-        if (mp1[Front.hash] + mp2[Tail.hash] &gt; 8)//如果两者的步数和已经超过8，返回失败
-            return -1;
-        int re;
-        if (que1.size() &lt;= que2.size()) &#123;//size小的优先，这样就能达到双端遍历的效果
-            re = solve(que1, mp1, mp2);
-        &#125;
-        else
-            re = solve(que2, mp2, mp1);
-        if (re != -1 &amp;&amp; re &lt;= 8)
-            return re;
-        if (re &gt; 8)
-            return -1;
-    &#125;
-    return -1;
-&#125;
-int main()
-&#123;
-    int x, y;
-    while (cin &gt;&gt; x &gt;&gt; y) &#123;
-        x--, y--;
-        memset(Front.grid, false, sizeof(Front.grid));
-        memset(Tail.grid, false , sizeof(Tail.grid));
-        Front.grid[x][y] = true;
-        Front.chess[0][0] = x, Front.chess[0][1] = y;
-        for (int i = 1; i &lt;= 3; i++) &#123;
-            cin &gt;&gt; x &gt;&gt; y;
-            x--, y--;
-            Front.grid[x][y] = true;
-            Front.chess[i][0] = x, Front.chess[i][1] = y;
-        &#125;
-        for (int i = 0; i &lt; 4; i++) &#123;
-            cin &gt;&gt; x &gt;&gt; y;
-            x--, y--;
-            Tail.grid[x][y] = true;
-            Tail.chess[i][0] = x, Tail.chess[i][1] = y;
-        &#125;
-        Front.hash = ToHash(Front);
-        Tail.hash = ToHash(Tail);
-        if (Front.hash == Tail.hash)
-            cout &lt;&lt; &quot;YES&quot; &lt;&lt; endl;
-        else &#123;
-            int re = bfs();
-            if (re == -1)
-                cout &lt;&lt; &quot;NO&quot; &lt;&lt; endl;
-            else
-                cout &lt;&lt; &quot;YES&quot; &lt;&lt; endl;
-        &#125;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<h2 id="hdu1495"><a href="#hdu1495" class="headerlink" title="hdu1495 "></a><a href="https://acm.dingbacode.com/showproblem.php?pid=1495">hdu1495 </a></h2><p>题意是给定三个杯子，第一个被子装满水，通过这三个被子互相倒进倒出能否把水平分</p>
-<h3 id="题解-6"><a href="#题解-6" class="headerlink" title="题解"></a>题解</h3><p>题目的要求是出现一个杯子为空，其它两个杯子装等量的水的情况（我第一次理解成了只要可以两个人喝到相同的水就行了，于是一边倒水一边喝，wa了老久━┳━　━┳━)。搜索的重点就是去记录状态，这道题将三个杯子当前的装水量为一个状态进行搜索，所以开一个三维的vis[s的水量][n的水量][m的水量]bool数组来记录当前状态，每一个状态有6个方向分别是s-&gt;n,s-&gt;m,n-&gt;s,n-&gt;m,m-&gt;s,m-&gt;n(看起来代码长其实很多都是重复操作)</p>
-<pre><code class="cpp">#include&lt;bits/stdc++.h&gt;
-using namespace std;
-#define MAXN 105
-bool vis[MAXN][MAXN][MAXN];
-int s, n, m;
-struct node &#123;
-    int s, n, m, step;
-&#125;;
-node start;
-node re;
-int bfs() &#123;
-    queue&lt;node&gt; que;
-    memset(vis, false, sizeof(vis));
-    vis[start.s][start.n][start.m] = true;
-    que.push(start);
-    while (!que.empty()) &#123;
-        node tmp = que.front();
-        que.pop();
-        if (tmp.s == 0 &amp;&amp; tmp.m == tmp.n || tmp.m == 0 &amp;&amp; tmp.s == tmp.n || tmp.n == 0 &amp;&amp; tmp.s == tmp.m)
-        &#123;
-            return tmp.step;
-        &#125;
-        //s--&gt;n
-    
-        if (tmp.s &amp;&amp; n &gt; tmp.n) &#123;//s有水并且n还没灌满
-            node x = tmp;
-            if (tmp.s &gt; n - tmp.n) &#123;//s的水比n现在能装的还多
-                x.s -= n - tmp.n;
-                x.n = n;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-            else &#123;
-                x.s = 0;
-                x.n += tmp.s;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-        &#125;
-        //s--&gt;m
-        if (tmp.s &amp;&amp; m &gt; tmp.m) &#123;//s有水并且m还没灌满
-            node x = tmp;
-            if (tmp.s &gt; m - tmp.m) &#123;//s的水比m现在能装的还多
-                x.s -= m - tmp.m;
-                x.m = m;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-            else &#123;
-                x.s = 0;
-                x.m += tmp.s;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-        &#125;
-        //n--&gt;s
-        if (tmp.n &amp;&amp; s &gt; tmp.s) &#123;//n有水并且s还没灌满
-            node x = tmp;
-            if (tmp.n &gt; s - tmp.s) &#123;//n的水比s现在能装的还多
-                x.n -= s - tmp.s;
-                x.s = s;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-            else &#123;
-                x.n = 0;
-                x.s += tmp.n;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-        &#125;
-        //n--&gt;m
-        if (tmp.n &amp;&amp; m &gt; tmp.m) &#123;//n有水并且m还没灌满
-            node x = tmp;
-            if (tmp.n &gt; m - tmp.m) &#123;//n的水比m现在能装的还多
-                x.n -= m - tmp.m;
-                x.m = m;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-            else &#123;
-                x.n = 0;
-                x.m += tmp.n;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-        &#125;
-        //m--&gt;n
-        if (tmp.m &amp;&amp; n &gt; tmp.n) &#123;//n有水并且n还没灌满
-            node x = tmp;
-            if (tmp.m &gt; n - tmp.n) &#123;//m的水比n现在能装的还多
-                x.m -= n - tmp.n;
-                x.n = n;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-            else &#123;
-                x.m = 0;
-                x.n += tmp.m;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-        &#125;
-        //m--&gt;s
-        if (tmp.m &amp;&amp; s &gt; tmp.s) &#123;//m有水并且s还没灌满
-            node x = tmp;
-            if (tmp.m &gt; s - tmp.s) &#123;//m的水比s现在能装的还多
-                x.m -= s - tmp.s;
-                x.s = s;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-            else &#123;
-                x.m = 0;
-                x.s += tmp.m;
-                x.step += 1;
-                if (!vis[x.s][x.n][x.m]) &#123;
-                    que.push(x);
-                    vis[x.s][x.n][x.m] = true;
-                &#125;
-            &#125;
-        &#125;
-    &#125;
-    return 0;
-&#125;
-int main()
-&#123;
-    while (cin &gt;&gt; s &gt;&gt; n &gt;&gt; m) &#123;
-        if (s == n &amp;&amp; n == m &amp;&amp; s == 0)
-            break;
-        start.s = s, start.n = 0, start.m = 0;
-        start.step = 0;
-        if (s &amp; 1) &#123;
-            cout &lt;&lt; &quot;NO&quot; &lt;&lt; endl;
-        &#125;
-        else &#123;
-            int re = bfs();
-            if (re) &#123;
-                cout &lt;&lt; re &lt;&lt; endl;
-            &#125;
-            else
-                cout &lt;&lt; &quot;NO&quot; &lt;&lt; endl;
-        &#125;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<p><a href="http://poj.org/problem?id=3126">POJ3126 – Prime Path</a></p>
-<p><em>2021.7.19</em></p>
-<p>题意是给定一个起始的四位的素数和目标四位的素数，每一步可以变动一个位置上的数字，要求变动之后数字还是素数，且还是要四位数，求最少步数。</p>
-<h3 id="题解-7"><a href="#题解-7" class="headerlink" title="题解"></a>题解</h3><p>最近做这个专题发现基本上都是问最少步数，也基本上都是bfs,这道题的状态可以直接由一个数字本身确定，由于范围较小，可以提前将所有的四位素数计算出来，方便后面判断。代码如下</p>
-<pre><code class="cpp">#include&lt;iostream&gt;
-#include&lt;queue&gt;
-#include&lt;map&gt;
-using namespace std;
-bool prime[100000];//判断素数
-
-int main()
-&#123;
-    for (int i = 2; i &lt; 100000; i++) &#123;
-        if (!prime[i]) &#123;
-            for (int j = 2; j * i &lt; 100000; j++) &#123;
-                prime[i * j] = true;
-            &#125;
-        &#125;
-    &#125;//埃氏筛
-    
-    int t, a, b;
-    cin &gt;&gt; t;
-    bool flag = false;
-    while (t--) &#123;
-        cin &gt;&gt; a &gt;&gt; b;
-        queue&lt;int&gt;que;
-        map&lt;int, int&gt; mp;//bfs的标记数组，mp[1000]=1表示1000y
-        mp[a] = 0;
-        que.push(a);
-        while (!que.empty()) &#123;
-            int tmp = que.front();
-            que.pop();
-            if (tmp == b) &#123;
-                flag = true;
-                break;
-            &#125;
-            //下面四个for循环分别对应修改四个位置上的数字
-            for (int i = 0; i &lt; 10; i++) &#123;
-                int num = tmp % 1000 + i * 1000;
-                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
-                    mp[num] = mp[tmp] + 1;
-                    que.push(num);
-                &#125;
-            &#125;
-            for (int i = 0; i &lt; 10; i++) &#123;
-                int num = tmp - ((tmp / 100) % 10) * 100 + i * 100;
-                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
-                    mp[num] = mp[tmp] + 1;
-                    que.push(num);
-                &#125;
-            &#125;
-            for (int i = 0; i &lt; 10; i++) &#123;
-                int num = tmp - ((tmp / 10) % 10) * 10 + i * 10;
-                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
-                    mp[num] = mp[tmp] + 1;
-                    que.push(num);
-                &#125;
-            &#125;
-            for (int i = 0; i &lt; 10; i++) &#123;
-                int num = tmp -(tmp%10) + i;
-                if (!prime[num] &amp;&amp; mp.count(num) == 0&amp;&amp;num&gt;1000) &#123;
-                    mp[num] = mp[tmp] + 1;
-                    que.push(num);
-                &#125;
-            &#125;
-        &#125;
-        if (flag)
-            cout &lt;&lt; mp[b]&lt;&lt;endl;
-        else
-            cout &lt;&lt; &quot;impossible&quot; &lt;&lt; endl;
-        
-
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-]]></content>
-      <tags>
-        <tag>acm</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Pratt-Parse的理解</title>
     <url>/2022/10/01/Pratt-Parse%E7%9A%84%E7%90%86%E8%A7%A3/</url>
-    <content><![CDATA[<p>这一小节要处理的问题是运算的优先级问题<br>这里先得出一个显然但是对后面理解很重要的结论:<br><strong>在构建出来的AST中每个节点的优先级一定是以自己为根的这这颗子树里最小的</strong></p>
+    <content><![CDATA[<p>这一小节要处理的问题是运算的优先级问题<br>这里先得出一个显然但是对后面理解很重要的结论:<br><strong>在构建出来的AST中每个节点的优先级一定是以自己为根的这这颗子树里最小的</strong><br>上面这个结论比较显然，但是这是在目前还没有引入()的情况下是正确的</p>
 <p>对2*3+4*5来说，下面这样的AST之所以不对就是因为顶端*的优先级大于了+</p>
 <pre><code>     *
     / \
@@ -2405,176 +2405,6 @@ UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
 <h4 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h4><p><code>git log</code>打印所有日志<br><code>git reflog</code>显示所有提交的id</p>
 <h4 id="版本回退与穿梭"><a href="#版本回退与穿梭" class="headerlink" title="版本回退与穿梭"></a>版本回退与穿梭</h4><p><code>git reset --hard HEAD^</code>回退一次提交，两次就打两个^,三次就三个^,…，想要回退1000个版本或指定数量的话用<code>git reset --hard HEAD~1000</code>的形式<br><code>git reset --hard id</code>回退到指定id的版本<br><code>git reset HEAD</code>用版本库文件替换所有暂存区的文件<br><code>git checkout -- x.txt</code>用暂存区的指定文件区替换工作区的文件<br><code>git checkout HEAD x.txt</code>用版本库中的文件去替换暂存和工作区的文件</p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>数字图像处理-图像增强</title>
-    <url>/2022/04/23/%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/</url>
-    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
-import cv2
-import matplotlib.pyplot as plt
-
-</code></pre>
-<pre><code class="python"># 边缘处理
-
-</code></pre>
-<pre><code class="python">
-</code></pre>
-<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
-import matplotlib.pyplot as plt
-
-im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
-b,g,r = cv2.split(im)
-#均衡化
-eb = cv2.equalizeHist(b)
-
-#计算直方图
-hist = cv2.calcHist([b],[0],None,[64],[0,256])
-ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
-#画图
-fig,ax = plt.subplots(2,2)
-ax[0,0].set_title(&#39;orignHist&#39;)
-ax[0,0].plot(hist)
-
-ax[0,1].set_title(&#39;equalHist&#39;)
-ax[0,1].plot(ehist)
-
-ax[1,0].set_title(&#39;orign&#39;)
-ax[1,0].imshow(b,&#39;gray&#39;)
-
-ax[1,1].set_title(&#39;equaled&#39;)
-ax[1,1].imshow(eb,&#39;gray&#39;)
-plt.show()
-</code></pre>
-<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png"></p>
-<pre><code class="python">
-</code></pre>
-]]></content>
-      <tags>
-        <tag>专业学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>大话设计模式</title>
-    <url>/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<h3 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h3><blockquote>
-<p>这个模式与面向对象相关,通过面向对象的三大特征来使得程序达到可复用,易修改,易扩展的效果</p>
-</blockquote>
-<p>本模式以写一个计算器功能,要求根据用户的输入输出相应的结果<br>如果没有使用任何模式代码可能如下</p>
-<pre><code class="cpp">int main()
-&#123;
-    try&#123;
-        std::cout&lt;&lt;&quot;请输入数字A:\n&quot;;
-        double a;
-        std::cin&gt;&gt;a;
-        std::cout&lt;&lt;&quot;请输入运算符号+,-,*,/:\n&quot;;
-        char opt;
-        std::cin&gt;&gt;opt;
-        //下面再类似地读入B
-        switch(opt)
-        &#123;
-            case &#39;*&#39;:
-            //操作
-            break;
-            case &#39;/&#39;:
-            //操作,注意除法需要自己判断除数是否为0,try catch不捕捉除零错误
-            break;
-            //类似的
-        &#125;
-    &#125;catch(...)&#123;
-        std::cout&lt;&lt;&quot;您的输入有误\n&quot;;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<p>上面的代码想要复用就必须拷贝粘贴代码,如果有多个地方要使用那多个地方就会出现重复的代码,这是在编码时应该避免的。下面通过面向的封装特性将该功能进行封装,使得其<strong>复用性</strong>大大提高</p>
-<pre><code class="cpp">class Operation&#123;
-    public:
-    static double GetResult(double numA,double numB,string operate)&#123;
-        double result = 0;
-        switch(operate)&#123;
-            case:
-            //实现相应功能
-        &#125;
-        return result;
-    &#125;
-&#125;;
-</code></pre>
-<p>将计算这个功能给封装起来,数据的读入和检查由客户完成,这样这个代码的复用性就大大提高了,不单是现在这个程序可以用它,只要是需要通过输入得到结果的地方都可以使用</p>
-<p>但是如果此时想要给这个功能添加一些新的计算如开根求幂等,就需要去修改switch case的结构,一方面需要将所有运算的源码交给修改人员,这不安全可能会破坏其它的运算,另一方面这样的修改会使得原来已有的运算重新编译,这是不合理的.说白了这里需要解开各个运算之间的编译<strong>耦合</strong><br>下面是利用继承的方式修改的代码</p>
-<pre><code class="cpp">class Operation&#123;
-    protected:
-    double numA_;
-    double numB_;
-    public:
-    void SetA(double val);
-    double GetA()const;
-    //numB_类似有get与set
-    virtual double GetResult()&#123;
-        double ans=0;
-        return ans;
-    &#125;
-&#125;;
-class OperationAdd:public Operation&#123;
-    public:
-    virtual double GetResult()&#123;
-        return numA_ + numB_;
-    &#125;   
-&#125;;
-
-class OperationDiv:public Operation&#123;
-    public:
-    virtual double GetResult()override &#123;
-        if(numB_ == 0 )
-            throw Error;
-        return numA_ / numB_;
-    &#125;
-&#125;;
-//原先其它运算符类似
-class OperationSqrt:public Opearation&#123;
-    if (numA_ &lt;0)
-        throw Error;
-    return sqrt(numA_);
-&#125;;
-</code></pre>
-<p>这样既增加了安全性又提高了扩展性,现在的问题就是客户必须要知道自己的运算需要调用什么样的类,但如果程序很大,对客户来说去众多类里面找到自己想要的类是很不方便的,利用<strong>多态的性质</strong>将这个任务交给一个特定的类去完成,这个类即工厂</p>
-<pre><code class="cpp">class OperationFactory&#123;
-    public:
-    static Operation* createOperate(char operate)&#123;
-        Operation* opt = nullptr;
-        switch(operate)&#123;
-            case &#39;*&#39;:
-            opt = new OperationMul();
-            break;
-            case &#39;+&#39;:
-            opt = new OperationAdd();
-            break;
-            //...
-        &#125;
-        return opt;
-    &#125;
-&#125;;
-//客户端的代码
-Operation *opt;
-opt = OperationFactory::createOperate(&#39;+&#39;);
-opt-&gt;setA(10);
-opt-&gt;setB(20);
-double result = opt-&gt;GetResult();
-</code></pre>
-<h3 id="策略模式-Stretagy"><a href="#策略模式-Stretagy" class="headerlink" title="策略模式(Stretagy)"></a>策略模式(Stretagy)</h3><h3 id="单一职责原则-SRP"><a href="#单一职责原则-SRP" class="headerlink" title="单一职责原则(SRP)"></a>单一职责原则(SRP)</h3><blockquote>
-<p>如果一个类承担的职责过多，就等于把这些职责耦合在一起，一个职责的变化可能会影响到其它职责的实现，这种耦合会导致脆弱的设计</p>
-</blockquote>
-<h3 id="开放封闭原则"><a href="#开放封闭原则" class="headerlink" title="开放封闭原则"></a>开放封闭原则</h3><blockquote>
-<p>对修改关闭,对扩展开放</p>
-</blockquote>
-<h3 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h3><blockquote>
-<p>抽象不应该依赖底层模块,两个都应该依赖抽象。抽象不应该依赖细节，细节应该依赖于抽象。<br>简单地说就是应该针对接口编程而不是针对实现编程</p>
-</blockquote>
-<p>假设在做一个大项目时需要访问数据库，常用代码会写成函数库，在上层模块中调用这些函数即可，这里就是上层模块对底层模块的依赖。但如果上层的逻辑没有变化但需要换掉访问的数据库，那就出现问题了，因为上层模块与底层是绑在一起的。</p>
-<p>再举一个例子就是主机,CPU，内存，硬盘都是根据接口标准制造的，如果说它们根据主板实现那主板一坏其它部件都不能使用了<br>@startuml<br>(登录论坛)<br>(发帖子) as (tiezi_add)<br>usecase 删帖子 as tiezi_del<br>@enduml</p>
-]]></content>
-      <tags>
-        <tag>设计模式</tag>
-      </tags>
   </entry>
   <entry>
     <title>中断</title>
@@ -2934,50 +2764,6 @@ enum intr_status intr_get_status()
       </tags>
   </entry>
   <entry>
-    <title>数字图像处理</title>
-    <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
-    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
-import cv2
-import matplotlib.pyplot as plt
-
-</code></pre>
-<pre><code class="python"># 边缘处理
-
-</code></pre>
-<pre><code class="python">
-</code></pre>
-<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
-import matplotlib.pyplot as plt
-
-im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
-b,g,r = cv2.split(im)
-#均衡化
-eb = cv2.equalizeHist(b)
-
-#计算直方图
-hist = cv2.calcHist([b],[0],None,[64],[0,256])
-ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
-#画图
-fig,ax = plt.subplots(2,2)
-ax[0,0].set_title(&#39;orignHist&#39;)
-ax[0,0].plot(hist)
-
-ax[0,1].set_title(&#39;equalHist&#39;)
-ax[0,1].plot(ehist)
-
-ax[1,0].set_title(&#39;orign&#39;)
-ax[1,0].imshow(b,&#39;gray&#39;)
-
-ax[1,1].set_title(&#39;equaled&#39;)
-ax[1,1].imshow(eb,&#39;gray&#39;)
-plt.show()
-</code></pre>
-<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
-<pre><code class="python">
-</code></pre>
-]]></content>
-  </entry>
-  <entry>
     <title>内存管理</title>
     <url>/2022/10/07/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
     <content><![CDATA[<h3 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h3><p>前面是一些基本的Makefile知识，这里不说打算以后单独写一篇关于项目管理工具的博客</p>
@@ -3282,6 +3068,10 @@ void *get_kernel_pages(uint32_t);
 
 #define K_HEAP_START 0xc0100000
 
+/*下面两个宏用来提取一个虚拟地址对应在页表的索引
+*之前分页的时候说过32位的地址前十位是页目录表的索引，中间10位是页表的索引
+*所以PDE_IDX就是看addr这个地址是在页目录表的第几个表项
+*PTE_IDX则是在页表中的第几个表项*/
 #define PDE_IDX(addr) ((addr &amp; 0xffc00000) &gt;&gt; 22)
 #define PTE_IDX(addr) ((addr &amp; 0x003ff000) &gt;&gt; 12)
 
@@ -3303,7 +3093,7 @@ static void mem_pool_init(uint32_t all_mem)&#123;
         uint32_t page_table_size = PG_SIZE * 256;
         /*256的由来:首先页目录表占一个页表大小，如果页目录表里每一项各异那就应该有1024页表
         *也就是一共有1+1024=1025个页表，但是在前面开启分页的代码那里，把页目录表的第0和第768个目录
-        *项指向了同1个页表，第1~767个目录项没用，只有769~1022共254个目录项是分配了值的(因为这是属于内核的，而现在内核就已经有内容了)
+        *项指向了同1个页表，第1~767个目录项没用，只有769~1022共254个目录项是分配了值的(因为这是属于内核的，而现在内核就已经有内容了),第1023的*值指向页目录表，不另外占空间
         *所以真正用掉的页表大小就是1+1+254 = 256*/
 
         /*一个进程要有独立的地址空间，那就肯定有一张属于这个进程的页目录表，当前只有内核一个进程，所以当前这个页目录表就是内核的页目录表，所以低端的3GB内存所对应的页目录项内容是没有的，因为内核只使用高端的1G内存
@@ -3365,13 +3155,14 @@ static void mem_pool_init(uint32_t all_mem)&#123;
         /*初始化完毕,此后申请内存的过程大致如下：
         *从虚拟池找到空闲的空间-&gt;
         *改变虚拟池的位图对应状态-&gt;
-        *将要用到的虚拟地址映射到物理地址(这可能涉及到一些汇编层面的代码)-&gt;
+        *将要用到的虚拟地址与空闲的物理地址关联起来(这可能涉及到一些汇编层面的代码)-&gt;
         *改变物理池的位图对应状态-&gt;
         *将虚拟地址提供给内核*/
 &#125;
 
 void mem_init()&#123;
         put_str(&quot;mem_init start\n&quot;);
+        //在mbr那里扫描过内存的大小，并把这个数值放到了0xb00处
         uint32_t mem_bytes_total = (*(uint32_t*)(0xb00));
         mem_pool_init(mem_bytes_total);
         put_str(&quot;mem_init done\n&quot;);
@@ -3389,24 +3180,45 @@ static void *vaddr_get(enum pool_flags pf,uint32_t pg_cnt)&#123;
                 &#125;
                 vaddr_start = kernel_vaddr.vaddr_start + bit_idx_start *PG_SIZE;
         &#125;else&#123;
+                //目前只有内核的虚拟地址池
 
         &#125;
         return (void*)vaddr_start;
 &#125;
+/*上面的函数完成了虚拟池的申请和对应位图的变化
+*下面就是要将虚拟地址与实际的物理地址相关联起来
+*想想CPU拿到一个虚拟地址，硬件解析(就是通过页目录表之类的)后会跳到另外一个真实的物理地址
+*然后这里存的就是这个虚拟地址实际对应的物理地址，现在需要做的就是要在代码里模拟CPU得到了一个
+*虚拟地址，我们也要从这个虚拟地址解析出一个物理地址然后把这个虚拟地址想要对应的物理地址写上去。
+*/
 
-//得到虚拟地址对应的pte指针
+
+/*再理一下过程,得到一个虚拟地址addr,根据前20位和页目录表与页表可以查到一个地址，这个地址与addr的后12位相加得到最后要映射成的物理地址
+*现在要写一个函数，接收两个参数，addr,paddr,根据addr的前20位查表得到一个地址，将paddr的值写到这里*/
+
+
+//得到虚拟地址对应的pte指针,访问这个指针能修改页表的内容
 uint32_t *pte_ptr(uint32_t vaddr)&#123;
+        /*这个函数的目标是返回页表项的物理地址(不是页表项存的物理地址，是页表项本身所在的物理地址)
+        *首先要明确的是页表项的物理地址要先从页目录表那里得到页表的地址，然后加上对应的索引值
+        *要构建的这个地址高10位应该全为1，这里存的是页目录表自己所在的物理地址
+        *CPU拿着这个地址以为是页表的地址，开始取中间10位作为索引查页表项，这个时候只要把这中间10位
+        *写成原虚拟地址的高10位，CPU根据这10位得到一个物理地址，准备与剩下的12位相加，但是现在看看
+        *CPU拿到的这个物理地址，它是从页目录表里取出来的，页目录表里存的全是页表的位置,所以已经得到页表的位置了
+        *剩下的就是把索引与之相加，正好现在CPU差个12位的数与之相加，把原虚拟地址的中间十位左移两位给现在的CPU一加就得到到一个页表项的物理地址了*/
         uint32_t *pte = (uint32_t*)(0xffc00000+\
                         ((vaddr &amp; 0xffc00000) &gt;&gt; 10) + \
                         PTE_IDX(vaddr) * 4);
         return pte;
 &#125;
 
-//得到虚拟地址对应的pde指针
+//得到虚拟地址对应的pde指针,访问这个指针能修改页目录表的内容
 uint32_t *pde_ptr(uint32_t vaddr)&#123;
         uint32_t *pde = (uint32_t*)((0xfffff000)+PDE_IDX(vaddr)*4);
         return pde;
 &#125;
+/*上面两个函数可以看到是返回一个指针的，作用就是能根据vaddr生成另外的一个地址，把这个地址给CPU
+*CPU会找到vaddr对应的页目录项和页表项的物理地址，这样就能在对应位置填任何我们想要映射的物理地址了*/
 
 //在m_pool指向的内存池分配1个物理页
 static void *palloc(struct pool *m_pool)&#123;
@@ -3476,18 +3288,339 @@ void *get_kernel_pages(uint32_t pg_cnt)&#123;
       </tags>
   </entry>
   <entry>
+    <title>大话设计模式</title>
+    <url>/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h3 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h3><blockquote>
+<p>这个模式与面向对象相关,通过面向对象的三大特征来使得程序达到可复用,易修改,易扩展的效果</p>
+</blockquote>
+<p>本模式以写一个计算器功能,要求根据用户的输入输出相应的结果<br>如果没有使用任何模式代码可能如下</p>
+<pre><code class="cpp">int main()
+&#123;
+    try&#123;
+        std::cout&lt;&lt;&quot;请输入数字A:\n&quot;;
+        double a;
+        std::cin&gt;&gt;a;
+        std::cout&lt;&lt;&quot;请输入运算符号+,-,*,/:\n&quot;;
+        char opt;
+        std::cin&gt;&gt;opt;
+        //下面再类似地读入B
+        switch(opt)
+        &#123;
+            case &#39;*&#39;:
+            //操作
+            break;
+            case &#39;/&#39;:
+            //操作,注意除法需要自己判断除数是否为0,try catch不捕捉除零错误
+            break;
+            //类似的
+        &#125;
+    &#125;catch(...)&#123;
+        std::cout&lt;&lt;&quot;您的输入有误\n&quot;;
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<p>上面的代码想要复用就必须拷贝粘贴代码,如果有多个地方要使用那多个地方就会出现重复的代码,这是在编码时应该避免的。下面通过面向的封装特性将该功能进行封装,使得其<strong>复用性</strong>大大提高</p>
+<pre><code class="cpp">class Operation&#123;
+    public:
+    static double GetResult(double numA,double numB,string operate)&#123;
+        double result = 0;
+        switch(operate)&#123;
+            case:
+            //实现相应功能
+        &#125;
+        return result;
+    &#125;
+&#125;;
+</code></pre>
+<p>将计算这个功能给封装起来,数据的读入和检查由客户完成,这样这个代码的复用性就大大提高了,不单是现在这个程序可以用它,只要是需要通过输入得到结果的地方都可以使用</p>
+<p>但是如果此时想要给这个功能添加一些新的计算如开根求幂等,就需要去修改switch case的结构,一方面需要将所有运算的源码交给修改人员,这不安全可能会破坏其它的运算,另一方面这样的修改会使得原来已有的运算重新编译,这是不合理的.说白了这里需要解开各个运算之间的编译<strong>耦合</strong><br>下面是利用继承的方式修改的代码</p>
+<pre><code class="cpp">class Operation&#123;
+    protected:
+    double numA_;
+    double numB_;
+    public:
+    void SetA(double val);
+    double GetA()const;
+    //numB_类似有get与set
+    virtual double GetResult()&#123;
+        double ans=0;
+        return ans;
+    &#125;
+&#125;;
+class OperationAdd:public Operation&#123;
+    public:
+    virtual double GetResult()&#123;
+        return numA_ + numB_;
+    &#125;   
+&#125;;
+
+class OperationDiv:public Operation&#123;
+    public:
+    virtual double GetResult()override &#123;
+        if(numB_ == 0 )
+            throw Error;
+        return numA_ / numB_;
+    &#125;
+&#125;;
+//原先其它运算符类似
+class OperationSqrt:public Opearation&#123;
+    if (numA_ &lt;0)
+        throw Error;
+    return sqrt(numA_);
+&#125;;
+</code></pre>
+<p>这样既增加了安全性又提高了扩展性,现在的问题就是客户必须要知道自己的运算需要调用什么样的类,但如果程序很大,对客户来说去众多类里面找到自己想要的类是很不方便的,利用<strong>多态的性质</strong>将这个任务交给一个特定的类去完成,这个类即工厂</p>
+<pre><code class="cpp">class OperationFactory&#123;
+    public:
+    static Operation* createOperate(char operate)&#123;
+        Operation* opt = nullptr;
+        switch(operate)&#123;
+            case &#39;*&#39;:
+            opt = new OperationMul();
+            break;
+            case &#39;+&#39;:
+            opt = new OperationAdd();
+            break;
+            //...
+        &#125;
+        return opt;
+    &#125;
+&#125;;
+//客户端的代码
+Operation *opt;
+opt = OperationFactory::createOperate(&#39;+&#39;);
+opt-&gt;setA(10);
+opt-&gt;setB(20);
+double result = opt-&gt;GetResult();
+</code></pre>
+<h3 id="策略模式-Stretagy"><a href="#策略模式-Stretagy" class="headerlink" title="策略模式(Stretagy)"></a>策略模式(Stretagy)</h3><h3 id="单一职责原则-SRP"><a href="#单一职责原则-SRP" class="headerlink" title="单一职责原则(SRP)"></a>单一职责原则(SRP)</h3><blockquote>
+<p>如果一个类承担的职责过多，就等于把这些职责耦合在一起，一个职责的变化可能会影响到其它职责的实现，这种耦合会导致脆弱的设计</p>
+</blockquote>
+<h3 id="开放封闭原则"><a href="#开放封闭原则" class="headerlink" title="开放封闭原则"></a>开放封闭原则</h3><blockquote>
+<p>对修改关闭,对扩展开放</p>
+</blockquote>
+<h3 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h3><blockquote>
+<p>抽象不应该依赖底层模块,两个都应该依赖抽象。抽象不应该依赖细节，细节应该依赖于抽象。<br>简单地说就是应该针对接口编程而不是针对实现编程</p>
+</blockquote>
+<p>假设在做一个大项目时需要访问数据库，常用代码会写成函数库，在上层模块中调用这些函数即可，这里就是上层模块对底层模块的依赖。但如果上层的逻辑没有变化但需要换掉访问的数据库，那就出现问题了，因为上层模块与底层是绑在一起的。</p>
+<p>再举一个例子就是主机,CPU，内存，硬盘都是根据接口标准制造的，如果说它们根据主板实现那主板一坏其它部件都不能使用了<br>@startuml<br>(登录论坛)<br>(发帖子) as (tiezi_add)<br>usecase 删帖子 as tiezi_del<br>@enduml</p>
+]]></content>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数字图像处理-图像增强</title>
+    <url>/2022/04/23/%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/</url>
+    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
+import cv2
+import matplotlib.pyplot as plt
+
+</code></pre>
+<pre><code class="python"># 边缘处理
+
+</code></pre>
+<pre><code class="python">
+</code></pre>
+<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
+import matplotlib.pyplot as plt
+
+im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
+b,g,r = cv2.split(im)
+#均衡化
+eb = cv2.equalizeHist(b)
+
+#计算直方图
+hist = cv2.calcHist([b],[0],None,[64],[0,256])
+ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
+#画图
+fig,ax = plt.subplots(2,2)
+ax[0,0].set_title(&#39;orignHist&#39;)
+ax[0,0].plot(hist)
+
+ax[0,1].set_title(&#39;equalHist&#39;)
+ax[0,1].plot(ehist)
+
+ax[1,0].set_title(&#39;orign&#39;)
+ax[1,0].imshow(b,&#39;gray&#39;)
+
+ax[1,1].set_title(&#39;equaled&#39;)
+ax[1,1].imshow(eb,&#39;gray&#39;)
+plt.show()
+</code></pre>
+<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png"></p>
+<pre><code class="python">
+</code></pre>
+]]></content>
+      <tags>
+        <tag>专业学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数字图像处理</title>
+    <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
+    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
+import cv2
+import matplotlib.pyplot as plt
+
+</code></pre>
+<pre><code class="python"># 边缘处理
+
+</code></pre>
+<pre><code class="python">
+</code></pre>
+<h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
+import matplotlib.pyplot as plt
+
+im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
+b,g,r = cv2.split(im)
+#均衡化
+eb = cv2.equalizeHist(b)
+
+#计算直方图
+hist = cv2.calcHist([b],[0],None,[64],[0,256])
+ehist = cv2.calcHist([eb],[0],None,[64],[0,256])
+#画图
+fig,ax = plt.subplots(2,2)
+ax[0,0].set_title(&#39;orignHist&#39;)
+ax[0,0].plot(hist)
+
+ax[0,1].set_title(&#39;equalHist&#39;)
+ax[0,1].plot(ehist)
+
+ax[1,0].set_title(&#39;orign&#39;)
+ax[1,0].imshow(b,&#39;gray&#39;)
+
+ax[1,1].set_title(&#39;equaled&#39;)
+ax[1,1].imshow(eb,&#39;gray&#39;)
+plt.show()
+</code></pre>
+<p><img src="https://s2.loli.net/2022/04/07/PApihE4O7eWayzZ.png" alt="图像增强_6_0.png">    </p>
+<pre><code class="python">
+</code></pre>
+]]></content>
+  </entry>
+  <entry>
+    <title>数据与函数</title>
+    <url>/2023/07/01/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%87%BD%E6%95%B0/</url>
+    <content><![CDATA[<p>第一次读到这里的时候能从文字感觉到作者似乎想要展示什么很不得了的东西,但是那个时候还不能理解<br>这里内容所展示的意义,在学完编译原理再回头来看这个地方的内容确实挺震撼的<br>先来解释一下这段代码的意义:</p>
+<pre><code class="scheme">(define (cons x y)
+    (lambda (op) (if (= 0 op) x y)))
+
+(define (car a)
+    (a 0))
+
+(define (cdr a)
+    (a 1))
+</code></pre>
+<p>上述方式中cons被实现为一个函数,它接受两个参数x 和 y,同时返回一个函数,该函数接收一个参数,以此判定返回x还是y.<br>在之前我们一直把cons当作像1,2,3…这样的基础数据类型来使用,但是当思考这个数据类型的特征时可以发现它其实就是代表一种选择<br>一个二选一的选择,作为上层的使用者,当创建一个cons的的时候就代表创建了一个待定的选择,这个选择会在以后某个时刻决定(使用car表示选择前者,使用cdr表示选择后者),所以完全可以把cons实现为一个函数,该函数可以保存传入的两个参数,并返回一个函数,该函数就是一个选择函数,如果没有car和cdr访问cons就可以用(a 0)和(a 1)的形式来选择元素(所以其实数组也可以这样抽象),car与cdr只是为了统一所定义的接口</p>
+<p>从上面这个例子来看,一个抽象的数据类型(cons)完全可以由一组函数(通常分为selector与constructor)所定义,只要这些函数能达到符合的约定,比如这里的cons,只要能保证(car (cons a b))的结果为a,(cdr (cons a b))的结果为b即可,这一节的rational实现也是在说明这个抽象方法.这样做的一个好处就是上层使用者只用关心数据的使用接口,无需关心具体的接口实现,同时也给了下层实现的自由,只要能对上提供约定的接口.</p>
+<p>现在来想一下数字的意义,假设只考虑整数和add运算,如果每个数字都是一个函数,假设1由函数one表示,2由于two表示…那么这些函数需要满足这样的约定:</p>
+<pre><code class="scheme">
+(add (one) (one)) =&gt; (two)
+(add (one) (two)) =&gt; (three)
+;...
+</code></pre>
+<p>现在再来想一下数字这个类型它的意义,它的意义可以看作一个记录,一个重复的记录,它要保证对同一操作重复two次的结果和重复2次one的结果是一样的,这可以用可重入函数来表达(只要初始数据和执行次数一定,输出结果就一定)</p>
+<pre><code class="scheme">(define zero (lambda (f) (lambda (x) x)))
+;zero表示不重复f操作
+(define one (lambda (f) (lambda (x) (f x))))
+;one表示重复一次f操作
+(define two (lambda (f) (lambda (x) (f (f x)))))
+;two表示重复两次f操作
+(define (add a b)
+    (lambda (f) (lambda (x) ((a f) ((b f) x)))))
+;这里定义一个简单的可重入函数f
+（define (f x) (+ x 1)
+
+;测试
+(((add one one) f) 0) =&gt; 2
+((two f) 0) =&gt; 2
+
+;即(add one one) == (tow)
+</code></pre>
+<p>到这里连最基础的数字也已经被函数所定义完成(虽然还很不完善)但是已经足够可以看出数据和函数几乎没有区别,数据即函数,这种抽象让我们去思考很多习以为常的基础数据所代表的意义,这确实是令人震撼的</p>
+]]></content>
+      <tags>
+        <tag>SICP笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>计网-链路层</title>
     <url>/2022/10/15/%E8%AE%A1%E7%BD%91-%E9%93%BE%E8%B7%AF%E5%B1%82/</url>
     <content><![CDATA[<p>便于表达和理解，下面的例子大多基于连接两台电脑的连接为具体例子</p>
-<p><em>物理层把两台电脑(当然可以是多台)通过各种物理线路将它们连接了起来，现在两台电脑能互相发送和接收信号了，但也只是能发送和接收信号而已，对于接收者，通过调制解调器之后也就只能得到一堆01数据串，没有其它信息，无从解析。所以需要两台电脑之间形成一种约定，这个约定规定了每次发送的数据的格式等，有了这样的约定两者才能实现有意义的数据传输，来负责管理这个约定的就是链路层</em></p>
+<p><em>物理层把两台电脑(当然可以是多台)通过各种物理线路和硬件设施将它们连接了起来，现在两台电脑能互相发送和接收信号了，但也只是能发送和接收信号而已，对于接收者，通过调制解调器之后也就只能得到一堆01数据串，没有其它信息，无从解析。所以需要两台电脑之间形成一种约定，这个约定规定了每次发送的数据的格式等，有了这样的约定两者才能实现有意义的数据传输，来负责管理这个约定的就是链路层</em></p>
 <p>举例来说就像隔得很远的两个人要互相通信，现在给了他们两个人一人一个手电，他们可以通过手电的闪烁来传递信息，手电就是物理层的内容将他们”连接”了起来，但是如果只有手电闪烁两人也无法进行有效的通信，现在两人约定一个人要开始讲话时就让手电常亮5秒，然后中间用摩斯电码或者其它方法传递信息，表示讲话完毕就常亮手电7秒，这样双方才能进行有意义的通信，而”开始讲话时…7秒”的这种规定就是链路层要做的工作</p>
 <h4 id="概念辨析"><a href="#概念辨析" class="headerlink" title="概念辨析"></a>概念辨析</h4><p><strong>链路</strong>是物理上的将两台电脑连接起来的一条物理线路，而<strong>数据链路</strong>是在此基础上增加一些通信协议，这些协议具体实现到硬件和软件上，现在物理层和链路层的协议大多实现在网卡(网络适配器)上</p>
-<p><strong>链路层要解决的问题：1.封装成帧 2.透明传输 3.差错检测</strong></p>
-<h3 id="封装成帧"><a href="#封装成帧" class="headerlink" title="封装成帧"></a>封装成帧</h3><p>这个问题比较容易想到，如果传递的数据没有边界划分那接收者根本不知道改从何处开始解析，所以很自然地就需要对数据进行一个简单的封装，封装的方法就是在数据部分的首尾加上特殊的数据其实也就是特定的01串，至于用什么样的界定符是标准需要讨论的问题，一个这样加上头部和尾部的01串就是一个*帧(Fram)*。当然头部和尾部还可以加上一些控制信息这些是具体的实现细节。接收端只有看到SOH和EOT时才会认为这是一个完整的帧，否则将丢弃接收的数据<br>    帧开始符                        帧结束符<br>        |                              |<br>     —————————————<br>    | SOH |     封装的数据部分      |  EOT   |<br>     —————————————</p>
-<h3 id="透明传输"><a href="#透明传输" class="headerlink" title="透明传输"></a>透明传输</h3><p>上面的问题中要规定特殊的界定符，但是无论它取什么，都无法保证后面的数据部分不会出现跟其一样的01串出现，如果不采取某种措施那接收端就会错误地将一个帧给切分掉。</p>
-<p>这里解释一下透明传输，所谓透明是对使用者来说的，就像这里使用者不用知道界定符选了什么，他直观把自己的数据打包成上面的数据部分，不用担心自己的数据中会出现跟界定符一样的01串，因为当使用者把数据给到链路层的时候链路层会来处理这个问题，所以这个传输问题对使用者来说就像透明的一样，不存在</p>
+<h2 id="点对点信道的数据链路层"><a href="#点对点信道的数据链路层" class="headerlink" title="点对点信道的数据链路层"></a>点对点信道的数据链路层</h2><p><strong>链路层要解决的问题：1.封装成帧 2.透明传输 3.差错检测</strong></p>
+<h3 id="封装成帧"><a href="#封装成帧" class="headerlink" title="封装成帧"></a>封装成帧</h3><p>这个问题比较容易想到，如果传递的数据没有边界划分那接收者根本不知道改从何处开始解析，所以很自然地就需要对数据进行一个简单的封装，封装的方法就是在数据部分的首尾加上特殊的数据其实也就是特定的01串，至于用什么样的界定符是标准需要讨论的问题，一个这样加上头部和尾部的01串就是一个*帧(Fram)*。当然头部和尾部还可以加上一些控制信息这些是具体的实现细节。接收端只有看到SOH和EOT时才会认为这是一个完整的帧，否则将丢弃接收的数据</p>
+<pre><code>    帧开始符                        帧结束符
+        |                               |
+     ---------------------------------------
+    | SOH |     封装的数据部分      |  EOT   |
+     ---------------------------------------
+</code></pre>
+<h3 id="透明传输"><a href="#透明传输" class="headerlink" title="透明传输"></a>透明传输</h3><p>上面的问题中要规定特殊的界定符，但是无论它取什么，都无法保证后面的数据部分不会有跟其一样的01串出现，如果不采取某种措施那接收端就会错误地将一个帧给切分掉。</p>
+<p>这里解释一下透明传输，所谓透明是对使用者来说的，就像这里使用者不用知道界定符选了什么，他只管把自己的数据打包成上面的数据部分，不用担心自己的数据中会出现跟界定符一样的01串，因为当使用者把数据给到链路层的时候链路层会来处理这个问题，所以这个传输问题对使用者来说就像透明的一样，不存在</p>
 <p>现在回到链路层，如何解决这个问题，其实思路就跟C语言的字符转义一样，跟界定符重复了那就把它变成不一样的东西，接收者再把它翻译回去即可。具体做法就是发送端的链路层在数据部分出现跟界定符一样的地方的前面再插个特殊的”转义符(ESC)”，接收端看到这个转义符就不会把后面的01串当作界定符，并且在将数据传给自己的上层使用者之前把这个转义符给删掉。这种方法称为<strong>字符填充</strong></p>
 <h3 id="差错检测"><a href="#差错检测" class="headerlink" title="差错检测"></a>差错检测</h3><p>解决上面两个问题可以进行通信了，但现实中通信的链路并不完美，传输过程中可能会出现某些数据位的错误即某些位0变1，1变0，此时需要链路层来检测出这些错误。<br>目前广泛使用的一种方式就是**循环冗余检验(CRC)**，其原理如下：</p>
+<ol>
+<li>发送端会把数据分组，假设一组数据有n位，在后面添加k位额外的数据用以接收端校验，这多出来的k位就叫<strong>冗余码</strong></li>
+<li>k位的冗余码可以这样得出：首先双方商定好一个除数P(位数为k+1位),然后在原始的数据后面加k位个0，用新的数据来对P做模2除(模2运算不会产生进位借位),得到的k位余数就是要加上的k位冗余码(FCS Frame Check Sequence)</li>
+<li>接收方剥开帧之后取出数据部分对其同样进行模2除，如果得到的余数R不为0则说明传输过程发生了错误</li>
+</ol>
+<p>比如传输的数据为M &#x3D; 101001，头尾界定符为10010，选择除数P&#x3D;1101，则这个帧的数据应该为：<br>10010 101001 001 10010<br>后面的001是这样得来的</p>
+<pre><code>               110101
+            ------------
+    1101   |101001000
+            1101
+            -------------
+             1110
+             1101
+             ---------
+             0111
+             0000
+             ---------
+              1110
+              1101
+              ---------
+               0110
+               0000
+              --------
+                1100
+                1101
+                -----
+                 001
+</code></pre>
+<p>可以看到就是先在101001后面加了3个0然后对1101进行模2除取的余数</p>
+<p>当然也有可能出现了差错但是接收端对发生了差错的数据进行模2除得到的余数也为0，但这种概率非常的小，如果仅用CRC检验，链路层只能做到无差错的接受，即只要是接受的帧，就认为没有发生错误，无法提供<strong>可靠传输服务</strong>,因为这里还没有机制解决可能出现的1.帧丢失 2.帧重复 3.帧失序这几种传输差错。<br>这个服务现在一般由上层服务保证，但链路层也可以提供此服务，需要增加一些<em>帧编号，确认，重传等机制</em></p>
+<p>下面是具体的一个点对点链路层的协议</p>
+<h4 id="PPP-Point-to-Point-Protocol"><a href="#PPP-Point-to-Point-Protocol" class="headerlink" title="PPP(Point to Point Protocol)"></a>PPP(Point to Point Protocol)</h4><p>从这个名字可以看出来，它大概就是用于两台机器连接的协议，书上说的是互联网用户接入ISP时使用的协议，这个协议用于串口线路，所以用一根双绞线直接连接两台电脑是看不到这个协议的，后面我会贴一个用Packet Tracer模拟出PPP协议的实验</p>
+<p>作为链路层的协议，它肯定需要解决上面三个基础问题，另外一些其它要求可以参考RFC 1547<br>PPP协议由三个部分组成：</p>
+<ul>
+<li>一个将IP数据报封装到串行数据链路的方法</li>
+<li>一个用来建立，配置和测试数据链路的链路控制协议(LCP Link Control Protocol)</li>
+<li>一套网络控制协议(NCP Network Control Protocol)</li>
+</ul>
+<h5 id="PPP协议的帧格式"><a href="#PPP协议的帧格式" class="headerlink" title="PPP协议的帧格式"></a>PPP协议的帧格式</h5><ol>
+<li><p>字段意义<br>首先第一个字节是界定符0x7E,后面一个字节规定为0xff,再后面一个字节规定为0x03,这三个字节目前定死，不用改变。后面两个字节表示数据部分采用什么样的协议，如为0xc021则表示信息字段是LCP的数据，而如果为0x8021则表示NCP的控制数据。后面就是信息字段，长度可变，但不超过1500字节，后面就是两字节的FCS然后再是一字节的界定符0x7E,如图所示:</p>
+</li>
+<li><p>字节或比特填充<br>当信息段出现跟0x7E一样的比特组合时就需要采取一些措施<br>参考RFC 1662的内容:<br>PPP协议支持同步和异步传输，简单地理解同步传输就是以帧为单位进行传输，异步传输就是以字符为单位进行传输<br>当采用异步传输时，转义字符选为0x7D,使用<strong>字节填充</strong>,当信息字段每出现一个0x7E，0x7D或者一个小于0x20(属于ASCII码的控制字符)的字符，就在这个字符之前添加一个0x7D，然后将这个字符与0x20做异或之后发送。接收方在进行FCS检查之前会将0x7D删除，并将其后面的字符与0x20异或转换.</p>
+</li>
+</ol>
+<p>而当采用同步传输时，数据是一帧一帧的，也就是一长串01串,由于界定符为0x7E表现为0111 1110，也就是说在中间部分不应该出现六个连续的1，这很简单只要发送端在每5个连续的1后面加一个0就行了，接收端每扫到5个连续的1就忽略掉后面的一个0，这样就能翻译回去了。</p>
+<h5 id="PPP协议的工作状态"><a href="#PPP协议的工作状态" class="headerlink" title="PPP协议的工作状态"></a>PPP协议的工作状态</h5><p>大致如下：<br>两台电脑无连接-&gt;两台电脑有了物理连接-&gt;LCP链路-&gt;鉴别的LCP链路-&gt;NCP链路<br>双方建立好物理连接后开始发送LCP的数据包开始建立数据的链路和配置，包括链路的最大帧长，使用的鉴别协议等，协商完成后就建立了LCP链路。之后进入鉴别状态,这一状态只允许传输LCP数据包，两种鉴别协议为PAP和CHAP,鉴别完成则建立起一条鉴别的LCP链路.<br>之后网络层发送NCP的数据进行控制，如运行的是IP协议，则使用NCP中的IPCP协议进行控制，包括分配IP等工作</p>
+<h2 id="使用广播信道的链路层"><a href="#使用广播信道的链路层" class="headerlink" title="使用广播信道的链路层"></a>使用广播信道的链路层</h2><p>下面是以局域网为例进行的广播信道的讨论</p>
+<p>广播信道必须要解决信道共享的问题，在技术上主要有两种方法:</p>
+<ol>
+<li>静态划分信道，如前面物理层中所提到的频分复用，时分复用，码分复用等方式，用户只要分配到了信道就不会与其他用户产生冲突，但代价较高，不适用于局域网</li>
+<li>动态媒体接入，特点是信道并非固定分配给用户，由细分为以下两类:<ul>
+<li>随机接入：所有用户可以随机地发送信息，如果有多个用户同时发送信息则产生<strong>碰撞</strong>,这些用户都发送失败，这里就需要一个协议来解决碰撞发生之后的情况或者说解决这种模式下怎么保证信道有效的使用</li>
+<li>受控接入：用户发送信息受到控制，不能随意发送，比如只有持有某个“令牌”的用户可以发送，然后此令牌在用户中流转。</li>
+</ul>
+</li>
+</ol>
 ]]></content>
       <tags>
         <tag>计网学习</tag>

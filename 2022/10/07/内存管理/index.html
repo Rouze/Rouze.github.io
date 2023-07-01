@@ -172,7 +172,7 @@
     <li>
         <div class="all active" data-rel="全部文章">全部文章
             
-                <small>(15)</small>
+                <small>(16)</small>
             
         </div>
     </li>
@@ -197,7 +197,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="15">
+<input type="hidden" id="yelog_site_posts_number" value="16">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -279,12 +279,25 @@
                 <i class="iconfont icon-tag"></i><a>C语言,汇编</a>
             </li>
         
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SICP笔记</a>
+            </li>
+        
     </div>
 
 </div>
 
     
     <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2023/07/01/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%87%BD%E6%95%B0/"
+           data-tag="SICP笔记"
+           data-author="" >
+            <span class="post-title" title="数据与函数">数据与函数</span>
+            <span class="post-date" title="2023-07-01 19:21:32">2023/07/01</span>
+        </a>
         
         
         <a  class="全部文章 "
@@ -387,19 +400,19 @@
         
         
         <a  class="全部文章 "
-           href="/2021/07/20/ExceptionalC++/"
+           href="/2021/07/20/EffectiveC++/"
            data-tag="C++学习"
            data-author="" >
-            <span class="post-title" title="Exceptional C++">Exceptional C++</span>
+            <span class="post-title" title="Effective C++">Effective C++</span>
             <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
         </a>
         
         
         <a  class="全部文章 "
-           href="/2021/07/20/EffectiveC++/"
+           href="/2021/07/20/ExceptionalC++/"
            data-tag="C++学习"
            data-author="" >
-            <span class="post-title" title="Effective C++">Effective C++</span>
+            <span class="post-title" title="Exceptional C++">Exceptional C++</span>
             <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
         </a>
         
@@ -458,7 +471,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2022-10-16 21:12:57'>2022-10-07 19:12</time>
+            发布时间 : <time class="date" title='最后更新: 2022-10-18 21:13:17'>2022-10-07 19:12</time>
         
     </div>
     <div class="article-meta">
@@ -798,6 +811,10 @@ void *get_kernel_pages(uint32_t);
 
 #define K_HEAP_START 0xc0100000
 
+/*下面两个宏用来提取一个虚拟地址对应在页表的索引
+*之前分页的时候说过32位的地址前十位是页目录表的索引，中间10位是页表的索引
+*所以PDE_IDX就是看addr这个地址是在页目录表的第几个表项
+*PTE_IDX则是在页表中的第几个表项*/
 #define PDE_IDX(addr) ((addr &amp; 0xffc00000) &gt;&gt; 22)
 #define PTE_IDX(addr) ((addr &amp; 0x003ff000) &gt;&gt; 12)
 
@@ -819,7 +836,7 @@ static void mem_pool_init(uint32_t all_mem)&#123;
         uint32_t page_table_size = PG_SIZE * 256;
         /*256的由来:首先页目录表占一个页表大小，如果页目录表里每一项各异那就应该有1024页表
         *也就是一共有1+1024=1025个页表，但是在前面开启分页的代码那里，把页目录表的第0和第768个目录
-        *项指向了同1个页表，第1~767个目录项没用，只有769~1022共254个目录项是分配了值的(因为这是属于内核的，而现在内核就已经有内容了)
+        *项指向了同1个页表，第1~767个目录项没用，只有769~1022共254个目录项是分配了值的(因为这是属于内核的，而现在内核就已经有内容了),第1023的*值指向页目录表，不另外占空间
         *所以真正用掉的页表大小就是1+1+254 = 256*/
 
         /*一个进程要有独立的地址空间，那就肯定有一张属于这个进程的页目录表，当前只有内核一个进程，所以当前这个页目录表就是内核的页目录表，所以低端的3GB内存所对应的页目录项内容是没有的，因为内核只使用高端的1G内存
@@ -881,13 +898,14 @@ static void mem_pool_init(uint32_t all_mem)&#123;
         /*初始化完毕,此后申请内存的过程大致如下：
         *从虚拟池找到空闲的空间-&gt;
         *改变虚拟池的位图对应状态-&gt;
-        *将要用到的虚拟地址映射到物理地址(这可能涉及到一些汇编层面的代码)-&gt;
+        *将要用到的虚拟地址与空闲的物理地址关联起来(这可能涉及到一些汇编层面的代码)-&gt;
         *改变物理池的位图对应状态-&gt;
         *将虚拟地址提供给内核*/
 &#125;
 
 void mem_init()&#123;
         put_str(&quot;mem_init start\n&quot;);
+        //在mbr那里扫描过内存的大小，并把这个数值放到了0xb00处
         uint32_t mem_bytes_total = (*(uint32_t*)(0xb00));
         mem_pool_init(mem_bytes_total);
         put_str(&quot;mem_init done\n&quot;);
@@ -905,24 +923,45 @@ static void *vaddr_get(enum pool_flags pf,uint32_t pg_cnt)&#123;
                 &#125;
                 vaddr_start = kernel_vaddr.vaddr_start + bit_idx_start *PG_SIZE;
         &#125;else&#123;
+                //目前只有内核的虚拟地址池
 
         &#125;
         return (void*)vaddr_start;
 &#125;
+/*上面的函数完成了虚拟池的申请和对应位图的变化
+*下面就是要将虚拟地址与实际的物理地址相关联起来
+*想想CPU拿到一个虚拟地址，硬件解析(就是通过页目录表之类的)后会跳到另外一个真实的物理地址
+*然后这里存的就是这个虚拟地址实际对应的物理地址，现在需要做的就是要在代码里模拟CPU得到了一个
+*虚拟地址，我们也要从这个虚拟地址解析出一个物理地址然后把这个虚拟地址想要对应的物理地址写上去。
+*/
 
-//得到虚拟地址对应的pte指针
+
+/*再理一下过程,得到一个虚拟地址addr,根据前20位和页目录表与页表可以查到一个地址，这个地址与addr的后12位相加得到最后要映射成的物理地址
+*现在要写一个函数，接收两个参数，addr,paddr,根据addr的前20位查表得到一个地址，将paddr的值写到这里*/
+
+
+//得到虚拟地址对应的pte指针,访问这个指针能修改页表的内容
 uint32_t *pte_ptr(uint32_t vaddr)&#123;
+        /*这个函数的目标是返回页表项的物理地址(不是页表项存的物理地址，是页表项本身所在的物理地址)
+        *首先要明确的是页表项的物理地址要先从页目录表那里得到页表的地址，然后加上对应的索引值
+        *要构建的这个地址高10位应该全为1，这里存的是页目录表自己所在的物理地址
+        *CPU拿着这个地址以为是页表的地址，开始取中间10位作为索引查页表项，这个时候只要把这中间10位
+        *写成原虚拟地址的高10位，CPU根据这10位得到一个物理地址，准备与剩下的12位相加，但是现在看看
+        *CPU拿到的这个物理地址，它是从页目录表里取出来的，页目录表里存的全是页表的位置,所以已经得到页表的位置了
+        *剩下的就是把索引与之相加，正好现在CPU差个12位的数与之相加，把原虚拟地址的中间十位左移两位给现在的CPU一加就得到到一个页表项的物理地址了*/
         uint32_t *pte = (uint32_t*)(0xffc00000+\
                         ((vaddr &amp; 0xffc00000) &gt;&gt; 10) + \
                         PTE_IDX(vaddr) * 4);
         return pte;
 &#125;
 
-//得到虚拟地址对应的pde指针
+//得到虚拟地址对应的pde指针,访问这个指针能修改页目录表的内容
 uint32_t *pde_ptr(uint32_t vaddr)&#123;
         uint32_t *pde = (uint32_t*)((0xfffff000)+PDE_IDX(vaddr)*4);
         return pde;
 &#125;
+/*上面两个函数可以看到是返回一个指针的，作用就是能根据vaddr生成另外的一个地址，把这个地址给CPU
+*CPU会找到vaddr对应的页目录项和页表项的物理地址，这样就能在对应位置填任何我们想要映射的物理地址了*/
 
 //在m_pool指向的内存池分配1个物理页
 static void *palloc(struct pool *m_pool)&#123;

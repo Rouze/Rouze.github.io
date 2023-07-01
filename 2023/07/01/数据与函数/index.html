@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>大话设计模式 | 若泽</title>
-  <meta name="keywords" content=" 设计模式 ">
-  <meta name="description" content="大话设计模式 | 若泽">
+  <title>数据与函数 | 若泽</title>
+  <meta name="keywords" content=" SICP笔记 ">
+  <meta name="description" content="数据与函数 | 若泽">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="菜~">
 <meta property="og:type" content="website">
@@ -452,9 +452,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-大话设计模式" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-数据与函数" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">大话设计模式</h1>
+        <h1 class="article-title">数据与函数</h1>
     
     <div class="article-meta">
         
@@ -464,14 +464,14 @@
         <span class="tag">
             <i class="iconfont icon-tag"></i>
             
-            <a class="color5">设计模式</a>
+            <a class="color2">SICP笔记</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2022-06-20 09:45:14'>2022-04-24 18:47</time>
+            发布时间 : <time class="date" title='最后更新: 2023-07-01 20:38:30'>2023-07-01 19:21</time>
         
     </div>
     <div class="article-meta">
@@ -493,7 +493,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F"><span class="toc-text">简单工厂模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F-Stretagy"><span class="toc-text">策略模式(Stretagy)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E4%B8%80%E8%81%8C%E8%B4%A3%E5%8E%9F%E5%88%99-SRP"><span class="toc-text">单一职责原则(SRP)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%94%BE%E5%B0%81%E9%97%AD%E5%8E%9F%E5%88%99"><span class="toc-text">开放封闭原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E5%80%92%E8%BD%AC%E5%8E%9F%E5%88%99"><span class="toc-text">依赖倒转原则</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -509,121 +509,43 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h3><blockquote>
-<p>这个模式与面向对象相关,通过面向对象的三大特征来使得程序达到可复用,易修改,易扩展的效果</p>
-</blockquote>
-<p>本模式以写一个计算器功能,要求根据用户的输入输出相应的结果<br>如果没有使用任何模式代码可能如下</p>
-<pre><code class="cpp">int main()
-&#123;
-    try&#123;
-        std::cout&lt;&lt;&quot;请输入数字A:\n&quot;;
-        double a;
-        std::cin&gt;&gt;a;
-        std::cout&lt;&lt;&quot;请输入运算符号+,-,*,/:\n&quot;;
-        char opt;
-        std::cin&gt;&gt;opt;
-        //下面再类似地读入B
-        switch(opt)
-        &#123;
-            case &#39;*&#39;:
-            //操作
-            break;
-            case &#39;/&#39;:
-            //操作,注意除法需要自己判断除数是否为0,try catch不捕捉除零错误
-            break;
-            //类似的
-        &#125;
-    &#125;catch(...)&#123;
-        std::cout&lt;&lt;&quot;您的输入有误\n&quot;;
-    &#125;
-    return 0;
-&#125;
-</code></pre>
-<p>上面的代码想要复用就必须拷贝粘贴代码,如果有多个地方要使用那多个地方就会出现重复的代码,这是在编码时应该避免的。下面通过面向的封装特性将该功能进行封装,使得其<strong>复用性</strong>大大提高</p>
-<pre><code class="cpp">class Operation&#123;
-    public:
-    static double GetResult(double numA,double numB,string operate)&#123;
-        double result = 0;
-        switch(operate)&#123;
-            case:
-            //实现相应功能
-        &#125;
-        return result;
-    &#125;
-&#125;;
-</code></pre>
-<p>将计算这个功能给封装起来,数据的读入和检查由客户完成,这样这个代码的复用性就大大提高了,不单是现在这个程序可以用它,只要是需要通过输入得到结果的地方都可以使用</p>
-<p>但是如果此时想要给这个功能添加一些新的计算如开根求幂等,就需要去修改switch case的结构,一方面需要将所有运算的源码交给修改人员,这不安全可能会破坏其它的运算,另一方面这样的修改会使得原来已有的运算重新编译,这是不合理的.说白了这里需要解开各个运算之间的编译<strong>耦合</strong><br>下面是利用继承的方式修改的代码</p>
-<pre><code class="cpp">class Operation&#123;
-    protected:
-    double numA_;
-    double numB_;
-    public:
-    void SetA(double val);
-    double GetA()const;
-    //numB_类似有get与set
-    virtual double GetResult()&#123;
-        double ans=0;
-        return ans;
-    &#125;
-&#125;;
-class OperationAdd:public Operation&#123;
-    public:
-    virtual double GetResult()&#123;
-        return numA_ + numB_;
-    &#125;   
-&#125;;
+        <p>第一次读到这里的时候能从文字感觉到作者似乎想要展示什么很不得了的东西,但是那个时候还不能理解<br>这里内容所展示的意义,在学完编译原理再回头来看这个地方的内容确实挺震撼的<br>先来解释一下这段代码的意义:</p>
+<pre><code class="scheme">(define (cons x y)
+    (lambda (op) (if (= 0 op) x y)))
 
-class OperationDiv:public Operation&#123;
-    public:
-    virtual double GetResult()override &#123;
-        if(numB_ == 0 )
-            throw Error;
-        return numA_ / numB_;
-    &#125;
-&#125;;
-//原先其它运算符类似
-class OperationSqrt:public Opearation&#123;
-    if (numA_ &lt;0)
-        throw Error;
-    return sqrt(numA_);
-&#125;;
+(define (car a)
+    (a 0))
+
+(define (cdr a)
+    (a 1))
 </code></pre>
-<p>这样既增加了安全性又提高了扩展性,现在的问题就是客户必须要知道自己的运算需要调用什么样的类,但如果程序很大,对客户来说去众多类里面找到自己想要的类是很不方便的,利用<strong>多态的性质</strong>将这个任务交给一个特定的类去完成,这个类即工厂</p>
-<pre><code class="cpp">class OperationFactory&#123;
-    public:
-    static Operation* createOperate(char operate)&#123;
-        Operation* opt = nullptr;
-        switch(operate)&#123;
-            case &#39;*&#39;:
-            opt = new OperationMul();
-            break;
-            case &#39;+&#39;:
-            opt = new OperationAdd();
-            break;
-            //...
-        &#125;
-        return opt;
-    &#125;
-&#125;;
-//客户端的代码
-Operation *opt;
-opt = OperationFactory::createOperate(&#39;+&#39;);
-opt-&gt;setA(10);
-opt-&gt;setB(20);
-double result = opt-&gt;GetResult();
+<p>上述方式中cons被实现为一个函数,它接受两个参数x 和 y,同时返回一个函数,该函数接收一个参数,以此判定返回x还是y.<br>在之前我们一直把cons当作像1,2,3…这样的基础数据类型来使用,但是当思考这个数据类型的特征时可以发现它其实就是代表一种选择<br>一个二选一的选择,作为上层的使用者,当创建一个cons的的时候就代表创建了一个待定的选择,这个选择会在以后某个时刻决定(使用car表示选择前者,使用cdr表示选择后者),所以完全可以把cons实现为一个函数,该函数可以保存传入的两个参数,并返回一个函数,该函数就是一个选择函数,如果没有car和cdr访问cons就可以用(a 0)和(a 1)的形式来选择元素(所以其实数组也可以这样抽象),car与cdr只是为了统一所定义的接口</p>
+<p>从上面这个例子来看,一个抽象的数据类型(cons)完全可以由一组函数(通常分为selector与constructor)所定义,只要这些函数能达到符合的约定,比如这里的cons,只要能保证(car (cons a b))的结果为a,(cdr (cons a b))的结果为b即可,这一节的rational实现也是在说明这个抽象方法.这样做的一个好处就是上层使用者只用关心数据的使用接口,无需关心具体的接口实现,同时也给了下层实现的自由,只要能对上提供约定的接口.</p>
+<p>现在来想一下数字的意义,假设只考虑整数和add运算,如果每个数字都是一个函数,假设1由函数one表示,2由于two表示…那么这些函数需要满足这样的约定:</p>
+<pre><code class="scheme">
+(add (one) (one)) =&gt; (two)
+(add (one) (two)) =&gt; (three)
+;...
 </code></pre>
-<h3 id="策略模式-Stretagy"><a href="#策略模式-Stretagy" class="headerlink" title="策略模式(Stretagy)"></a>策略模式(Stretagy)</h3><h3 id="单一职责原则-SRP"><a href="#单一职责原则-SRP" class="headerlink" title="单一职责原则(SRP)"></a>单一职责原则(SRP)</h3><blockquote>
-<p>如果一个类承担的职责过多，就等于把这些职责耦合在一起，一个职责的变化可能会影响到其它职责的实现，这种耦合会导致脆弱的设计</p>
-</blockquote>
-<h3 id="开放封闭原则"><a href="#开放封闭原则" class="headerlink" title="开放封闭原则"></a>开放封闭原则</h3><blockquote>
-<p>对修改关闭,对扩展开放</p>
-</blockquote>
-<h3 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h3><blockquote>
-<p>抽象不应该依赖底层模块,两个都应该依赖抽象。抽象不应该依赖细节，细节应该依赖于抽象。<br>简单地说就是应该针对接口编程而不是针对实现编程</p>
-</blockquote>
-<p>假设在做一个大项目时需要访问数据库，常用代码会写成函数库，在上层模块中调用这些函数即可，这里就是上层模块对底层模块的依赖。但如果上层的逻辑没有变化但需要换掉访问的数据库，那就出现问题了，因为上层模块与底层是绑在一起的。</p>
-<p>再举一个例子就是主机,CPU，内存，硬盘都是根据接口标准制造的，如果说它们根据主板实现那主板一坏其它部件都不能使用了<br>@startuml<br>(登录论坛)<br>(发帖子) as (tiezi_add)<br>usecase 删帖子 as tiezi_del<br>@enduml</p>
+<p>现在再来想一下数字这个类型它的意义,它的意义可以看作一个记录,一个重复的记录,它要保证对同一操作重复two次的结果和重复2次one的结果是一样的,这可以用可重入函数来表达(只要初始数据和执行次数一定,输出结果就一定)</p>
+<pre><code class="scheme">(define zero (lambda (f) (lambda (x) x)))
+;zero表示不重复f操作
+(define one (lambda (f) (lambda (x) (f x))))
+;one表示重复一次f操作
+(define two (lambda (f) (lambda (x) (f (f x)))))
+;two表示重复两次f操作
+(define (add a b)
+    (lambda (f) (lambda (x) ((a f) ((b f) x)))))
+;这里定义一个简单的可重入函数f
+（define (f x) (+ x 1)
+
+;测试
+(((add one one) f) 0) =&gt; 2
+((two f) 0) =&gt; 2
+
+;即(add one one) == (tow)
+</code></pre>
+<p>到这里连最基础的数字也已经被函数所定义完成(虽然还很不完善)但是已经足够可以看出数据和函数几乎没有区别,数据即函数,这种抽象让我们去思考很多习以为常的基础数据所代表的意义,这确实是令人震撼的</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
