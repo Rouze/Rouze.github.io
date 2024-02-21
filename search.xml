@@ -3626,4 +3626,214 @@ plt.show()
         <tag>计网学习</tag>
       </tags>
   </entry>
+  <entry>
+    <title>C数组与指针</title>
+    <url>/2024/01/12/C%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/</url>
+    <content><![CDATA[<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><ul>
+<li>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</li>
+<li>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</li>
+</ul>
+<h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
+<li><p>可以等价的情况</p>
+<ul>
+<li>在表达式里使用，可以选择数组或指针如c&#x3D;a[1]与c&#x3D;*（a+1）等价(或者说对数组下标的引用总是可以写成一个起始地址加上偏移量的形式)</li>
+<li>作为函数参数时，可以选择数组或指针如void f(int a[])与void f(int *a)等价</li>
+</ul>
+</li>
+<li><p>不可等价的情况</p>
+<ul>
+<li>extern申明时，extern char a[]与extern char *a;不等价</li>
+<li>定义时，char a[]&#x3D;{“abc”};与char *a&#x3D;”abc”不等价</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>C语言</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HttpNote</title>
+    <url>/2024/02/20/HttpNote/</url>
+    <content><![CDATA[<h3 id="什么是http协议"><a href="#什么是http协议" class="headerlink" title="什么是http协议"></a>什么是http协议</h3><p>在计算机中两点用来传输超文本数据(图片，文字，音视频等)的协议</p>
+<p><strong>常见状态码</strong></p>
+<ul>
+<li>1xx 提示信息，表示需要后续操作</li>
+<li>2xx 成功，报文已被收到并处理(200,204)</li>
+<li>3xx 重定向报告,资源位置已发生变动，需要客户端重新发送请求</li>
+<li>4xx 客户端错误</li>
+<li>5xx 服务器错误</li>
+</ul>
+<p><strong>常见字段</strong></p>
+<ul>
+<li>Host字段(Host: <a href="http://www.a.com/">www.A.com</a>)</li>
+<li>Content-Length 表示服务器返回的数据长度，与http协议中的回车+换行解决使用TCP协议的粘包问题</li>
+<li>Connection (Connection: Keep-Alive)客户端要求保持长连接，以便其它请求复用该连接(此处的连接指本次通信所建立的TCP连接)与TCP的Keep-Alive有区别</li>
+<li>Content-Type&#x2F;Accept 回应与接受的数据格式</li>
+<li>Content-Encoding&#x2F;Accept-Encoding 回应与接受的数据压缩方法</li>
+</ul>
+<p><strong>GET与POST区别</strong></p>
+<ul>
+<li>GET语义从服务器获取指定资源，请求参数一般写在URL中，URL只能支持ASCLL所以GET只允许ASCLL字符，浏览器对URL长度有限制所以GET请求会因为这个原因无法请求过长数据,例子如下：<pre><code>GET /index.html HTTP/1.1
+Host: www.baidu.com
+</code></pre>
+</li>
+<li>POST则是根据报文body对指定的资源做出处理,请求携带的数据一般写在body当中</li>
+</ul>
+<p><em>安全指请求方法不会破坏服务器资源</em><br><em>幂等指多次执行相同操作结果都相同</em></p>
+<p>GET方法是安全且幂等的,因为都是只读操作，所以对GET请求数据可以做缓存<br>POST方法是新增或提交数据，可能会修改服务器资源，所以不是安全的且多次提交可能创建多个资源，也不是幂等的</p>
+<h3 id="HTTP缓存技术"><a href="#HTTP缓存技术" class="headerlink" title="HTTP缓存技术"></a>HTTP缓存技术</h3><p><strong>强制缓存</strong><br>浏览器判断缓存没有过期，直接使用浏览器本地缓存，由浏览器决定</p>
+<p><strong>协商缓存</strong><br>服务端告知客户端是否可以使用缓存的方式，相关响应码304</p>
+<h3 id="HTTP特性"><a href="#HTTP特性" class="headerlink" title="HTTP特性"></a>HTTP特性</h3><p><strong>优点</strong></p>
+<ol>
+<li>简单，格式简单，易于理解</li>
+<li>灵活易扩展，各类请求方法等没有固定死，允许自定义和扩充</li>
+<li>应用广泛，跨平台</li>
+</ol>
+<p><strong>缺点</strong></p>
+<ol>
+<li>无状态，减轻了服务器负担但是完成关联性操作会非常麻烦<br>一般会用Cookie技术解决这个问题</li>
+</ol>
+<p>2.明文传输，不安全 </p>
+<h3 id="HTTP与HTTPS"><a href="#HTTP与HTTPS" class="headerlink" title="HTTP与HTTPS"></a>HTTP与HTTPS</h3><p>HTTPS在HTTP层与TCP层加入SSL&#x2F;TLS协议，使得</p>
+<ol>
+<li>信息加密，交互信息无法窃取(混合加密)</li>
+<li>校验机制，无法篡改通信内容(摘要算法+数字签名)</li>
+<li>身份证书(公钥证书)</li>
+</ol>
+<ul>
+<li>混合加密<br>在建立通信前用非对称加密算法交换对称加密算法的密钥，之后的通信都用对称加密算法</li>
+<li>摘要算法+数字签名<br>非对称加密中有两种流程，公钥加密私钥解密，私钥加密公钥解密，前者用于加密通信内容，后者用于数字签名<br>私钥对内容的哈希值进行加密，公钥对哈希值进行解密，如果解密后的哈希值与内容的哈希值一致则说明内容没有被篡改</li>
+<li>数字证书<br>数字证书是由CA机构颁发的，用于证明服务器身份的，包含了服务器的公钥，服务器的信息，CA的公钥被浏览器内置，保证公钥不是被伪造的</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>网络协议</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Guide_to_Uinix</title>
+    <url>/2024/02/20/Guide-to-Uinix/</url>
+    <content><![CDATA[<h3 id="Unix-FileSystem"><a href="#Unix-FileSystem" class="headerlink" title="Unix FileSystem"></a>Unix FileSystem</h3><p>Unix文件分为三种类型：普通文件，目录文件，特殊文件</p>
+<ul>
+<li>普通文件：存储数据</li>
+<li>目录文件：存储文件名和指向文件的指针</li>
+<li>特殊文件：设备文件，包括字符设备和块设备</li>
+</ul>
+<p><strong>设备文件</strong><br>在dev目录下，包括字符设备和块设备</p>
+<ul>
+<li>tty: 终端设备,键入tty命令可以查看当前终端<code>cp /etc/passwd /dev/tty1</code>会将passwd文件输出到tty1终端</li>
+<li>pts: 伪终端设备,用于远程登录</li>
+<li>null与zero: 向二者写入数据会被丢弃，读取会返回EOF与0，<code>dd if=/dev/zero of=temp bs=100 count=1</code>会建立一块清零的文件</li>
+<li>random与urandom: 产生随机数，random会等待系统产生随机数，urandom会直接产生随机数</li>
+</ul>
+<p><strong>命名管道</strong><br><code>mkfifo</code>命令可以创建命名管道，命名管道是一种特殊的文件，用于进程间通信，<code>mkfifo pipe</code>会创建一个名为pipe的命名管道，<code>echo &quot;hello&quot; &gt; pipe</code>会将hello写入pipe管道，<code>cat pipe</code>会读取pipe管道的数据，用于IPC</p>
+]]></content>
+      <tags>
+        <tag>Unix命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>刷题</title>
+    <url>/2024/01/19/%E5%88%B7%E9%A2%98/</url>
+    <content><![CDATA[<h4 id="数字范围与"><a href="#数字范围与" class="headerlink" title="数字范围与"></a>数字范围与</h4><p><em>Brian Kernighan 算法</em><br>n&amp;(n-1) 会将n的二进制表示中的最低位为1的改为0<br>(题目描述)[!<a href="https://leetcode.cn/problems/bitwise-and-of-numbers-range/description/?envType=study-plan-v2&amp;envId=top-interview-150%5D">https://leetcode.cn/problems/bitwise-and-of-numbers-range/description/?envType=study-plan-v2&amp;envId=top-interview-150]</a>: 给定两个整数，计算在范围[m,n]内所有数字的按位与，包括m和n</p>
+<p>本质就是计算n和m的二进制表示的公共前缀,利用上面的算法,每次将n的最低位为1的改为0,直到n &lt; m此时n就是公共前缀</p>
+<pre><code class="c++">int rangeBitwiseAnd(int m, int n) &#123;
+    while(m&lt;n)&#123;
+        n&amp;=(n-1);
+    &#125;
+    return n;
+&#125;
+</code></pre>
+<p>或者同时右移,直到m&#x3D;&#x3D;n</p>
+<pre><code class="c++">int rangeBitwiseAnd(int m, int n) &#123;
+    int shift = 0;
+    while (m &lt; n) &#123;
+        m &gt;&gt;= 1;
+        n &gt;&gt;= 1;
+        ++shift;
+    &#125;
+    return m &lt;&lt; shift;
+&#125;
+</code></pre>
+]]></content>
+      <tags>
+        <tag>算法刷题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度学习-基础</title>
+    <url>/2024/01/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h2 id="核心观点"><a href="#核心观点" class="headerlink" title="核心观点"></a>核心观点</h2><ol>
+<li>机器学习的学习就是寻找更好的数据表示，使得数据的表示更加有用，更加易于处理。从数学上来看就是找到一个函数，将原始数据映射到一个更加有用的表示空间中。但是它寻找的过程没有创造性，只是在已有的表示空间中寻找更好的表示，比如线性投影，平移等。</li>
+<li>深度学习是机器学习的一个分支，它的核心思想就是通过组合简单的模块来表达复杂的函数，这些模块被称为神经网络层，这些层可以将输入数据映射到更加有用的表示空间中，通过层来将数据“逐渐”变为更加有用的表示，这个过程就是深度学习的学习过程。</li>
+<li>早期机器学习的方案-SVM,决策树，随机森林。其中SVM需要手工提取特征(这一步又叫特征工程)这是与深度学习一个比较大的区别，深度学习将特征的学习自动化了</li>
+<li>训练主要围绕4个方面<em>层(模型)</em>,<em>输入数据和目标</em>,<em>损失函数</em>,<em>优化器</em></li>
+<li></li>
+</ol>
+<h2 id="基本知识"><a href="#基本知识" class="headerlink" title="基本知识"></a>基本知识</h2><ol>
+<li>广播<br>没有歧义的话小张量会自动被扩展匹配较大张量以实现逐元素计算，这个扩展过程被称为广播</li>
+<li>随机梯度下降(SGD)<br>一般情况下参数的调整是取一小批数据组成一个张量送入网络然后调整参数而不是直接将所有数据传入，随机是指每次抽取的批量数据是随机的。理论上可以通过解析法直接求得梯度(将网络看作一个带有N个变量的多项式，其中N是网络的参数个数，比如当N&#x3D;2就是求二元函数偏导)但往往N非常之大，此方法难以应用，因此实际中采用了一种叫反向传播的算法。</li>
+<li>反向传播的过程<br>首先会有一个损失函数，这个损失函数根据任务不同而不同如二分类问题常选择binary_crossentropy,这个损失函数以网络的输出和真实值为输入，输出一个标量，这个标量就是损失函数的值，反向传播的过程首先是根据该损失值调整最后一层参数，接着根据当前层的变化继续往下一层调整</li>
+<li>K折验证<br>在数据集较小时可以将数据集划分为K个分区，然后实例化K个相同模型，将每个模型在K-1个分区上进行训练然后在剩下的一个分区上进行验证，取平均值作为验证分数</li>
+</ol>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>不同任务需要选择的对应激活函数与优化器，损失函数</li>
+<li>为什么要数据向量化与标签向量化，什么是one-hot编码</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据库学习笔记</title>
+    <url>/2024/01/29/%E6%95%B0%E6%8D%AE%E5%BA%93/</url>
+    <content><![CDATA[<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ul>
+<li><p>什么是索引，索引的作用是什么？</p>
+</li>
+<li><p>什么是辅助索引，桶是什么，什么是倒排索引?</p>
+<h3 id="回答"><a href="#回答" class="headerlink" title="回答"></a>回答</h3></li>
+<li><p>索引是一种特殊的文件，它包含的主要内容就是对数据项的指针(这里的指针表示可以通过它直接找到数据)，因而它的大小一般比较小，同样的块可以包含更多的索引项，这样就提高了存取效率，可以类比os中的索引节点。</p>
+</li>
+<li><p>辅助索引是指在数据文件之外，与主索引文件分开存储的索引文件，所以它必须是稠密索引。<br><img src="https://s2.loli.net/2024/01/29/bhmM5N9zeStfHV7.png"><br>桶是为了减少索引项的查找，将具有相同索引值的索引项存放在一起的索引结构，这样就可以减少查找次数，提高查找效率。</p>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度学习-视觉</title>
+    <url>/2024/01/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E8%A7%86%E8%A7%89/</url>
+    <content><![CDATA[<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ol>
+<li>密集层与卷积层的区别</li>
+<li>为什么卷积层的深度可以随意设置,以及卷积层的输出深度为什么是一个参数</li>
+<li>池化层的作用</li>
+<li>预训练模型怎么起作用的</li>
+<li>一些卷积神经网络的可视化方法</li>
+</ol>
+<h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h3><ol>
+<li>两者区别<br><strong>密集层学到的是全局特征，卷积层学到的是局部特征，卷积层的参数共享，密集层的参数不共享</strong><br>上面所谓的全局特征指密集层的每个神经单元都会受到上一层所有神经单元的影响，而局部特征指则是卷积层每个神经元由一个卷积核决定，一般为3x3或5x5,这样一个核所能感受到的视野就是有限的。这样的好处就是一个是可以学习到局部特征，比如一张猫的图片，卷积层可以学到猫的眼睛，鼻子，嘴巴等局部特征(这里只是帮助理解实际学习中不一定真的是学到这些特征)，这样得到的得到的特征具有平移不变性，在左下角学到猫的眼睛跟在右上角学到猫的眼睛是一样的。第二个好处就是可以学习到模式的空间层次，比如第一层学习到了猫的的眼睛，鼻子等局部特征，这些局部特征又可以组合成更高层次的特征如猫的脸。</li>
+<li>为什么卷积层的深度可以随意设置,以及卷积层的输出深度为什么是一个参数<br>另外就是卷积层的参数共享，即一个卷积核对一张图片所有位置都是一样的，这样可以大大减少参数量，比如一张图片是224x224x3，卷积核是3x3x3，那么一层卷积层的参数量就是3x3x3x3x3x3&#x3D;729，如果是密集层的话，一层的参数量就是224x224x3x3x3&#x3D;13668736，这样就大大减少了参数量，这也是为什么卷积层的深度可以随意设置的原因，因为卷积层的参数量不会随着深度的增加而增加，而密集层的参数量会随着深度的增加而增加，这样就会导致过拟合。<br>在keras中设置Conv2D时手动选择输出深度，这个深度就是卷积核的个数，设定好后keras会自动生成对应数量的卷积核，这些卷积核的初始参数是随机的，在训练过程中自动调整，所以可以控制卷积层的输出深度。</li>
+</ol>
+<p>比如现在有一张(28,28,1)的单通道图片，可以用32个(3,3,1)的卷积核对其进行卷积，得到32个(26,26,1)的响应图,组合起来就是一个(26,26,1,32)的特征图。</p>
+<ol start="3">
+<li>池化层的作用<br>池化层的计算可以看作对刚刚得到的特征图再进行一次卷积，只不过这次卷积的卷积核是(2,2,1)的，步长为2，这样就可以将特征图的尺寸减半(当然可以设置其它尺寸和步长)。主要的作用有两个，其一是扩大感受视野，比如上面得到的(26,26,1,32)的特征图，经过池化层后就变成了(13,13,1,32)的特征图，这样再次卷积时就可以感受更大的视野，因为现在的一个点代表了原来的4个点，其二就是减少参数量，显然上面经过池化层后的参数比以前小得多，这样可以减少过拟合，同时还可以减少计算量。</li>
+<li>使用预训练网络的两种方法：<strong>特征提取和微调模型</strong><ol>
+<li><em>特征提取</em>，在一个大数据集上训练的卷积网络会有很多已经训练好的卷积层与池化层，这些部分叫卷积基，由于图像的特征是靠各种训练好的卷积核提取的所以卷积基可以重用，来提取图像特征，而后面的密集层则需要重新训练。整个卷积基中越底部的卷积层提取的特征越通用，越靠近顶部的层则一般提取的更抽象的概念，所以多用大模型的前基层来提取特征而不是整个卷积基，另外在训练时<strong>需要冻结一些层，否则反向传播的过程将会非常长且效果提升不大</strong></li>
+<li><em>微调模型微</em>，微调模型通过解冻预训练模型的高层，略微调整了模型中的高层抽象表示，让这些表示可以与欲解决的问题更相关</li>
+</ol>
+</li>
+<li>可视化卷积神经网络的方法：1.可视化中间输出 2.可视化过滤器 3.可视化激活的热力图<ol>
+<li>*可视化中间输出 *，展示卷积层和池化层的特征图(层输出通常称为该层的激活)</li>
+</ol>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>深度学习 计算机视觉</tag>
+      </tags>
+  </entry>
 </search>
