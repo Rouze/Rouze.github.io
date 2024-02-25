@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>深度学习-视觉 | 若则</title>
-  <meta name="keywords" content=" 深度学习 计算机视觉 ">
-  <meta name="description" content="深度学习-视觉 | 若则">
+  <title>More Effective C++ | 若则</title>
+  <meta name="keywords" content=" C++ ">
+  <meta name="description" content="More Effective C++ | 若则">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="喜欢计算机理论的大学生一名">
 <meta property="og:type" content="website">
@@ -565,9 +565,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-深度学习-视觉" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-MoreEffectiveC++" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">深度学习-视觉</h1>
+        <h1 class="article-title">More Effective C++</h1>
     
     <div class="article-meta">
         
@@ -577,14 +577,14 @@
         <span class="tag">
             <i class="iconfont icon-tag"></i>
             
-            <a class="color1">深度学习 计算机视觉</a>
+            <a class="color4">C++</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-01-19 20:32:31'>2024-01-08 09:07</time>
+            发布时间 : <time class="date" title='最后更新: 2024-02-25 19:54:40'>2021-07-20 15:26</time>
         
     </div>
     <div class="article-meta">
@@ -606,7 +606,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-text">问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-text">知识点</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E6%AC%BE8-%E5%90%84%E7%A7%8D%E6%84%8F%E4%B9%89%E4%B8%8B%E7%9A%84new%E4%B8%8Edelete"><span class="toc-text">条款8:各种意义下的new与delete</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E6%AC%BE26%EF%BC%9A%E9%99%90%E5%88%B6%E6%9F%90%E4%B8%AA%E7%B1%BB%E6%89%80%E8%83%BD%E4%BA%A7%E7%94%9F%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%95%B0%E9%87%8F"><span class="toc-text">条款26：限制某个类所能产生的对象数量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%81%E8%AE%B80%E4%B8%AA%E6%88%961%E4%B8%AA%E5%AF%B9%E8%B1%A1%E4%BA%A7%E7%94%9F"><span class="toc-text">允许0个或1个对象产生</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%9E%84%E9%80%A0%E7%8A%B6%E6%80%81"><span class="toc-text">不同的对象构造状态</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -622,30 +622,144 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ol>
-<li>密集层与卷积层的区别</li>
-<li>为什么卷积层的深度可以随意设置,以及卷积层的输出深度为什么是一个参数</li>
-<li>池化层的作用</li>
-<li>预训练模型怎么起作用的</li>
-<li>一些卷积神经网络的可视化方法</li>
+        <h3 id="条款8-各种意义下的new与delete"><a href="#条款8-各种意义下的new与delete" class="headerlink" title="条款8:各种意义下的new与delete"></a>条款8:各种意义下的new与delete</h3><blockquote>
+<p>1.new operator 与 operator new的区别是new operator 是在外面使用的new,是语言内建的无法改变其意义：申请一块空间并在改空间上构建对象。而这两件事它都通过调用两个函数完成，第一件申请空间就是调用operator new，这个操作符可以被重载，且第一个参数永远是size_t，它负责申请空间并返回指向这块空间的地址，当然可以重载也就意味着你可以自己设计空间申请的方式</p>
+</blockquote>
+<blockquote>
+<p>2.如果存在一块可用空间，想直接在上面构建对象则可以将operator new重载为void *operator new(size_t,void *)的形式，这个版本的operator new就叫placement new，对应的new操作也变成了new(pointerTobuffer)Type</p>
+</blockquote>
+<pre><code class="cpp">class Widget&#123;
+    public:
+    Widget()&#123;&#125;
+    void *operator new(size_t size)&#123;
+        return malloc(size);
+    &#125;
+    void *operator new(size_t size,void *buffer)&#123;
+        return buffer;
+    &#125;
+&#125;;
+int main()&#123;
+    Widget *p = new Widget;
+    /*伪码
+    void*memeroy = Widget::operator new(sizeof(Widget));
+    Widget::Widget();
+    Widget*p = static_cast&lt;Widget*&gt;(memory);
+    */
+    //其中构造函数那里是在申请的地方构造
+&#125;
+</code></pre>
+<blockquote>
+<p>delete的行为则是调用析构函数然后调用operator delete，而如果是通过placement new创建的对象，要析构时需要手动调用析构函数，因为那块内存不是由operator new申请得到的，无权去释放，应该交给申请那块地方的人处理</p>
+</blockquote>
+<pre><code class="cpp">void *mallocShared(size_t size);
+void freeShared(void* memory);
+
+Wiget* constructWidgetInBuffer(void *buffer)&#123;
+    return new(buffer) Widget;
+&#125;
+void *p = mallocShared(sizeof(Widget));
+Widget*p2 = constructInBuffer(p);
+delete p;//error!
+p2-&gt;~Widget();//OK
+freeShared(p);//OK
+</code></pre>
+<h3 id="条款26：限制某个类所能产生的对象数量"><a href="#条款26：限制某个类所能产生的对象数量" class="headerlink" title="条款26：限制某个类所能产生的对象数量"></a>条款26：限制某个类所能产生的对象数量</h3><h4 id="允许0个或1个对象产生"><a href="#允许0个或1个对象产生" class="headerlink" title="允许0个或1个对象产生"></a>允许0个或1个对象产生</h4><blockquote>
+<p>由于一个对象在产生时构造函数一定会被调用,想要阻止某个class产生对象将其constructors声明为private是最简单的</p>
+</blockquote>
+<pre><code class="cpp">class NunStricted&#123;
+    private:
+    NunStricted();
+    NunStricted(const NunStricted&amp;);
+&#125;;
+//如果想只存在一个对象可这样声明和设计
+
+class PrintJob;
+class Printer&#123;
+    public:
+    void submit(const PrintJob&amp;);
+    void reset();
+    ...
+    friend Printer&amp; thePrinter();
+    private:
+    Printer();
+    Printer(const Printer&amp;);
+&#125;;
+
+Printer&amp; thePrinter()&#123;
+    static Printer p;
+    return p;
+&#125;
+//系统需要的操作都在函数的返回值上进行
+thePrinter().reset();
+thePrinter().submit(...);
+</code></pre>
+<p>当然这里这个thePrinter函数可以放进Printer类中,成一个静态函数这样可以让它们离得更近也省去了friend声明的必要</p>
+<pre><code class="cpp">class Printer&#123;
+    public:
+    static Printer&amp; thePrinter();
+&#125;;
+Printer&amp; thePrinter()&#123;
+    static Printer p;
+    return p;
+&#125;
+
+//调用就会类似下面这样
+Printer::thePrinter().reset();
+
+//也可以将thePrinter放入一个PrintStuff的namespace当中
+namespace PrintStuff&#123;
+    class Printer&#123;
+        ...
+        friend Printer&amp; thePrinter();
+    &#125;
+    Printer&amp; thePrinter();
+&#125;;
+//上面两种方法都是为了将thePrinter函数从全局域放到特定的域当中
+</code></pre>
+<p>在这个版本的实现当中有两个点需要注意一下:</p>
+<ol>
+<li>形成的唯一一个Printer对象的,是函数中的static对象而不是class的static对象。<strong>class拥有一个static对象的意思是即使它从未被用到也会被构造析构,而在函数中拥有一个static对象只有在第一次调用时才会构造,也就是说如果函数没有被调用那这个对象也不会被构造,因此这里使用的是静态函数而非静态变量的原因,另外还有一个原因就是使用静态变量无法控制其初始化顺序</strong></li>
+<li>这个static函数只有两行,很容易想到把它写成inline函数,早期或者说某些编译器这样会产生一些问题,即使现在最好也不要将一个内含static member的函数写成inline</li>
 </ol>
-<h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h3><ol>
-<li>两者区别<br><strong>密集层学到的是全局特征，卷积层学到的是局部特征，卷积层的参数共享，密集层的参数不共享</strong><br>上面所谓的全局特征指密集层的每个神经单元都会受到上一层所有神经单元的影响，而局部特征指则是卷积层每个神经元由一个卷积核决定，一般为3x3或5x5,这样一个核所能感受到的视野就是有限的。这样的好处就是一个是可以学习到局部特征，比如一张猫的图片，卷积层可以学到猫的眼睛，鼻子，嘴巴等局部特征(这里只是帮助理解实际学习中不一定真的是学到这些特征)，这样得到的得到的特征具有平移不变性，在左下角学到猫的眼睛跟在右上角学到猫的眼睛是一样的。第二个好处就是可以学习到模式的空间层次，比如第一层学习到了猫的的眼睛，鼻子等局部特征，这些局部特征又可以组合成更高层次的特征如猫的脸。</li>
-<li>为什么卷积层的深度可以随意设置,以及卷积层的输出深度为什么是一个参数<br>另外就是卷积层的参数共享，即一个卷积核对一张图片所有位置都是一样的，这样可以大大减少参数量，比如一张图片是224x224x3，卷积核是3x3x3，那么一层卷积层的参数量就是3x3x3x3x3x3&#x3D;729，如果是密集层的话，一层的参数量就是224x224x3x3x3&#x3D;13668736，这样就大大减少了参数量，这也是为什么卷积层的深度可以随意设置的原因，因为卷积层的参数量不会随着深度的增加而增加，而密集层的参数量会随着深度的增加而增加，这样就会导致过拟合。<br>在keras中设置Conv2D时手动选择输出深度，这个深度就是卷积核的个数，设定好后keras会自动生成对应数量的卷积核，这些卷积核的初始参数是随机的，在训练过程中自动调整，所以可以控制卷积层的输出深度。</li>
+<p>另外一种设计思路就是在类里面设置一个数来记录已经生成的对象数量,当外界申请数量超过某个上限时就在constructors里抛出一个exception</p>
+<pre><code class="cpp">class Printer&#123;
+    public:
+    class TooManyObjects&#123;&#125;;
+    Printer();
+    ~Printer();
+    private:
+    static size_t numObjects;
+    Printer(const Printer&amp;); //不允许复制行为
+&#125;;
+size_t Priner::numObjects = 0;
+Printer::Printer()&#123;
+    if (numObjects&gt;=1)
+    throw TooManyObject;
+    ...
+    ++numObject;
+&#125;
+
+Printer::~Printer()&#123;
+    ...
+    --numObjects;
+&#125;
+</code></pre>
+<p>这样可以通过设定numObjects来限制特定数量的对象产生,但仍有一些问题</p>
+<h4 id="不同的对象构造状态"><a href="#不同的对象构造状态" class="headerlink" title="不同的对象构造状态"></a>不同的对象构造状态</h4><p>假设上面的打印机类写好了,现在要写一个升级版的打印机,它直接继承上面的打印机类</p>
+<pre><code class="cpp">class ColorPrinter:public Printer&#123;
+
+&#125;;
+//现在安装一台普通打印机和彩色打印机
+Printer p;
+ColorPrinter cp;
+</code></pre>
+<p>上述代码会因为cp在调用基类的constructor时抛出一个TooManyObjects的exception,但这并不是我们想要的<br>究其原因是Printer这个成分出现在了ColorPrinter内部，而上面的Printer严格限制只有一个Printer成分存在,一个Printer成分有三种可能的方式存在:</p>
+<ol>
+<li>作为它本身的对象</li>
+<li>作为base class</li>
+<li>作为对象成员</li>
 </ol>
-<p>比如现在有一张(28,28,1)的单通道图片，可以用32个(3,3,1)的卷积核对其进行卷积，得到32个(26,26,1)的响应图,组合起来就是一个(26,26,1,32)的特征图。</p>
-<ol start="3">
-<li>池化层的作用<br>池化层的计算可以看作对刚刚得到的特征图再进行一次卷积，只不过这次卷积的卷积核是(2,2,1)的，步长为2，这样就可以将特征图的尺寸减半(当然可以设置其它尺寸和步长)。主要的作用有两个，其一是扩大感受视野，比如上面得到的(26,26,1,32)的特征图，经过池化层后就变成了(13,13,1,32)的特征图，这样再次卷积时就可以感受更大的视野，因为现在的一个点代表了原来的4个点，其二就是减少参数量，显然上面经过池化层后的参数比以前小得多，这样可以减少过拟合，同时还可以减少计算量。</li>
-<li>使用预训练网络的两种方法：<strong>特征提取和微调模型</strong><ol>
-<li><em>特征提取</em>，在一个大数据集上训练的卷积网络会有很多已经训练好的卷积层与池化层，这些部分叫卷积基，由于图像的特征是靠各种训练好的卷积核提取的所以卷积基可以重用，来提取图像特征，而后面的密集层则需要重新训练。整个卷积基中越底部的卷积层提取的特征越通用，越靠近顶部的层则一般提取的更抽象的概念，所以多用大模型的前基层来提取特征而不是整个卷积基，另外在训练时<strong>需要冻结一些层，否则反向传播的过程将会非常长且效果提升不大</strong></li>
-<li><em>微调模型微</em>，微调模型通过解冻预训练模型的高层，略微调整了模型中的高层抽象表示，让这些表示可以与欲解决的问题更相关</li>
-</ol>
-</li>
-<li>可视化卷积神经网络的方法：1.可视化中间输出 2.可视化过滤器 3.可视化激活的热力图<ol>
-<li>*可视化中间输出 *，展示卷积层和池化层的特征图(层输出通常称为该层的激活)</li>
-</ol>
-</li>
-</ol>
+<p>通常是要限制对象个数而非成分的个数,如果采用第一种策略能保证正确,因为私有constructors会禁止掉派生行为.但</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>

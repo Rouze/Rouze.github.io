@@ -3836,4 +3836,245 @@ Host: www.baidu.com
         <tag>深度学习 计算机视觉</tag>
       </tags>
   </entry>
+  <entry>
+    <title>TCPNote</title>
+    <url>/2024/02/21/TCPNote/</url>
+    <content><![CDATA[<h3 id="TCP协议是什么"><a href="#TCP协议是什么" class="headerlink" title="TCP协议是什么"></a>TCP协议是什么</h3><p>TCP协议是<em>面向连接的、可靠的、基于字节流的</em>的传输层协议，工作在不可靠的IP协议之上，确保接收端的数据与发送端的数据一致</p>
+<h3 id="TCP与UDP的一些区别"><a href="#TCP与UDP的一些区别" class="headerlink" title="TCP与UDP的一些区别"></a>TCP与UDP的一些区别</h3><ul>
+<li>连接<br>TCP需要建立连接传输数据，UDP不需要，即刻传输</li>
+<li>可靠性<br>TCP保证数据的可靠性，保证数据不丢失，无差错，不重复，UDP不保证但可以基于UDP实现一个可靠传输如QUIC协议</li>
+<li>拥塞控制与流量控制<br>TCP有拥塞控制与流量控制，UDP没有，网络拥堵不影响UDP的发送速率</li>
+<li>传输方式<br>TCP是面向字节流的没有边界，UDP是面向报文的有边界，因而TCP有一个<em>粘包问题</em>，需要用户程序解决，常见的解决方法是在报文头部加入报文长度</li>
+</ul>
+<p>但TCP与UDP可以同时绑定到一个端口，并不会引起冲突，对应的包会被分别发送到TCP与UDP的处理程序中</p>
+<h3 id="TCP的三次握手"><a href="#TCP的三次握手" class="headerlink" title="TCP的三次握手"></a>TCP的三次握手</h3><ul>
+<li><p>服务器进入LISTEN状态，等待客户端连接，客户端随机选择一个初始序列号ISN(Initial Sequence Number)并发送SYN报文给服务器，进入SYN-SENT状态<br>如果此报文丢失，客户端会重发SYN报文，服务器收到后会重新发送SYN+ACK报文</p>
+</li>
+<li><p>服务器收到SYN报文后，返回SYN+ACK报文给客户端，将ISN+1填入确认序列字段，进入SYN-RECEIVED状态<br>如果此报文丢失，服务器会重发SYN+ACK报文，同时客户端会以为SYN报文丢失，重发SYN报文</p>
+<h4 id="SYN攻击与防范"><a href="#SYN攻击与防范" class="headerlink" title="SYN攻击与防范"></a>SYN攻击与防范</h4><p>攻击者发送大量的SYN报文给服务器，服务器会为每一个SYN报文分配一个资源，当资源耗尽后服务器无法再接受新的连接，造成客户端的SYN报文会被丢弃无法建立连接，这种攻击叫做SYN攻击<br>防范方法:</p>
+</li>
+</ul>
+<ol>
+<li>增大半连接队列长度与全连接队列长度</li>
+<li>启用SYN Cookie，服务器不会为每一个SYN报文分配资源，而是根据SYN报文计算一个cookie，客户端收到SYN+ACK报文后会将cookie发送给服务器，服务器根据cookie计算出ISN，然后建立连接</li>
+<li>减少SYN+ACK的重传次数，避免被攻击者的SYN报文占用资源</li>
+</ol>
+<ul>
+<li>客户端回应最后一个ACK包，将server_isn+1填入确认序列字段，进入ESTABLISHED状态，服务器收到后也进入ESTABLISHED状态<br>客户端不会重发ACK报文，因为当客户端接收到SYN+ACK后客户端已经建立了连接，但服务端会重传SYN+ACK报文，客户端会产生新的ACK报文发送</li>
+</ul>
+<p>前两次握手不携带数据，第三次握手携带数据，客户端可以在发送第三次握手报文后马上发送数据报文，这两个报文的确认序列字段都是ISN+1，所以握手报文丢失后如果数据报文抵达也会建立连接</p>
+<p><em>三次握手的主要目的是为了防止已失效的连接请求报文段突然又传送到了服务端，因而产生错误</em><br>如果只用两次握手，可能会造成资源的浪费与错误，下面是一种情形:<br>客户端发送请求报文后宕机然后重启重新发送新的的请求报文，第一个SYN报文比新的SYN报文先抵达服务器，如果只有两次握手，服务器收到SYN后就进入ESTABLISHED状态，发送数据，而这个连接已经失效了，白白发送了数据</p>
+<p>总结:<em>第三次握手给客户端一个确认机会，防止历史连接的报文段突然又传送到了服务端建立无效连接</em></p>
+<h3 id="为什么TCP初始化序列号是随机的"><a href="#为什么TCP初始化序列号是随机的" class="headerlink" title="为什么TCP初始化序列号是随机的"></a>为什么TCP初始化序列号是随机的</h3><ul>
+<li>防止历史报文被下一个连接重用(一个TCP可以由源地址+源端口+目的地址+目的端口唯一确定)<br>如果序列号固定，那么历史连接的序列号可能会被下一个连接重用，导致数据错乱</li>
+<li>安全性，防止黑客通过猜测序列号来伪造TCP报文</li>
+</ul>
+<h3 id="为什么TCP要有MSS，不使用IP层的MTU"><a href="#为什么TCP要有MSS，不使用IP层的MTU" class="headerlink" title="为什么TCP要有MSS，不使用IP层的MTU"></a>为什么TCP要有MSS，不使用IP层的MTU</h3><p>如果TCP将整个报文交给IP层，当传输的报文很大被IP层分片时，如果其中一个分片丢失，那么整个报文都要重传，这样会造成很大的浪费</p>
+<h3 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h3><p>双方都可以主动断开连接，下面以客户端主动断开连接为例</p>
+<ul>
+<li><p>客户端发送FIN报文给服务器，进入FIN-WAIT-1状态<br>此报文丢失客户端会重传，超过最大重传次数则会直接进入CLOSED状态</p>
+</li>
+<li><p>服务器收到FIN报文后，发送ACK报文给客户端，进入CLOSE-WAIT状态，客户端收到ACK报文后进入FIN-WAIT-2状态<br>由于ACK报文不会重传，所以客户端会一直重传FIN报文，服务器再生成新的ACK报文发送给客户端，客户端发起FIN报文给到服务器的信息是客户端关闭了发送数据的通道，但是服务器还可以发送数据给客户端接收</p>
+</li>
+<li><p>服务器发送FIN报文给客户端，进入LAST-ACK状态<br>此报文丢失服务器会重传，超过最大重传次数则会直接进入CLOSED状态，同时客户端长时间收不到FIN报文也会自动进入CLOSED状态</p>
+</li>
+<li><p>客户端收到FIN报文后，发送ACK报文给服务器，进入TIME-WAIT状态，等待2MSL(Max Segment Lifttime)后进入CLOSED状态，服务器收到ACK报文后进入CLOSED状态<br>当客户端发送ACK报文后开始计时，如果服务器没有收到ACK报文，服务器会重传FIN报文，客户端收到FIN报文后会重新发送ACK报文重新计时<br>进入TIME-WAIT状态的主要两个目的:</p>
+</li>
+</ul>
+<ol>
+<li><p>防止主动方历史数据被后面相同四元组的连接重用，如果没有TIME-WAIT，马上相同的四元组又建立了一个新连接，之前连接的包的序列如果恰好在接收窗口中就会引起数据错乱。所以TIME-WAIT的作用就是等待足够长时间处理历史数据确保不会与新连接的数据混淆</p>
+</li>
+<li><p>保证被动连接的一方能被正确关闭，如果ACK报文丢失，服务器会重传FIN报文，客户端收到FIN报文后会重新发送ACK报文帮助服务器正确关闭连接</p>
+</li>
+</ol>
+<h4 id="TIME-WAIT状态的优化"><a href="#TIME-WAIT状态的优化" class="headerlink" title="TIME-WAIT状态的优化"></a>TIME-WAIT状态的优化</h4><ol>
+<li>复用TIME-WAIT状态的连接并引入时间戳</li>
+<li>设定TIME-WAIT连接数目，超过数目则将后面的连接直接关闭</li>
+<li>设置socket选项，调用close后立即关闭连接，不进入TIME-WAIT状态</li>
+</ol>
+<h4 id="服务器出现大量TIME-WAIT状态连接的原因"><a href="#服务器出现大量TIME-WAIT状态连接的原因" class="headerlink" title="服务器出现大量TIME-WAIT状态连接的原因"></a>服务器出现大量TIME-WAIT状态连接的原因</h4><ol>
+<li>HTTP没有使用长连接，服务器每处理一个请求就关闭连接</li>
+<li>HTTP长连接超时，服务器主动关闭连接</li>
+<li>HTTP长连接请求数量过多，一些服务器后端在一个长连接的请求参数过多时会关闭这个连接</li>
+</ol>
+<h3 id="TCP重传机制"><a href="#TCP重传机制" class="headerlink" title="TCP重传机制"></a>TCP重传机制</h3><ol>
+<li>超时重传，由时间驱动，发送数据时启动一个定时器，超过时间没有收到ACK报文则重传报文，这里涉及一个RTO的计算</li>
+<li>快速重传，由数据驱动，假设发送方发送了1-6共6个数据，其中1到达之后3-5比2先到达，接收方就会连续发送3个2的ack报文，此时重传报文2<br>此方式解决了超时时间的但无法确定重传时需要重传哪些报文</li>
+<li>SACK，选择性重传，在TCP头部加入一个SACK段，将已接收的信息发送给发送方，使发送方只重传丢失的数据</li>
+<li>D-SACK，使用SACK告诉发送方哪些数据重复接收了，可以解决ACK包丢失和网络延迟，让发送方知道数据包是丢失了还是延迟</li>
+</ol>
+<h3 id="TCP滑动窗口"><a href="#TCP滑动窗口" class="headerlink" title="TCP滑动窗口"></a>TCP滑动窗口</h3><p>为了保证效率，TCP引入了滑动窗口机制，窗口大小即是无需等待ACK报文而可以继续发送的数据最大值，窗口大小由接收方通告给发送方(TCP头部当中的window字段)，发送方根据接收方的通告调整窗口大小，窗口大小的调整可以根据网络拥塞情况调整，这样可以保证网络的稳定性。</p>
+<h4 id="TCP窗口关闭"><a href="#TCP窗口关闭" class="headerlink" title="TCP窗口关闭"></a>TCP窗口关闭</h4><p>当接收方的缓冲区满之后就会发送一个0窗口通知给发送方，此时发送方会停止发送数据，等待接收方的缓冲区有空间后再发送数据，但发送方发送的新的窗口的报文如果丢失接收方则会一直陷入等待状态，所以TCP引入了一个持久定时器，当发送方发送了一个0窗口通知后，发送方会启动一个持久定时器，超过时间后发送一个窗口探测报文给接收方，接收方收到后会回复一个窗口大小，发送方收到后会重新发送数据，若仍然为0则重设定时器。</p>
+<h4 id="糊涂窗口综合症"><a href="#糊涂窗口综合症" class="headerlink" title="糊涂窗口综合症"></a>糊涂窗口综合症</h4><p>如果接收方太忙来不及读取窗口接收数据就会导致发送方的发送窗口越来越小，最后接收方腾出几个字节空间发送方就会马上发送几个字节数据给接收方，而一个TCP报文的头部大小加上IP就有40字节，会使得传输效率极低</p>
+<p>导致该问题的两个原因:</p>
+<ul>
+<li>接收方通知小窗口</li>
+<li>发送方发送小数据<br>解决方法:</li>
+<li>当接收方的窗口小于某个值时直接发送一个0窗口通知，阻止发送方发送小数据</li>
+<li>发送方使用<em>Nagle算法</em>，将小数据合并成一个大数据发送<br>但有些情况下Nagle算法会导致延迟，所以可以使用TCP_NODELAY选项关闭Nagle算法，比如telnet协议就需要频繁的发送小数据</li>
+</ul>
+<h3 id="TCP拥塞控制"><a href="#TCP拥塞控制" class="headerlink" title="TCP拥塞控制"></a>TCP拥塞控制</h3><p>流量控制是发送方与接收方的协调，拥塞控制是发送方与网络的协调，防止发送方的数据填满整个网络<br>为了实现拥塞控制，TCP引入了拥塞窗口，该窗口根据网络拥塞情况变化，最终的发送窗口大小是拥塞窗口和接收窗口的最小值</p>
+<h4 id="拥塞控制的四个算法"><a href="#拥塞控制的四个算法" class="headerlink" title="拥塞控制的四个算法"></a>拥塞控制的四个算法</h4><ol>
+<li>慢启动<br>每当发送方收到一个ACK报文就会将拥塞窗口大小加倍，直到达到一个阈值，然后进入拥塞避免状态</li>
+<li>拥塞避免<br>将拥塞窗口大小线性增长，直到网络拥塞触发超时重传，进入拥塞发送状态</li>
+<li>拥塞发生</li>
+</ol>
+<ul>
+<li>超时重传<br>将sstresh设置为cwnd&#x2F;2，cwnd设置为1(初始值)，然后进入慢启动状态</li>
+<li>快速重传<br>触发快速重传TCP认为网络的拥堵不是非常严重，只是丢失了部分数据，将cwnd设置为cwnd&#x2F;2，ssthresh设置为cwnd，进入快速恢复状态</li>
+</ul>
+<ol start="4">
+<li>快速恢复<br>将cwnd设置为ssthresh+3,表示收到了三个重复的ACK报文，然后每收到一个重复的ACK报文cwnd加1(这里增加cwns是为了快速得到新的确认解决根本问题)，如果收到新的ACK报文则将cwnd设置为ssthresh，进入拥塞避免状态</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>网络协议</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>More Effective C++</title>
+    <url>/2021/07/20/MoreEffectiveC++/</url>
+    <content><![CDATA[<h3 id="条款8-各种意义下的new与delete"><a href="#条款8-各种意义下的new与delete" class="headerlink" title="条款8:各种意义下的new与delete"></a>条款8:各种意义下的new与delete</h3><blockquote>
+<p>1.new operator 与 operator new的区别是new operator 是在外面使用的new,是语言内建的无法改变其意义：申请一块空间并在改空间上构建对象。而这两件事它都通过调用两个函数完成，第一件申请空间就是调用operator new，这个操作符可以被重载，且第一个参数永远是size_t，它负责申请空间并返回指向这块空间的地址，当然可以重载也就意味着你可以自己设计空间申请的方式</p>
+</blockquote>
+<blockquote>
+<p>2.如果存在一块可用空间，想直接在上面构建对象则可以将operator new重载为void *operator new(size_t,void *)的形式，这个版本的operator new就叫placement new，对应的new操作也变成了new(pointerTobuffer)Type</p>
+</blockquote>
+<pre><code class="cpp">class Widget&#123;
+    public:
+    Widget()&#123;&#125;
+    void *operator new(size_t size)&#123;
+        return malloc(size);
+    &#125;
+    void *operator new(size_t size,void *buffer)&#123;
+        return buffer;
+    &#125;
+&#125;;
+int main()&#123;
+    Widget *p = new Widget;
+    /*伪码
+    void*memeroy = Widget::operator new(sizeof(Widget));
+    Widget::Widget();
+    Widget*p = static_cast&lt;Widget*&gt;(memory);
+    */
+    //其中构造函数那里是在申请的地方构造
+&#125;
+</code></pre>
+<blockquote>
+<p>delete的行为则是调用析构函数然后调用operator delete，而如果是通过placement new创建的对象，要析构时需要手动调用析构函数，因为那块内存不是由operator new申请得到的，无权去释放，应该交给申请那块地方的人处理</p>
+</blockquote>
+<pre><code class="cpp">void *mallocShared(size_t size);
+void freeShared(void* memory);
+
+Wiget* constructWidgetInBuffer(void *buffer)&#123;
+    return new(buffer) Widget;
+&#125;
+void *p = mallocShared(sizeof(Widget));
+Widget*p2 = constructInBuffer(p);
+delete p;//error!
+p2-&gt;~Widget();//OK
+freeShared(p);//OK
+</code></pre>
+<h3 id="条款26：限制某个类所能产生的对象数量"><a href="#条款26：限制某个类所能产生的对象数量" class="headerlink" title="条款26：限制某个类所能产生的对象数量"></a>条款26：限制某个类所能产生的对象数量</h3><h4 id="允许0个或1个对象产生"><a href="#允许0个或1个对象产生" class="headerlink" title="允许0个或1个对象产生"></a>允许0个或1个对象产生</h4><blockquote>
+<p>由于一个对象在产生时构造函数一定会被调用,想要阻止某个class产生对象将其constructors声明为private是最简单的</p>
+</blockquote>
+<pre><code class="cpp">class NunStricted&#123;
+    private:
+    NunStricted();
+    NunStricted(const NunStricted&amp;);
+&#125;;
+//如果想只存在一个对象可这样声明和设计
+
+class PrintJob;
+class Printer&#123;
+    public:
+    void submit(const PrintJob&amp;);
+    void reset();
+    ...
+    friend Printer&amp; thePrinter();
+    private:
+    Printer();
+    Printer(const Printer&amp;);
+&#125;;
+
+Printer&amp; thePrinter()&#123;
+    static Printer p;
+    return p;
+&#125;
+//系统需要的操作都在函数的返回值上进行
+thePrinter().reset();
+thePrinter().submit(...);
+</code></pre>
+<p>当然这里这个thePrinter函数可以放进Printer类中,成一个静态函数这样可以让它们离得更近也省去了friend声明的必要</p>
+<pre><code class="cpp">class Printer&#123;
+    public:
+    static Printer&amp; thePrinter();
+&#125;;
+Printer&amp; thePrinter()&#123;
+    static Printer p;
+    return p;
+&#125;
+
+//调用就会类似下面这样
+Printer::thePrinter().reset();
+
+//也可以将thePrinter放入一个PrintStuff的namespace当中
+namespace PrintStuff&#123;
+    class Printer&#123;
+        ...
+        friend Printer&amp; thePrinter();
+    &#125;
+    Printer&amp; thePrinter();
+&#125;;
+//上面两种方法都是为了将thePrinter函数从全局域放到特定的域当中
+</code></pre>
+<p>在这个版本的实现当中有两个点需要注意一下:</p>
+<ol>
+<li>形成的唯一一个Printer对象的,是函数中的static对象而不是class的static对象。<strong>class拥有一个static对象的意思是即使它从未被用到也会被构造析构,而在函数中拥有一个static对象只有在第一次调用时才会构造,也就是说如果函数没有被调用那这个对象也不会被构造,因此这里使用的是静态函数而非静态变量的原因,另外还有一个原因就是使用静态变量无法控制其初始化顺序</strong></li>
+<li>这个static函数只有两行,很容易想到把它写成inline函数,早期或者说某些编译器这样会产生一些问题,即使现在最好也不要将一个内含static member的函数写成inline</li>
+</ol>
+<p>另外一种设计思路就是在类里面设置一个数来记录已经生成的对象数量,当外界申请数量超过某个上限时就在constructors里抛出一个exception</p>
+<pre><code class="cpp">class Printer&#123;
+    public:
+    class TooManyObjects&#123;&#125;;
+    Printer();
+    ~Printer();
+    private:
+    static size_t numObjects;
+    Printer(const Printer&amp;); //不允许复制行为
+&#125;;
+size_t Priner::numObjects = 0;
+Printer::Printer()&#123;
+    if (numObjects&gt;=1)
+    throw TooManyObject;
+    ...
+    ++numObject;
+&#125;
+
+Printer::~Printer()&#123;
+    ...
+    --numObjects;
+&#125;
+</code></pre>
+<p>这样可以通过设定numObjects来限制特定数量的对象产生,但仍有一些问题</p>
+<h4 id="不同的对象构造状态"><a href="#不同的对象构造状态" class="headerlink" title="不同的对象构造状态"></a>不同的对象构造状态</h4><p>假设上面的打印机类写好了,现在要写一个升级版的打印机,它直接继承上面的打印机类</p>
+<pre><code class="cpp">class ColorPrinter:public Printer&#123;
+
+&#125;;
+//现在安装一台普通打印机和彩色打印机
+Printer p;
+ColorPrinter cp;
+</code></pre>
+<p>上述代码会因为cp在调用基类的constructor时抛出一个TooManyObjects的exception,但这并不是我们想要的<br>究其原因是Printer这个成分出现在了ColorPrinter内部，而上面的Printer严格限制只有一个Printer成分存在,一个Printer成分有三种可能的方式存在:</p>
+<ol>
+<li>作为它本身的对象</li>
+<li>作为base class</li>
+<li>作为对象成员</li>
+</ol>
+<p>通常是要限制对象个数而非成分的个数,如果采用第一种策略能保证正确,因为私有constructors会禁止掉派生行为.但</p>
+]]></content>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
 </search>
