@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Effective_STL</title>
-    <url>/2022/04/28/Effective-STL/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>C++学习</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C语言里函数返回结构体的汇编分析</title>
     <url>/2022/09/25/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/</url>
     <content><![CDATA[<p>在之前写操作系统内核的过程中经常需要接触到汇编和C语言,发现一个函数的返回值通常是由寄存器-eax存储的,但是在C语言里是能返回一个结构体的,如果结构体很大那寄存器肯定放不下,所以就好奇编译查看了一下,下面是测试的代码:</p>
@@ -86,7 +78,7 @@ int main()&#123;
 <p>仍然使用上面的指令可以得到如下结果:<br><img src="https://s2.loli.net/2022/09/26/JTFveXcU1t8bka4.jpg" alt="test3s.jpg"><br>可以看到在g之前的拷贝就是拷的那个临时构建的变量,符合前面的猜想</p>
 ]]></content>
       <tags>
-        <tag>C语言,汇编</tag>
+        <tag>C 汇编</tag>
       </tags>
   </entry>
   <entry>
@@ -686,7 +678,7 @@ int main()&#123;
 </code></pre>
 ]]></content>
       <tags>
-        <tag>C++学习</tag>
+        <tag>C++</tag>
       </tags>
   </entry>
   <entry>
@@ -959,7 +951,7 @@ Y::~Y()&#123;delete px_;px_=0;&#125;
 <p>在此之前应该先了解一些placement new相关的知识,该方面的内容在Effective C++和More EffectiveC++中有详细描述</p>
 ]]></content>
       <tags>
-        <tag>C++学习</tag>
+        <tag>C++</tag>
       </tags>
   </entry>
   <entry>
@@ -2240,7 +2232,7 @@ int main()
 </code></pre>
 ]]></content>
       <tags>
-        <tag>acm学习</tag>
+        <tag>acm</tag>
       </tags>
   </entry>
   <entry>
@@ -2386,7 +2378,7 @@ UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
 </code></pre>
 ]]></content>
       <tags>
-        <tag>专业学习</tag>
+        <tag>windows</tag>
       </tags>
   </entry>
   <entry>
@@ -2405,6 +2397,9 @@ UINT dwFlag      //对wPosition的解释,使用方式与InsertMenu类似,
 <h4 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h4><p><code>git log</code>打印所有日志<br><code>git reflog</code>显示所有提交的id</p>
 <h4 id="版本回退与穿梭"><a href="#版本回退与穿梭" class="headerlink" title="版本回退与穿梭"></a>版本回退与穿梭</h4><p><code>git reset --hard HEAD^</code>回退一次提交，两次就打两个^,三次就三个^,…，想要回退1000个版本或指定数量的话用<code>git reset --hard HEAD~1000</code>的形式<br><code>git reset --hard id</code>回退到指定id的版本<br><code>git reset HEAD</code>用版本库文件替换所有暂存区的文件<br><code>git checkout -- x.txt</code>用暂存区的指定文件区替换工作区的文件<br><code>git checkout HEAD x.txt</code>用版本库中的文件去替换暂存和工作区的文件</p>
 ]]></content>
+      <tags>
+        <tag>git</tag>
+      </tags>
   </entry>
   <entry>
     <title>中断</title>
@@ -3649,7 +3644,7 @@ plt.show()
 </ul>
 ]]></content>
       <tags>
-        <tag>C语言</tag>
+        <tag>C</tag>
       </tags>
   </entry>
   <entry>
