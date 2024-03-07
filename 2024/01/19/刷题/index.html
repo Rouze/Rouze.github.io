@@ -172,7 +172,7 @@
     <li>
         <div class="all active" data-rel="全部文章">全部文章
             
-                <small>(24)</small>
+                <small>(25)</small>
             
         </div>
     </li>
@@ -197,7 +197,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="24">
+<input type="hidden" id="yelog_site_posts_number" value="25">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -304,6 +304,10 @@
             </li>
         
             <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python 爬虫</a>
+            </li>
+        
+            <li class="article-tag-list-item">
                 <i class="iconfont icon-tag"></i><a>SICP笔记</a>
             </li>
         
@@ -321,6 +325,15 @@
 
     
     <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/27/python%E7%88%AC%E8%99%AB%E5%AE%9E%E6%88%98%E5%85%A5%E9%97%A8/"
+           data-tag="python 爬虫"
+           data-author="" >
+            <span class="post-title" title="python爬虫实战入门">python爬虫实战入门</span>
+            <span class="post-date" title="2024-02-27 13:52:23">2024/02/27</span>
+        </a>
         
         
         <a  class="全部文章 "
@@ -372,7 +385,7 @@
            href="/2024/01/12/C%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/"
            data-tag="C"
            data-author="" >
-            <span class="post-title" title="C数组与指针">C数组与指针</span>
+            <span class="post-title" title="C语言拾遗">C语言拾遗</span>
             <span class="post-date" title="2024-01-12 09:26:07">2024/01/12</span>
         </a>
         
@@ -575,7 +588,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-01-19 11:54:24'>2024-01-19 11:47</time>
+            发布时间 : <time class="date" title='最后更新: 2024-03-05 11:11:03'>2024-01-19 11:47</time>
         
     </div>
     <div class="article-meta">
@@ -597,7 +610,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E5%AD%97%E8%8C%83%E5%9B%B4%E4%B8%8E"><span class="toc-text">数字范围与</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E5%AD%97%E8%8C%83%E5%9B%B4%E4%B8%8E"><span class="toc-text">数字范围与</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%B3%E8%B7%83%E6%B8%B8%E6%88%8FII"><span class="toc-text">跳跃游戏II</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#H%E6%8C%87%E6%95%B0"><span class="toc-text">H指数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E6%B2%B9%E7%AB%99"><span class="toc-text">加油站</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B3%96%E6%9E%9C"><span class="toc-text">分糖果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84"><span class="toc-text">长度最小的子数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-text">对称二叉树</span></a>
     
 <style>
     .left-col .switch-btn,
@@ -631,6 +644,144 @@
         ++shift;
     &#125;
     return m &lt;&lt; shift;
+&#125;
+</code></pre>
+<h4 id="跳跃游戏II"><a href="#跳跃游戏II" class="headerlink" title="跳跃游戏II"></a>跳跃游戏II</h4><p>(题目描述)[!<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/jump-game-ii/]">https://leetcode-cn.com/problems/jump-game-ii/]</a>: 给定一个非负整数数组，你最初位于数组的第一个位置。数组中的每个元素代表你在该位置可以跳跃的最大长度。你的目标是使用最少的跳跃次数到达数组的最后一个位置。</p>
+<p>题目保证可以到达最后一个位置，贪心选择可以跳跃得最远的位置进行跳跃<br>这题的关键是在一次遍历中根据已有信息维护得到当前能跳到的最远位置</p>
+<pre><code class="c++">class Solution &#123;
+public:
+    int jump(vector&lt;int&gt;&amp; nums) &#123;
+        int maxpos = 0;//当前能跳到的最远位置
+        int end = 0;//上一次跳跃的边界
+        int step = 0;
+        for(int i = 0;i&lt;nums.size()-1;i++)&#123;
+            maxpos = max(maxpos,i+nums[i]);//更新最远边界
+            if(i == end)&#123; //到达上次最远边界
+                end = maxpos;
+                step++;
+            &#125;
+        &#125;
+        return step;
+    &#125;
+&#125;;
+</code></pre>
+<h4 id="H指数"><a href="#H指数" class="headerlink" title="H指数"></a>H指数</h4><p>(题目描述)[!<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/h-index/]">https://leetcode-cn.com/problems/h-index/]</a>: 给定一位研究者的论文被引用次数数组（被引用次数是非负整数），编写一个方法计算出研究者的 h 指数。h 指数的定义: “h 代表“高引用次数”（high citations），一名科研人员的 h 指数是指他（她）的 （N 篇论文中）至多有 h 篇论文分别被引用了至少 h 次。”</p>
+<p>排序的方法就不写了，这里主要记录一下二分查找答案的思路<br>由于要找的h是一个0-n的整数，可以二分查找这个值，得到一个mid之后去验证是否满足条件</p>
+<pre><code class="c++">class Solution &#123;
+public:
+    int hIndex(vector&lt;int&gt;&amp; citations) &#123;
+        int n = citations.size();
+        int l = 0,r = n;
+        while(l&lt;r)&#123;
+            int mid = l+(r-l)/2;
+            if(check(citations,mid))&#123;
+                l = mid+1;
+            &#125;else&#123;
+                r = mid;
+            &#125;
+        &#125;
+        return l-1;
+    &#125;
+    bool check(vector&lt;int&gt;&amp; citations,int h)&#123;
+        int cnt = 0;
+        for(int i = 0;i&lt;citations.size();i++)&#123;
+            if(citations[i]&gt;=h) cnt++;
+            if(cnt&gt;=h) return true;
+        &#125;
+        return cnt&gt;=h;
+    &#125;
+&#125;;
+</code></pre>
+<h3 id="加油站"><a href="#加油站" class="headerlink" title="加油站"></a>加油站</h3><p>(题目描述)[!<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/gas-station/]">https://leetcode-cn.com/problems/gas-station/]</a>: 一条环路上有N个加油站，其中第i个加油站有gas[i]升汽油。你有一辆油箱容量无限的的汽车，从第i个加油站开往第i+1个加油站需要消耗汽油cost[i]升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。</p>
+<p>题目保证答案唯一，假设从i出发最远能到j，则i到j之间的任意一个加油站都不可能到达j，因为如果i最远能到j那i能到达i与j之间的任意一个加油站k，而到达时油箱剩余的油量肯定大于等于0，相当于从k出发再自带大于等于0的油量也只能到j，所以i到j之间的任意一个加油站都不可能到达j</p>
+<pre><code class="c++">class Solution &#123;
+public:
+    int canCompleteCircuit(vector&lt;int&gt;&amp; gas, vector&lt;int&gt;&amp; cost) &#123;
+        int n = gas.size();
+        int sum = 0;
+        int sum2 = 0;
+        int start = 0;
+        for(int i = 0;i&lt;n;i++)&#123;
+            sum += gas[i]-cost[i];
+            sum2 += gas[i]-cost[i];
+            if(sum2&lt;0)&#123;
+                start = i+1;
+                sum2 = 0;
+            &#125;
+        &#125;
+        return sum&lt;0?-1:start%n;
+    &#125;
+&#125;;
+</code></pre>
+<h3 id="分糖果"><a href="#分糖果" class="headerlink" title="分糖果"></a>分糖果</h3><p>(题目描述)[!<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/candy/]">https://leetcode-cn.com/problems/candy/]</a>: 老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。你需要按照以下要求，帮助老师给这些孩子分发糖果：每个孩子至少分配到 1 个糖果。相邻的孩子中，评分高的孩子必顶得多的糖果。那么这样下来，老师至少需要准备多少颗糖果呢？</p>
+<p><strong>两边遍历思想</strong>，先只看左边，再只看右边，取两次遍历的最大值</p>
+<pre><code class="c">int candy(int* ratings, int ratingsSize) &#123;
+    int *left = malloc(ratingsSize*sizeof(int));
+    for(int i=0;i&lt;ratingsSize;i++)&#123;
+        if(i&gt;0&amp;&amp;ratings[i]&gt;ratings[i-1])&#123;
+            left[i] = left[i-1]+1;
+        &#125;else&#123;
+            left[i] = 1;
+        &#125;
+    &#125;
+    int re = 0;
+    int right = 1;
+    for(int i=ratingsSize-1;i&gt;=0;i--)&#123;
+        if(i&lt;=ratingsSize-2&amp;&amp;ratings[i]&gt;ratings[i+1])&#123;
+            right = right+1;
+        &#125;else&#123;
+            right = 1;
+        &#125;
+        re += fmax(right,left[i]);
+    &#125;
+    return re;
+&#125;
+</code></pre>
+<h3 id="长度最小的子数组"><a href="#长度最小的子数组" class="headerlink" title="长度最小的子数组"></a>长度最小的子数组</h3><p>(题目描述)[!<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/minimum-size-subarray-sum/]">https://leetcode-cn.com/problems/minimum-size-subarray-sum/]</a>: 给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。如果不存在符合条件的连续子数组，返回 0。</p>
+<p>滑动窗口比较容易想到，这里记录一下<strong>利用前缀和+二分查找的思想</strong><br>由于所给数组都是正数，所以前缀和是一个递增序列，从0开始遍历下标，确定下标后二分查找target+pre[i]的位置，这个位置就是最小的j使得pre[j]-pre[i]&gt;&#x3D;target</p>
+<pre><code class="c">
+int lowerbound(int arr[],int low,int high,int target)&#123;
+    while(low&lt;high)&#123;
+        int mid = low+(high-low)/2;
+        if(arr[mid]&lt;target)&#123;
+            low = mid+1;
+        &#125;else&#123;
+            high = mid;
+        &#125;
+    &#125;
+    return arr[low]&gt;=target?low:-1;
+&#125;
+
+int minSubArrayLen(int target, int* nums, int numsSize)&#123;
+    int *pre = malloc((numsSize+1)*sizeof(int));
+    pre[0] = 0;
+    for(int i = 1;i&lt;=numsSize;i++)&#123;
+        pre[i] = pre[i-1]+nums[i-1];
+    &#125;
+    int re = INT_MAX;
+    for(int i = 0;i&lt;numsSize;i++)&#123;
+        int j = lowerbound(pre,i,numsSize,target+pre[i]);
+        if(j!=-1)&#123;
+            re = fmin(re,j-i);
+        &#125;
+    &#125;
+    return re==INT_MAX?0:re;
+&#125;
+</code></pre>
+<h3 id="对称二叉树"><a href="#对称二叉树" class="headerlink" title="对称二叉树"></a>对称二叉树</h3><p>(题目描述)[!<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/symmetric-tree/]">https://leetcode-cn.com/problems/symmetric-tree/]</a>: 给定一个二叉树，检查它是否是镜像对称的。<br>这个题一个比较有意思的地方在于写出比较两颗树是否镜像对称的函数之后，然后判断自身是否与自身镜像对称即可</p>
+<pre><code class="c">bool isSymmetric2(struct TreeNode* root1,struct TreeNode* root2)&#123;
+    if(root1&amp;&amp;root2)&#123;
+        if(root1-&gt;val!=root2-&gt;val)
+            return false;
+        return isSymmetric2(root1-&gt;left,root2-&gt;right) &amp;&amp; isSymmetric2(root1-&gt;right,root2-&gt;left);
+    &#125;
+    if(!root1&amp;&amp;!root2)
+        return true;
+    return false;
+&#125;
+
+bool isSymmetric(struct TreeNode* root)&#123;
+    return isSymmetric2(root,root);
 &#125;
 </code></pre>
 

@@ -3455,15 +3455,31 @@ plt.show()
   <entry>
     <title>数字图像处理</title>
     <url>/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
-    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python"># 平滑处理
-import cv2
+    <content><![CDATA[<h3 id="图像增强"><a href="#图像增强" class="headerlink" title="图像增强"></a>图像增强</h3><h4 id="空间域图像处理"><a href="#空间域图像处理" class="headerlink" title="空间域图像处理"></a>空间域图像处理</h4><pre><code class="python">import cv2
 import matplotlib.pyplot as plt
 
-</code></pre>
-<pre><code class="python"># 边缘处理
+# 边缘处理
+im = cv2.imread(&#39;../TestFigs/lenna.jpg&#39;)
+#高斯滤波
+gim = cv2.GaussianBlur(im,(5,5),0)
+#均值滤波
+mim = cv2.blur(im,(5,5))
+#中值滤波
+medim = cv2.medianBlur(im,5)
 
-</code></pre>
-<pre><code class="python">
+fig,ax = plt.subplots(2,2)
+ax[0,0].set_title(&#39;orign&#39;)
+ax[0,0].imshow(im)
+
+ax[0,1].set_title(&#39;GaussianBlur&#39;)
+ax[0,1].imshow(gim)
+
+ax[1,0].set_title(&#39;blur&#39;)
+ax[1,0].imshow(mim)
+
+ax[1,1].set_title(&#39;medianBlur&#39;)
+ax[1,1].imshow(medim)
+plt.show()
 </code></pre>
 <h4 id="图像直方图均衡化处理"><a href="#图像直方图均衡化处理" class="headerlink" title="图像直方图均衡化处理"></a>图像直方图均衡化处理</h4><pre><code class="python">import cv2
 import matplotlib.pyplot as plt
@@ -3622,13 +3638,13 @@ plt.show()
       </tags>
   </entry>
   <entry>
-    <title>C数组与指针</title>
+    <title>C语言拾遗</title>
     <url>/2024/01/12/C%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/</url>
-    <content><![CDATA[<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><ul>
-<li>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</li>
-<li>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</li>
-</ul>
-<h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
+    <content><![CDATA[<h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
+<li><p>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</p>
+</li>
+<li><p>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</p>
+</li>
 <li><p>可以等价的情况</p>
 <ul>
 <li>在表达式里使用，可以选择数组或指针如c&#x3D;a[1]与c&#x3D;*（a+1）等价(或者说对数组下标的引用总是可以写成一个起始地址加上偏移量的形式)</li>
@@ -3642,6 +3658,7 @@ plt.show()
 </ul>
 </li>
 </ul>
+<h3 id="判断整数溢出"><a href="#判断整数溢出" class="headerlink" title="判断整数溢出"></a>判断整数溢出</h3><p>整数溢出是相对于有符号整数来说的，无符号整数不会溢出，而是会回绕。<br><code>if(a+b&lt;0)</code>的使用并不总是可靠的，因为在对溢出行为是未定义的，机器行为无法确定，合理的方式可以是<code>if(a&gt;INT_MAX-b)</code>，INT_MAX是limits.h中定义的最大整数。</p>
 ]]></content>
       <tags>
         <tag>C</tag>
@@ -3709,7 +3726,8 @@ Host: www.baidu.com
   <entry>
     <title>Guide_to_Uinix</title>
     <url>/2024/02/20/Guide-to-Uinix/</url>
-    <content><![CDATA[<h3 id="Unix-FileSystem"><a href="#Unix-FileSystem" class="headerlink" title="Unix FileSystem"></a>Unix FileSystem</h3><p>Unix文件分为三种类型：普通文件，目录文件，特殊文件</p>
+    <content><![CDATA[<p>原文链接: <a href="https://www.harley.com/unix-book/book/chapters/chapter-list.html">Guide to Unix</a></p>
+<h2 id="Unix-FileSystem"><a href="#Unix-FileSystem" class="headerlink" title="Unix FileSystem"></a>Unix FileSystem</h2><p>Unix文件分为三种类型：普通文件，目录文件，特殊文件</p>
 <ul>
 <li>普通文件：存储数据</li>
 <li>目录文件：存储文件名和指向文件的指针</li>
@@ -3723,6 +3741,41 @@ Host: www.baidu.com
 <li>random与urandom: 产生随机数，random会等待系统产生随机数，urandom会直接产生随机数</li>
 </ul>
 <p><strong>命名管道</strong><br><code>mkfifo</code>命令可以创建命名管道，命名管道是一种特殊的文件，用于进程间通信，<code>mkfifo pipe</code>会创建一个名为pipe的命名管道，<code>echo &quot;hello&quot; &gt; pipe</code>会将hello写入pipe管道，<code>cat pipe</code>会读取pipe管道的数据，用于IPC</p>
+<h2 id="Process-and-Job-Control"><a href="#Process-and-Job-Control" class="headerlink" title="Process and Job Control"></a>Process and Job Control</h2><p>unix中所有进程都有一个父进程，最主要的管理进程的系统调用就是fork,exec,wait</p>
+<ul>
+<li>fork: 创建一个新的进程，新进程是调用进程的副本，新进程的PID是唯一的，但是其他的属性都是一样的</li>
+<li>exec: 用于执行一个新的程序，exec函数会将当前进程的内存空间替换为新程序的内存空间，但是PID不会改变</li>
+<li>wait: 用于等待子进程的结束，如果子进程已经结束，wait会立即返回，否则会阻塞</li>
+</ul>
+<p>unix启动过程中会手动构建一个idle进程，然后fork出一个init进程，init进程是所有进程的祖先进程<br>如果一个子进程在运行时父进程被终止，子进程就成了孤儿进程，init进程会接管孤儿进程，保证孤儿进程不会成为僵尸进程<br>如果一个父进程在子进程结束后没有调用wait函数，子进程就会成为僵尸进程，僵尸进程会占用系统资源，僵尸进程不占用内存，但是会占用进程表项，所以应该避免产生僵尸进程</p>
+<p>*<strong>job与process的区别</strong><br>job是一个或多个进程的集合，一个job可以包含多个进程，一个进程只能属于一个job,job是属于shell的管理单元，一个shell可以包含多个job</p>
+<p><code>who | cut -c 1-8 | sort | uniq -c</code>这个命令包含了四个进程，但是只有一个job</p>
+<p><strong>Job Control</strong></p>
+<ul>
+<li><code>&amp;</code>后台运行一个job</li>
+<li><code>ctrl+z</code>将当前job挂起</li>
+<li><code>bg</code>将一个挂起的job放到后台运行,比如一个job被ctrl+z挂起后，可以用bg命令让它继续运行</li>
+<li><code>fg</code>将一个job放到前台运行</li>
+<li><code>jobs</code>查看当前job</li>
+<li><code>kill</code>终止一个job</li>
+<li><code>suspend</code>挂起当前shell,可以用于切换用户</li>
+</ul>
+<p><strong>Process Control</strong></p>
+<ul>
+<li><code>ps</code>查看当前进程<br>由于历史原因，ps同时支持BSD与AT&amp;T两种风格的参数，BSD风格的参数是<code>ps aux</code>，AT&amp;T风格的参数是<code>ps -ef</code><br>使用ps命令时主要从三个方面考虑:要展示哪些进程，展示进程的哪些内容，如何展示<br>展示哪些进程:<br>AT&amp;T风格: -e(evrything) 显示所有进程包括守护进程,-a显示与当前usrid和当前终端有关的进程 -p pid显示指定进程 -u user显示指定用户的进程<br>BSD风格: a 显示与当前usrid和终端有关的进程，ax显示所有进程包括守护进程，p pid显示指定进程，U user显示指定用户的进程</li>
+</ul>
+<p>展示进程的哪些内容:<br>AT&amp;T风格: -f显示全格式，-l显示长格式<br>BSD风格: l,u,v</p>
+<p>常用组合:<br>AT&amp;T风格: <code>ps -ef</code>显示所有进程，<code>ps -ef | grep ssh</code>显示所有包含ssh的进程<br>BSD风格: <code>ps aux</code>显示所有进程，<code>ps aux | grep ssh</code>显示所有包含ssh的进程</p>
+<p>BSD的States字段(AT&amp;T风格的S字段):</p>
+<ul>
+<li>R: running,正在运行或在运行队列中等待</li>
+<li>S: sleeping,休眠状态，等待某个条件的发生</li>
+<li>I: idle,空闲状态</li>
+<li>Z: zombie,僵尸进程</li>
+<li>T: stopped,停止状态,被挂起或者正被追踪</li>
+</ul>
+<p>ps查看的是某一时刻的静态内容，top命令可以查看动态的进程信息<br><code>top [-d delay] [-n iterations] [-p pid[,pid]...]</code>可以设置top的刷新间隔和刷新次数,可以在系统变慢时用top查看哪个进程占用了过多的资源</p>
+<p>pstree命令可以查看进程的树状结构，理清进程之间的关系<br>-p 参数可以显示进程的PID<br>-n 按进程的PID排序而非进程名<br>-a 显示进程的命令行参数<br>-u 显示进程的所有者</p>
 ]]></content>
       <tags>
         <tag>Unix命令</tag>
@@ -3749,6 +3802,144 @@ Host: www.baidu.com
         ++shift;
     &#125;
     return m &lt;&lt; shift;
+&#125;
+</code></pre>
+<h4 id="跳跃游戏II"><a href="#跳跃游戏II" class="headerlink" title="跳跃游戏II"></a>跳跃游戏II</h4><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/jump-game-ii/]">https://leetcode-cn.com/problems/jump-game-ii/]</a>: 给定一个非负整数数组，你最初位于数组的第一个位置。数组中的每个元素代表你在该位置可以跳跃的最大长度。你的目标是使用最少的跳跃次数到达数组的最后一个位置。</p>
+<p>题目保证可以到达最后一个位置，贪心选择可以跳跃得最远的位置进行跳跃<br>这题的关键是在一次遍历中根据已有信息维护得到当前能跳到的最远位置</p>
+<pre><code class="c++">class Solution &#123;
+public:
+    int jump(vector&lt;int&gt;&amp; nums) &#123;
+        int maxpos = 0;//当前能跳到的最远位置
+        int end = 0;//上一次跳跃的边界
+        int step = 0;
+        for(int i = 0;i&lt;nums.size()-1;i++)&#123;
+            maxpos = max(maxpos,i+nums[i]);//更新最远边界
+            if(i == end)&#123; //到达上次最远边界
+                end = maxpos;
+                step++;
+            &#125;
+        &#125;
+        return step;
+    &#125;
+&#125;;
+</code></pre>
+<h4 id="H指数"><a href="#H指数" class="headerlink" title="H指数"></a>H指数</h4><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/h-index/]">https://leetcode-cn.com/problems/h-index/]</a>: 给定一位研究者的论文被引用次数数组（被引用次数是非负整数），编写一个方法计算出研究者的 h 指数。h 指数的定义: “h 代表“高引用次数”（high citations），一名科研人员的 h 指数是指他（她）的 （N 篇论文中）至多有 h 篇论文分别被引用了至少 h 次。”</p>
+<p>排序的方法就不写了，这里主要记录一下二分查找答案的思路<br>由于要找的h是一个0-n的整数，可以二分查找这个值，得到一个mid之后去验证是否满足条件</p>
+<pre><code class="c++">class Solution &#123;
+public:
+    int hIndex(vector&lt;int&gt;&amp; citations) &#123;
+        int n = citations.size();
+        int l = 0,r = n;
+        while(l&lt;r)&#123;
+            int mid = l+(r-l)/2;
+            if(check(citations,mid))&#123;
+                l = mid+1;
+            &#125;else&#123;
+                r = mid;
+            &#125;
+        &#125;
+        return l-1;
+    &#125;
+    bool check(vector&lt;int&gt;&amp; citations,int h)&#123;
+        int cnt = 0;
+        for(int i = 0;i&lt;citations.size();i++)&#123;
+            if(citations[i]&gt;=h) cnt++;
+            if(cnt&gt;=h) return true;
+        &#125;
+        return cnt&gt;=h;
+    &#125;
+&#125;;
+</code></pre>
+<h3 id="加油站"><a href="#加油站" class="headerlink" title="加油站"></a>加油站</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/gas-station/]">https://leetcode-cn.com/problems/gas-station/]</a>: 一条环路上有N个加油站，其中第i个加油站有gas[i]升汽油。你有一辆油箱容量无限的的汽车，从第i个加油站开往第i+1个加油站需要消耗汽油cost[i]升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。</p>
+<p>题目保证答案唯一，假设从i出发最远能到j，则i到j之间的任意一个加油站都不可能到达j，因为如果i最远能到j那i能到达i与j之间的任意一个加油站k，而到达时油箱剩余的油量肯定大于等于0，相当于从k出发再自带大于等于0的油量也只能到j，所以i到j之间的任意一个加油站都不可能到达j</p>
+<pre><code class="c++">class Solution &#123;
+public:
+    int canCompleteCircuit(vector&lt;int&gt;&amp; gas, vector&lt;int&gt;&amp; cost) &#123;
+        int n = gas.size();
+        int sum = 0;
+        int sum2 = 0;
+        int start = 0;
+        for(int i = 0;i&lt;n;i++)&#123;
+            sum += gas[i]-cost[i];
+            sum2 += gas[i]-cost[i];
+            if(sum2&lt;0)&#123;
+                start = i+1;
+                sum2 = 0;
+            &#125;
+        &#125;
+        return sum&lt;0?-1:start%n;
+    &#125;
+&#125;;
+</code></pre>
+<h3 id="分糖果"><a href="#分糖果" class="headerlink" title="分糖果"></a>分糖果</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/candy/]">https://leetcode-cn.com/problems/candy/]</a>: 老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。你需要按照以下要求，帮助老师给这些孩子分发糖果：每个孩子至少分配到 1 个糖果。相邻的孩子中，评分高的孩子必顶得多的糖果。那么这样下来，老师至少需要准备多少颗糖果呢？</p>
+<p><strong>两边遍历思想</strong>，先只看左边，再只看右边，取两次遍历的最大值</p>
+<pre><code class="c">int candy(int* ratings, int ratingsSize) &#123;
+    int *left = malloc(ratingsSize*sizeof(int));
+    for(int i=0;i&lt;ratingsSize;i++)&#123;
+        if(i&gt;0&amp;&amp;ratings[i]&gt;ratings[i-1])&#123;
+            left[i] = left[i-1]+1;
+        &#125;else&#123;
+            left[i] = 1;
+        &#125;
+    &#125;
+    int re = 0;
+    int right = 1;
+    for(int i=ratingsSize-1;i&gt;=0;i--)&#123;
+        if(i&lt;=ratingsSize-2&amp;&amp;ratings[i]&gt;ratings[i+1])&#123;
+            right = right+1;
+        &#125;else&#123;
+            right = 1;
+        &#125;
+        re += fmax(right,left[i]);
+    &#125;
+    return re;
+&#125;
+</code></pre>
+<h3 id="长度最小的子数组"><a href="#长度最小的子数组" class="headerlink" title="长度最小的子数组"></a>长度最小的子数组</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/minimum-size-subarray-sum/]">https://leetcode-cn.com/problems/minimum-size-subarray-sum/]</a>: 给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。如果不存在符合条件的连续子数组，返回 0。</p>
+<p>滑动窗口比较容易想到，这里记录一下<strong>利用前缀和+二分查找的思想</strong><br>由于所给数组都是正数，所以前缀和是一个递增序列，从0开始遍历下标，确定下标后二分查找target+pre[i]的位置，这个位置就是最小的j使得pre[j]-pre[i]&gt;&#x3D;target</p>
+<pre><code class="c">
+int lowerbound(int arr[],int low,int high,int target)&#123;
+    while(low&lt;high)&#123;
+        int mid = low+(high-low)/2;
+        if(arr[mid]&lt;target)&#123;
+            low = mid+1;
+        &#125;else&#123;
+            high = mid;
+        &#125;
+    &#125;
+    return arr[low]&gt;=target?low:-1;
+&#125;
+
+int minSubArrayLen(int target, int* nums, int numsSize)&#123;
+    int *pre = malloc((numsSize+1)*sizeof(int));
+    pre[0] = 0;
+    for(int i = 1;i&lt;=numsSize;i++)&#123;
+        pre[i] = pre[i-1]+nums[i-1];
+    &#125;
+    int re = INT_MAX;
+    for(int i = 0;i&lt;numsSize;i++)&#123;
+        int j = lowerbound(pre,i,numsSize,target+pre[i]);
+        if(j!=-1)&#123;
+            re = fmin(re,j-i);
+        &#125;
+    &#125;
+    return re==INT_MAX?0:re;
+&#125;
+</code></pre>
+<h3 id="对称二叉树"><a href="#对称二叉树" class="headerlink" title="对称二叉树"></a>对称二叉树</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/symmetric-tree/]">https://leetcode-cn.com/problems/symmetric-tree/]</a>: 给定一个二叉树，检查它是否是镜像对称的。<br>这个题一个比较有意思的地方在于写出比较两颗树是否镜像对称的函数之后，然后判断自身是否与自身镜像对称即可</p>
+<pre><code class="c">bool isSymmetric2(struct TreeNode* root1,struct TreeNode* root2)&#123;
+    if(root1&amp;&amp;root2)&#123;
+        if(root1-&gt;val!=root2-&gt;val)
+            return false;
+        return isSymmetric2(root1-&gt;left,root2-&gt;right) &amp;&amp; isSymmetric2(root1-&gt;right,root2-&gt;left);
+    &#125;
+    if(!root1&amp;&amp;!root2)
+        return true;
+    return false;
+&#125;
+
+bool isSymmetric(struct TreeNode* root)&#123;
+    return isSymmetric2(root,root);
 &#125;
 </code></pre>
 ]]></content>
@@ -3854,20 +4045,21 @@ Host: www.baidu.com
 <li>启用SYN Cookie，服务器不会为每一个SYN报文分配资源，而是根据SYN报文计算一个cookie，客户端收到SYN+ACK报文后会将cookie发送给服务器，服务器根据cookie计算出ISN，然后建立连接</li>
 <li>减少SYN+ACK的重传次数，避免被攻击者的SYN报文占用资源</li>
 </ol>
+<h4 id="TCP连接在内核表现为结构体"><a href="#TCP连接在内核表现为结构体" class="headerlink" title="TCP连接在内核表现为结构体"></a>TCP连接在内核表现为结构体</h4><p>TCP连接在linux内核中表现为一个socket结构体，包含了TCP的状态信息，即使拔掉网线内核也不会更改该结构体的内容，TCP状态不会改变，拔出网线短时间内插回大概率可以继续使用该连接，如果长期不插回网线则可能触发对方的保活机制导致连接断开，如果双方都没有开启保活机制，但有数据传输则会触发过多重传导致断开TCP连接</p>
 <ul>
 <li>客户端回应最后一个ACK包，将server_isn+1填入确认序列字段，进入ESTABLISHED状态，服务器收到后也进入ESTABLISHED状态<br>客户端不会重发ACK报文，因为当客户端接收到SYN+ACK后客户端已经建立了连接，但服务端会重传SYN+ACK报文，客户端会产生新的ACK报文发送</li>
 </ul>
 <p>前两次握手不携带数据，第三次握手携带数据，客户端可以在发送第三次握手报文后马上发送数据报文，这两个报文的确认序列字段都是ISN+1，所以握手报文丢失后如果数据报文抵达也会建立连接</p>
 <p><em>三次握手的主要目的是为了防止已失效的连接请求报文段突然又传送到了服务端，因而产生错误</em><br>如果只用两次握手，可能会造成资源的浪费与错误，下面是一种情形:<br>客户端发送请求报文后宕机然后重启重新发送新的的请求报文，第一个SYN报文比新的SYN报文先抵达服务器，如果只有两次握手，服务器收到SYN后就进入ESTABLISHED状态，发送数据，而这个连接已经失效了，白白发送了数据</p>
 <p>总结:<em>第三次握手给客户端一个确认机会，防止历史连接的报文段突然又传送到了服务端建立无效连接</em></p>
-<h3 id="为什么TCP初始化序列号是随机的"><a href="#为什么TCP初始化序列号是随机的" class="headerlink" title="为什么TCP初始化序列号是随机的"></a>为什么TCP初始化序列号是随机的</h3><ul>
+<h4 id="为什么TCP初始化序列号是随机的"><a href="#为什么TCP初始化序列号是随机的" class="headerlink" title="为什么TCP初始化序列号是随机的"></a>为什么TCP初始化序列号是随机的</h4><ul>
 <li>防止历史报文被下一个连接重用(一个TCP可以由源地址+源端口+目的地址+目的端口唯一确定)<br>如果序列号固定，那么历史连接的序列号可能会被下一个连接重用，导致数据错乱</li>
-<li>安全性，防止黑客通过猜测序列号来伪造TCP报文</li>
+<li>安全性，防止黑客通过猜测序列号来伪造TCP报文<h4 id="利用RST报文关闭TCP连接"><a href="#利用RST报文关闭TCP连接" class="headerlink" title="利用RST报文关闭TCP连接"></a>利用RST报文关闭TCP连接</h4>主机可以利用killcx工具发送RST报文给服务器，服务器收到RST报文后会立即关闭连接，这样可以避免等待TIME-WAIT状态的时间<br>killcx工具的原理是向服务器发送一个SYN报文，服务器会根据Seq判断出这个连接不是之前的连接，发送正确的确认序列回来，killcx根据此报文伪造一个RST报文发送给服务器，服务器收到RST报文后会立即关闭连接</li>
 </ul>
-<h3 id="为什么TCP要有MSS，不使用IP层的MTU"><a href="#为什么TCP要有MSS，不使用IP层的MTU" class="headerlink" title="为什么TCP要有MSS，不使用IP层的MTU"></a>为什么TCP要有MSS，不使用IP层的MTU</h3><p>如果TCP将整个报文交给IP层，当传输的报文很大被IP层分片时，如果其中一个分片丢失，那么整个报文都要重传，这样会造成很大的浪费</p>
+<h4 id="为什么TCP要有MSS，不使用IP层的MTU"><a href="#为什么TCP要有MSS，不使用IP层的MTU" class="headerlink" title="为什么TCP要有MSS，不使用IP层的MTU"></a>为什么TCP要有MSS，不使用IP层的MTU</h4><p>如果TCP将整个报文交给IP层，当传输的报文很大被IP层分片时，如果其中一个分片丢失，那么整个报文都要重传，这样会造成很大的浪费</p>
 <h3 id="TCP四次挥手"><a href="#TCP四次挥手" class="headerlink" title="TCP四次挥手"></a>TCP四次挥手</h3><p>双方都可以主动断开连接，下面以客户端主动断开连接为例</p>
 <ul>
-<li><p>客户端发送FIN报文给服务器，进入FIN-WAIT-1状态<br>此报文丢失客户端会重传，超过最大重传次数则会直接进入CLOSED状态</p>
+<li><p>客户端发送FIN报文给服务器，进入FIN-WAIT-1状态<br>此报文丢失客户端会重传，超过最大重传次数则会直接进入CLOSED状态<br>如果是进程崩溃内核可以感知并主动发送FIN报文，如果是主机崩溃则只能等服务端的保活机制或重传机制来断开连接</p>
 </li>
 <li><p>服务器收到FIN报文后，发送ACK报文给客户端，进入CLOSE-WAIT状态，客户端收到ACK报文后进入FIN-WAIT-2状态<br>由于ACK报文不会重传，所以客户端会一直重传FIN报文，服务器再生成新的ACK报文发送给客户端，客户端发起FIN报文给到服务器的信息是客户端关闭了发送数据的通道，但是服务器还可以发送数据给客户端接收</p>
 </li>
@@ -4070,6 +4262,55 @@ ColorPrinter cp;
 ]]></content>
       <tags>
         <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python爬虫实战入门</title>
+    <url>/2024/02/27/python%E7%88%AC%E8%99%AB%E5%AE%9E%E6%88%98%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[<p>这篇文章主要介绍怎么快速爬取网站数据，具体原理和网络只是作为TODO，后续会补充。</p>
+<h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h3><h4 id="爬虫原理"><a href="#爬虫原理" class="headerlink" title="爬虫原理"></a>爬虫原理</h4><p>最简单的爬虫原理就是通过HTTP请求获得网页内容，然后从获取的网页内容当中解析想要的数据，所以核心分为网络请求和数据解析两部分。<del>TODO:介绍复杂的请求情况与多样的解析手段</del></p>
+<h4 id="爬虫工具"><a href="#爬虫工具" class="headerlink" title="爬虫工具"></a>爬虫工具</h4><p>上面提到爬虫主要分为网络请求和数据解析两个部分，第一部分的工具可以使用requests库，第二部分的工具可以使用beautifulsoup库。<del>TODO:介绍其他工具的使用场景</del></p>
+<h4 id="网页结构"><a href="#网页结构" class="headerlink" title="网页结构"></a>网页结构</h4><p>网页结构主要分为HTML、CSS、JS三部分，其中HTML是网页的骨架，CSS是网页的样式，JS是网页的交互。其中的HTML是要关注的主要部分，因为网页内容信息基本都在HTML当中<del>TODO:介绍HTML的基本结构</del></p>
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><h4 id="爬取网页"><a href="#爬取网页" class="headerlink" title="爬取网页"></a>爬取网页</h4><pre><code class="python">import requests
+from bs4 import BeautifulSoup
+
+#以爬取百度首页为例
+url = &#39;https://www.baidu.com&#39;
+
+#获取HTML内容
+def get_html(url):
+    #这一步精简了很多过程，包括网络请求、状态码判断、编码处理等，直接假设网络请求成功
+    response = requests.get(url)
+    return response.text
+
+def get_data(html):
+    #解析HTML内容
+    soup = BeautifulSoup(html, &#39;html.parser&#39;)
+
+    #假设要获取整个页面的所有链接
+    #需要实际查看网页源码，找到链接所在的标签和属性，基础的可以按f12打开浏览器开发者工具，然后用左上角的选择器找到对应的标签，然后右键复制选择器
+    
+    #比如看到链接都在href属性的a标签当中
+    links = soup.find_all(&#39;a&#39;)
+    links = [link.get(&#39;href&#39;) for link in links]
+
+    #或者直接用CSS选择器
+    links = soup.select(&#39;a&#39;)
+    links = [link.get(&#39;href&#39;) for link in links]
+
+    #也可以用lxlm的xpath
+    from lxml import etree
+    html = etree.HTML(html)
+    links = html.xpath(&#39;//a/@href&#39;)
+    #上述的方法定位需要进入浏览器开发者工具查看源码，然后找到对应的标签和属性，然后用对应的方法提取
+
+    #或者直接用正则表达式，因为提取之后的内容是字符串，所以可以用正则表达式
+    import re
+    links = re.findall(r&#39;&lt;a.*?href=&quot;(.*?)&quot;.*?&gt;&#39;, html)
+</code></pre>
+]]></content>
+      <tags>
+        <tag>python 爬虫</tag>
       </tags>
   </entry>
 </search>

@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Guide_to_Uinix | 若则</title>
-  <meta name="keywords" content=" Unix命令 ">
-  <meta name="description" content="Guide_to_Uinix | 若则">
+  <title>python爬虫实战入门 | 若则</title>
+  <meta name="keywords" content=" python 爬虫 ">
+  <meta name="description" content="python爬虫实战入门 | 若则">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="喜欢计算机理论的大学生一名">
 <meta property="og:type" content="website">
@@ -569,9 +569,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-Guide-to-Uinix" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-python爬虫实战入门" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">Guide_to_Uinix</h1>
+        <h1 class="article-title">python爬虫实战入门</h1>
     
     <div class="article-meta">
         
@@ -581,14 +581,14 @@
         <span class="tag">
             <i class="iconfont icon-tag"></i>
             
-            <a class="color2">Unix命令</a>
+            <a class="color5">python 爬虫</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-03-06 13:01:04'>2024-02-20 21:49</time>
+            发布时间 : <time class="date" title='最后更新: 2024-02-27 14:19:20'>2024-02-27 13:52</time>
         
     </div>
     <div class="article-meta">
@@ -610,7 +610,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix-FileSystem"><span class="toc-text">Unix FileSystem</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-and-Job-Control"><span class="toc-text">Process and Job Control</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-text">基础概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%88%AC%E8%99%AB%E5%8E%9F%E7%90%86"><span class="toc-text">爬虫原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%88%AC%E8%99%AB%E5%B7%A5%E5%85%B7"><span class="toc-text">爬虫工具</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E9%A1%B5%E7%BB%93%E6%9E%84"><span class="toc-text">网页结构</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%88%98"><span class="toc-text">实战</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5"><span class="toc-text">爬取网页</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -626,56 +626,47 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>原文链接: <a target="_blank" rel="noopener" href="https://www.harley.com/unix-book/book/chapters/chapter-list.html">Guide to Unix</a></p>
-<h2 id="Unix-FileSystem"><a href="#Unix-FileSystem" class="headerlink" title="Unix FileSystem"></a>Unix FileSystem</h2><p>Unix文件分为三种类型：普通文件，目录文件，特殊文件</p>
-<ul>
-<li>普通文件：存储数据</li>
-<li>目录文件：存储文件名和指向文件的指针</li>
-<li>特殊文件：设备文件，包括字符设备和块设备</li>
-</ul>
-<p><strong>设备文件</strong><br>在dev目录下，包括字符设备和块设备</p>
-<ul>
-<li>tty: 终端设备,键入tty命令可以查看当前终端<code>cp /etc/passwd /dev/tty1</code>会将passwd文件输出到tty1终端</li>
-<li>pts: 伪终端设备,用于远程登录</li>
-<li>null与zero: 向二者写入数据会被丢弃，读取会返回EOF与0，<code>dd if=/dev/zero of=temp bs=100 count=1</code>会建立一块清零的文件</li>
-<li>random与urandom: 产生随机数，random会等待系统产生随机数，urandom会直接产生随机数</li>
-</ul>
-<p><strong>命名管道</strong><br><code>mkfifo</code>命令可以创建命名管道，命名管道是一种特殊的文件，用于进程间通信，<code>mkfifo pipe</code>会创建一个名为pipe的命名管道，<code>echo &quot;hello&quot; &gt; pipe</code>会将hello写入pipe管道，<code>cat pipe</code>会读取pipe管道的数据，用于IPC</p>
-<h2 id="Process-and-Job-Control"><a href="#Process-and-Job-Control" class="headerlink" title="Process and Job Control"></a>Process and Job Control</h2><p>unix中所有进程都有一个父进程，最主要的管理进程的系统调用就是fork,exec,wait</p>
-<ul>
-<li>fork: 创建一个新的进程，新进程是调用进程的副本，新进程的PID是唯一的，但是其他的属性都是一样的</li>
-<li>exec: 用于执行一个新的程序，exec函数会将当前进程的内存空间替换为新程序的内存空间，但是PID不会改变</li>
-<li>wait: 用于等待子进程的结束，如果子进程已经结束，wait会立即返回，否则会阻塞</li>
-</ul>
-<p>unix启动过程中会手动构建一个idle进程，然后fork出一个init进程，init进程是所有进程的祖先进程<br>如果一个子进程在运行时父进程被终止，子进程就成了孤儿进程，init进程会接管孤儿进程，保证孤儿进程不会成为僵尸进程<br>如果一个父进程在子进程结束后没有调用wait函数，子进程就会成为僵尸进程，僵尸进程会占用系统资源，僵尸进程不占用内存，但是会占用进程表项，所以应该避免产生僵尸进程</p>
-<p>*<strong>job与process的区别</strong><br>job是一个或多个进程的集合，一个job可以包含多个进程，一个进程只能属于一个job,job是属于shell的管理单元，一个shell可以包含多个job</p>
-<p><code>who | cut -c 1-8 | sort | uniq -c</code>这个命令包含了四个进程，但是只有一个job</p>
-<p><strong>Job Control</strong></p>
-<ul>
-<li><code>&amp;</code>后台运行一个job</li>
-<li><code>ctrl+z</code>将当前job挂起</li>
-<li><code>bg</code>将一个挂起的job放到后台运行,比如一个job被ctrl+z挂起后，可以用bg命令让它继续运行</li>
-<li><code>fg</code>将一个job放到前台运行</li>
-<li><code>jobs</code>查看当前job</li>
-<li><code>kill</code>终止一个job</li>
-<li><code>suspend</code>挂起当前shell,可以用于切换用户</li>
-</ul>
-<p><strong>Process Control</strong></p>
-<ul>
-<li><code>ps</code>查看当前进程<br>由于历史原因，ps同时支持BSD与AT&amp;T两种风格的参数，BSD风格的参数是<code>ps aux</code>，AT&amp;T风格的参数是<code>ps -ef</code><br>使用ps命令时主要从三个方面考虑:要展示哪些进程，展示进程的哪些内容，如何展示<br>展示哪些进程:<br>AT&amp;T风格: -e(evrything) 显示所有进程包括守护进程,-a显示与当前usrid和当前终端有关的进程 -p pid显示指定进程 -u user显示指定用户的进程<br>BSD风格: a 显示与当前usrid和终端有关的进程，ax显示所有进程包括守护进程，p pid显示指定进程，U user显示指定用户的进程</li>
-</ul>
-<p>展示进程的哪些内容:<br>AT&amp;T风格: -f显示全格式，-l显示长格式<br>BSD风格: l,u,v</p>
-<p>常用组合:<br>AT&amp;T风格: <code>ps -ef</code>显示所有进程，<code>ps -ef | grep ssh</code>显示所有包含ssh的进程<br>BSD风格: <code>ps aux</code>显示所有进程，<code>ps aux | grep ssh</code>显示所有包含ssh的进程</p>
-<p>BSD的States字段(AT&amp;T风格的S字段):</p>
-<ul>
-<li>R: running,正在运行或在运行队列中等待</li>
-<li>S: sleeping,休眠状态，等待某个条件的发生</li>
-<li>I: idle,空闲状态</li>
-<li>Z: zombie,僵尸进程</li>
-<li>T: stopped,停止状态,被挂起或者正被追踪</li>
-</ul>
-<p>ps查看的是某一时刻的静态内容，top命令可以查看动态的进程信息<br><code>top [-d delay] [-n iterations] [-p pid[,pid]...]</code>可以设置top的刷新间隔和刷新次数,可以在系统变慢时用top查看哪个进程占用了过多的资源</p>
-<p>pstree命令可以查看进程的树状结构，理清进程之间的关系<br>-p 参数可以显示进程的PID<br>-n 按进程的PID排序而非进程名<br>-a 显示进程的命令行参数<br>-u 显示进程的所有者</p>
+        <p>这篇文章主要介绍怎么快速爬取网站数据，具体原理和网络只是作为TODO，后续会补充。</p>
+<h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h3><h4 id="爬虫原理"><a href="#爬虫原理" class="headerlink" title="爬虫原理"></a>爬虫原理</h4><p>最简单的爬虫原理就是通过HTTP请求获得网页内容，然后从获取的网页内容当中解析想要的数据，所以核心分为网络请求和数据解析两部分。<del>TODO:介绍复杂的请求情况与多样的解析手段</del></p>
+<h4 id="爬虫工具"><a href="#爬虫工具" class="headerlink" title="爬虫工具"></a>爬虫工具</h4><p>上面提到爬虫主要分为网络请求和数据解析两个部分，第一部分的工具可以使用requests库，第二部分的工具可以使用beautifulsoup库。<del>TODO:介绍其他工具的使用场景</del></p>
+<h4 id="网页结构"><a href="#网页结构" class="headerlink" title="网页结构"></a>网页结构</h4><p>网页结构主要分为HTML、CSS、JS三部分，其中HTML是网页的骨架，CSS是网页的样式，JS是网页的交互。其中的HTML是要关注的主要部分，因为网页内容信息基本都在HTML当中<del>TODO:介绍HTML的基本结构</del></p>
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><h4 id="爬取网页"><a href="#爬取网页" class="headerlink" title="爬取网页"></a>爬取网页</h4><pre><code class="python">import requests
+from bs4 import BeautifulSoup
+
+#以爬取百度首页为例
+url = &#39;https://www.baidu.com&#39;
+
+#获取HTML内容
+def get_html(url):
+    #这一步精简了很多过程，包括网络请求、状态码判断、编码处理等，直接假设网络请求成功
+    response = requests.get(url)
+    return response.text
+
+def get_data(html):
+    #解析HTML内容
+    soup = BeautifulSoup(html, &#39;html.parser&#39;)
+
+    #假设要获取整个页面的所有链接
+    #需要实际查看网页源码，找到链接所在的标签和属性，基础的可以按f12打开浏览器开发者工具，然后用左上角的选择器找到对应的标签，然后右键复制选择器
+    
+    #比如看到链接都在href属性的a标签当中
+    links = soup.find_all(&#39;a&#39;)
+    links = [link.get(&#39;href&#39;) for link in links]
+
+    #或者直接用CSS选择器
+    links = soup.select(&#39;a&#39;)
+    links = [link.get(&#39;href&#39;) for link in links]
+
+    #也可以用lxlm的xpath
+    from lxml import etree
+    html = etree.HTML(html)
+    links = html.xpath(&#39;//a/@href&#39;)
+    #上述的方法定位需要进入浏览器开发者工具查看源码，然后找到对应的标签和属性，然后用对应的方法提取
+
+    #或者直接用正则表达式，因为提取之后的内容是字符串，所以可以用正则表达式
+    import re
+    links = re.findall(r&#39;&lt;a.*?href=&quot;(.*?)&quot;.*?&gt;&#39;, html)
+</code></pre>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>

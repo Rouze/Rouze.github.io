@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>C数组与指针 | 若则</title>
+  <title>C语言拾遗 | 若则</title>
   <meta name="keywords" content=" C ">
-  <meta name="description" content="C数组与指针 | 若则">
+  <meta name="description" content="C语言拾遗 | 若则">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="喜欢计算机理论的大学生一名">
 <meta property="og:type" content="website">
@@ -172,7 +172,7 @@
     <li>
         <div class="all active" data-rel="全部文章">全部文章
             
-                <small>(24)</small>
+                <small>(25)</small>
             
         </div>
     </li>
@@ -197,7 +197,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="24">
+<input type="hidden" id="yelog_site_posts_number" value="25">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -304,6 +304,10 @@
             </li>
         
             <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python 爬虫</a>
+            </li>
+        
+            <li class="article-tag-list-item">
                 <i class="iconfont icon-tag"></i><a>SICP笔记</a>
             </li>
         
@@ -321,6 +325,15 @@
 
     
     <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/27/python%E7%88%AC%E8%99%AB%E5%AE%9E%E6%88%98%E5%85%A5%E9%97%A8/"
+           data-tag="python 爬虫"
+           data-author="" >
+            <span class="post-title" title="python爬虫实战入门">python爬虫实战入门</span>
+            <span class="post-date" title="2024-02-27 13:52:23">2024/02/27</span>
+        </a>
         
         
         <a  class="全部文章 "
@@ -372,7 +385,7 @@
            href="/2024/01/12/C%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/"
            data-tag="C"
            data-author="" >
-            <span class="post-title" title="C数组与指针">C数组与指针</span>
+            <span class="post-title" title="C语言拾遗">C语言拾遗</span>
             <span class="post-date" title="2024-01-12 09:26:07">2024/01/12</span>
         </a>
         
@@ -558,7 +571,7 @@
     <div class="pjax">
         <article id="post-C数组与指针" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">C数组与指针</h1>
+        <h1 class="article-title">C语言拾遗</h1>
     
     <div class="article-meta">
         
@@ -575,7 +588,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-02-25 19:56:10'>2024-01-12 09:26</time>
+            发布时间 : <time class="date" title='最后更新: 2024-03-07 17:50:48'>2024-01-12 09:26</time>
         
     </div>
     <div class="article-meta">
@@ -597,7 +610,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">核心概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">数组与指针的区别</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">数组与指针的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA"><span class="toc-text">判断整数溢出</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -613,11 +626,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><ul>
-<li>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</li>
-<li>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</li>
-</ul>
-<h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
+        <h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
+<li><p>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</p>
+</li>
+<li><p>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</p>
+</li>
 <li><p>可以等价的情况</p>
 <ul>
 <li>在表达式里使用，可以选择数组或指针如c&#x3D;a[1]与c&#x3D;*（a+1）等价(或者说对数组下标的引用总是可以写成一个起始地址加上偏移量的形式)</li>
@@ -631,6 +644,7 @@
 </ul>
 </li>
 </ul>
+<h3 id="判断整数溢出"><a href="#判断整数溢出" class="headerlink" title="判断整数溢出"></a>判断整数溢出</h3><p>整数溢出是相对于有符号整数来说的，无符号整数不会溢出，而是会回绕。<br><code>if(a+b&lt;0)</code>的使用并不总是可靠的，因为在对溢出行为是未定义的，机器行为无法确定，合理的方式可以是<code>if(a&gt;INT_MAX-b)</code>，INT_MAX是limits.h中定义的最大整数。</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
