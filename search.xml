@@ -2755,7 +2755,7 @@ enum intr_status intr_get_status()
 <p>idt_table:中断函数数组,这里放的都是C语言写好的一些函数地址,等CPU根据idt里的中断门进入到某个中断入口后,那个入口后面的代码很可能会调用这里的函数<br>intr_entry_table:中断入口地址数组,中断描述符里的中断门里将CPU引导到中断入口,这个数组就是填的入口的地址,因为入口地址只有在定义中断向量那里才知道,所以这个数组是extern的<br>下面是简单的流程表示:<br>中断发生–&gt;CPU拿到向量号–&gt;CPU从IDTR指向的idt找到对应的中断门–&gt;中断门里有入口地址,CPU第一次跳转–&gt;到了入口地址之后进行了一些保护操作然后call 其它函数处理,CPU第二次跳转–&gt;函数返回–&gt;中断返回</p>
 ]]></content>
       <tags>
-        <tag>操作系统</tag>
+        <tag>操作系统 操作系统真相还原</tag>
       </tags>
   </entry>
   <entry>
@@ -3279,7 +3279,7 @@ void *get_kernel_pages(uint32_t pg_cnt)&#123;
 </code></pre>
 ]]></content>
       <tags>
-        <tag>操作系统</tag>
+        <tag>操作系统 操作系统真相还原</tag>
       </tags>
   </entry>
   <entry>
@@ -3638,33 +3638,6 @@ plt.show()
       </tags>
   </entry>
   <entry>
-    <title>C语言拾遗</title>
-    <url>/2024/01/12/C%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/</url>
-    <content><![CDATA[<h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
-<li><p>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</p>
-</li>
-<li><p>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</p>
-</li>
-<li><p>可以等价的情况</p>
-<ul>
-<li>在表达式里使用，可以选择数组或指针如c&#x3D;a[1]与c&#x3D;*（a+1）等价(或者说对数组下标的引用总是可以写成一个起始地址加上偏移量的形式)</li>
-<li>作为函数参数时，可以选择数组或指针如void f(int a[])与void f(int *a)等价</li>
-</ul>
-</li>
-<li><p>不可等价的情况</p>
-<ul>
-<li>extern申明时，extern char a[]与extern char *a;不等价</li>
-<li>定义时，char a[]&#x3D;{“abc”};与char *a&#x3D;”abc”不等价</li>
-</ul>
-</li>
-</ul>
-<h3 id="判断整数溢出"><a href="#判断整数溢出" class="headerlink" title="判断整数溢出"></a>判断整数溢出</h3><p>整数溢出是相对于有符号整数来说的，无符号整数不会溢出，而是会回绕。<br><code>if(a+b&lt;0)</code>的使用并不总是可靠的，因为在对溢出行为是未定义的，机器行为无法确定，合理的方式可以是<code>if(a&gt;INT_MAX-b)</code>，INT_MAX是limits.h中定义的最大整数。</p>
-]]></content>
-      <tags>
-        <tag>C</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>HttpNote</title>
     <url>/2024/02/20/HttpNote/</url>
     <content><![CDATA[<h3 id="什么是http协议"><a href="#什么是http协议" class="headerlink" title="什么是http协议"></a>什么是http协议</h3><p>在计算机中两点用来传输超文本数据(图片，文字，音视频等)的协议</p>
@@ -3775,7 +3748,9 @@ Host: www.baidu.com
 <li>T: stopped,停止状态,被挂起或者正被追踪</li>
 </ul>
 <p>ps查看的是某一时刻的静态内容，top命令可以查看动态的进程信息<br><code>top [-d delay] [-n iterations] [-p pid[,pid]...]</code>可以设置top的刷新间隔和刷新次数,可以在系统变慢时用top查看哪个进程占用了过多的资源</p>
-<p>pstree命令可以查看进程的树状结构，理清进程之间的关系<br>-p 参数可以显示进程的PID<br>-n 按进程的PID排序而非进程名<br>-a 显示进程的命令行参数<br>-u 显示进程的所有者</p>
+<p><code>pstree</code>命令可以查看进程的树状结构，理清进程之间的关系<br>-p 参数可以显示进程的PID<br>-n 按进程的PID排序而非进程名<br>-a 显示进程的命令行参数<br>-u 显示进程的所有者</p>
+<p><code>kill</code>命令用于终止进程与job<br><code>kill -l</code>列出所有信号，<code>kill -9 pid</code>强制终止进程，因为9号信号是SIGKILL，是一个不可捕获的信号<br><code>kill -s signal pid</code>向进程发送信号，<code>kill -s SIGKILL pid</code>等价于<code>kill -9 pid</code>或者<code>kill -KILL pid</code></p>
+<p><code>nice</code>调整进程和job的优先级<br><code>nice [-n increment] command</code>可以调整command的优先级，nicenumber越大优先级越低，只有superuser可以使用负值，普通用户只能使用0-19的值<br><code>renice</code>可以调整已经运行的进程的优先级<br><code>renice priority -p pid</code>可以调整指定进程的优先级</p>
 ]]></content>
       <tags>
         <tag>Unix命令</tag>
@@ -3942,6 +3917,52 @@ bool isSymmetric(struct TreeNode* root)&#123;
     return isSymmetric2(root,root);
 &#125;
 </code></pre>
+<h3 id="三数之和"><a href="#三数之和" class="headerlink" title="三数之和"></a>三数之和</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/3sum/]">https://leetcode-cn.com/problems/3sum/]</a>: 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c &#x3D; 0 ？请你找出所有满足条件且不重复的三元组。</p>
+<p>暴力列举i,j,k需要O(n^3)的复杂度,可以先排序，列举i,j,因为nums[i]和nums[j]确定之后剩下的值是确定的,由于</p>
+<h3 id="两数之和"><a href="#两数之和" class="headerlink" title="两数之和"></a>两数之和</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/two-sum/]">https://leetcode-cn.com/problems/two-sum/]</a>: 给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回它们的数组下标。</p>
+<p>一种思路是先确定答案的第一个值然后找第二个值，这样需要O(n^2)的复杂度，另一种思路是<strong>先找到答案的第二个值，然后找第一个值，在遍历过程中哈希记录已经遍历过的值这样可以加快查找的效率</strong></p>
+<pre><code class="python3"># O(n^2)
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -&gt; List[int]:
+        for i in range(len(nums)):
+            try:
+                j = nums.index(target-nums[i],i+1)
+                return [i,j]
+            except:
+                continue
+# O(n)
+class Solution:
+    def twoSum(self,nums,target):
+        hashmap = &#123;&#125;
+        for i in range(len(nums)):
+            if target-nums[i] in hashmap:
+                return [hashmap[target-nums[i]],i]
+            hashmap[nums[i]] = i
+</code></pre>
+<h3 id="有效数独"><a href="#有效数独" class="headerlink" title="有效数独"></a>有效数独</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/valid-sudoku/]">https://leetcode-cn.com/problems/valid-sudoku/]</a>: 判断一个 9x9 的数独是否有效。只需要根据以下规则，验证已经填入的数字是否有效即可。数字 1-9 在每一行只能出现一次。数字 1-9 在每一列只能出现一次。数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。</p>
+<p>关于块的规律是board[i][j]所在的块可以看作sub[i&#x2F;3][j&#x2F;3]，可以用一个sub[3][3][9]的数组来记录每个块的数字出现情况<br>然后用两个二维数组row[9][9]和col[9][9]来记录每一行和每一列的数字情况，row[i][x]表示第i行数字x的出现次数，col[j][x]表示第j列数字x的出现次数，另外由于只是1-9的数字，可以数位哈希压缩空间</p>
+<pre><code class="c">bool isValidSudoku(char** board, int boardSize, int* boardColSize) &#123;
+    int row[9]=&#123;0&#125;;
+    int col[9]=&#123;0&#125;;
+    int sub[3][3]=&#123;0&#125;;
+    for(int i=0;i&lt;9;i++)&#123;
+        for(int j=0;j&lt;9;j++)&#123;
+            if(board[i][j]!=&#39;.&#39;)&#123;
+                //x的二进制表示中第i位为1表示数字i出现过
+                int x = (1&lt;&lt;(board[i][j]-&#39;0&#39;));
+                if(row[i]&amp;x||col[j]&amp;x||sub[i/3][j/3]&amp;x)
+                    return false;
+                row[i] |= x;
+                col[j] |= x;
+                sub[i/3][j/3] |= x;
+            &#125;
+        &#125;
+    &#125;
+    return true;
+&#125;
+</code></pre>
+<h3 id="完全二叉树的节点个数"><a href="#完全二叉树的节点个数" class="headerlink" title="完全二叉树的节点个数"></a>完全二叉树的节点个数</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/count-complete-tree-nodes/]">https://leetcode-cn.com/problems/count-complete-tree-nodes/]</a>: 给出一个完全二叉树，求出该树的节点个数。</p>
+<h3 id="爬楼梯"><a href="#爬楼梯" class="headerlink" title="爬楼梯"></a>爬楼梯</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/climbing-stairs/]">https://leetcode-cn.com/problems/climbing-stairs/]</a>: 假设你正在爬楼梯。需要 n 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶？<br>简单的递归和动态规划都可以解决，这里记录一下<strong>矩阵快速幂</strong>的解法</p>
 ]]></content>
       <tags>
         <tag>算法刷题</tag>
@@ -4312,5 +4333,235 @@ def get_data(html):
       <tags>
         <tag>python 爬虫</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>C语言拾遗</title>
+    <url>/2024/01/12/C%E8%AF%AD%E8%A8%80%E6%8B%BE%E9%81%97/</url>
+    <content><![CDATA[<h3 id="数组与指针的区别"><a href="#数组与指针的区别" class="headerlink" title="数组与指针的区别"></a>数组与指针的区别</h3><ul>
+<li><p>对于编译器来说，一个数组就是一个地址，而一个指针就是一个地址的地址。</p>
+</li>
+<li><p>C语言把数组下标改写成指针偏移量的根本原因是指针和偏移量是底层硬件使用的模型。</p>
+</li>
+<li><p>对于数组的操作本质上分为两类，一类是取首元素的地址，一类是对其取sizeof操作，其他操作都是对指针的操作。</p>
+</li>
+<li><p>可以等价的情况</p>
+<ul>
+<li>在表达式里使用，可以选择数组或指针如c&#x3D;a[1]与c&#x3D;*（a+1）等价(或者说对数组下标的引用总是可以写成一个起始地址加上偏移量的形式)</li>
+<li>作为函数参数时，可以选择数组或指针如void f(int a[])与void f(int *a)等价</li>
+</ul>
+</li>
+<li><p>不可等价的情况</p>
+<ul>
+<li>extern申明时，extern char a[]与extern char *a;不等价</li>
+<li>定义时，char a[]&#x3D;{“abc”};与char *a&#x3D;”abc”不等价,前者是一个数组，可以改变数组内容，后者是一个指针，指向一个常量字符串，不能改变字符串内容</li>
+</ul>
+</li>
+</ul>
+<h4 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h4><p>*extern char a[]与extern char <em>a;不等价</em></p>
+<pre><code class="c">//a.c
+char a[] = &quot;hello&quot;;
+//b.c
+extern char *a;
+int main()
+&#123;
+    printf(&quot;%s\n&quot;, a);
+    return 0;
+&#125;
+</code></pre>
+<p>上述代码会报错，因为a.c中定义的是一个数组，而b.c中申明的是一个指针，二者不等价,可以用gdb调试查看，可以发现 &amp;a才是数组首元素地址<br>因为本质上声明一个数组就是声明了一块连续的地方，编译完成后会确实有一块连续的地方存储数组元素(可以用nm a.out查看具体的偏移地址)，取<br>a[i]直接取a的偏移地址加上i*sizeof(a[0])即可，而定义的指针在编译完成后也会分配到一个小空间，这个空间存储的是一个地址<br>因此当定义了一个char a[]而对其声明为char *a时，编译器会取到a在链接时的地址，并将其存储的内容解释为一个地址，跳转到这个地址，而实际上链接地址a那里放的是字符串”hello”，将其解释为地址很可能出现地址错误</p>
+<p>*char <em>与char[]不等价</em></p>
+<pre><code class="c">void f(int argc, char *argv[])
+&#123;
+    for(int i=0; i&lt;argc; i++)
+    &#123;
+        printf(&quot;%s\n&quot;, argv[i]);
+    &#125;
+&#125;
+int main()
+&#123;
+    char argv[][20] = &#123;&quot;hello&quot;, &quot;world&quot;&#125;;
+    f(2, argv);
+    return 0;
+&#125;
+</code></pre>
+<p>上述代码会报错，因为argv是一个二维数组，而f函数的参数是一个指针数组，二者不等价<br>在f中argv[i]是一个指针，而在main中argv[i]是一个数组<br>再从另一个角度来看，f中的argv是一个装指针的数组，每个元素大小已知，argv+1与argv+2都可以计算出来，而如果能接受任意一个二维数组，由于第二维<br>大小未知，是无法计算出argv+1的地址的，这也是为什么申明函数参数时不能直接写成char argv[][]的原因</p>
+<h3 id="数据表示"><a href="#数据表示" class="headerlink" title="数据表示"></a>数据表示</h3><h4 id="判断整数溢出"><a href="#判断整数溢出" class="headerlink" title="判断整数溢出"></a>判断整数溢出</h4><p>整数溢出是相对于有符号整数来说的，无符号整数不会溢出，而是会回绕。<br><code>if(a+b&lt;0)</code>的使用并不总是可靠的，因为在对溢出行为是未定义的，机器行为无法确定，合理的方式可以是<code>if(b&gt;0&amp;&amp;a&gt;INT_MAX-b)</code>，<code>if(b&lt;0&amp;&amp;a&lt;INT_MIN-b)</code>，INT_MAX是limits.h中定义的最大整数。<br>对于某些情况可以改写表达式来避免一些溢出，如二分查找中<code>mid=(left+right)/2</code>可以改写成<code>mid=left+(right-left)/2</code>，这样可以避免部分left+right溢出。</p>
+<h4 id="浮点数表示"><a href="#浮点数表示" class="headerlink" title="浮点数表示"></a>浮点数表示</h4><p>目前绝大多数机器都使用IEEE 754标准，这里只介绍一些关于编程中要知道的内容，有时间再单独学习ieee 754标准并另开一篇文章介绍。<br>在线浮点数转换工具：<a href="https://www.h-schmidt.net/FloatConverter/IEEE754.html">https://www.h-schmidt.net/FloatConverter/IEEE754.html</a><br>以32位浮点数为例，也就是C里的float类型，其组成如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th align="center">符号位</th>
+<th align="center">指数位</th>
+<th align="center">尾数位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">8</td>
+<td align="center">23</td>
+</tr>
+</tbody></table>
+<ul>
+<li>符号位：0表示正数，1表示负数</li>
+<li>指数位(阶码)：采用移码表示(因为好比较阶码大小)，偏移量使用的是127，所以能够表示的数据范围是-127<del>128，但是两个端点特殊值有特殊含义，所以实际的阶码表示范围为-126</del>127</li>
+<li>尾数位：23位二进制小数，由于采用规格化表示，最高位默认为1，节约空间就不存这个1，所以在ieee 754的尾数中可以看到有些最高位不是1，因为在它之前已经默认有一个1了，所以尾数的范围是1<del>2，而不是0</del>1</li>
+</ul>
+<h5 id="规范化表示"><a href="#规范化表示" class="headerlink" title="规范化表示"></a>规范化表示</h5><ul>
+<li>所有位都是0，表示0</li>
+<li>非规范化数：指数位全为0，尾数位不全为0，这种情况下指数为-126，尾数位表示的是一个很小的数，尾数位的最高位不是1，而是0，所以这种情况下尾数位表示的是0~1之间的数</li>
+<li>规范化数：指数位不全为0，尾数位不全为0</li>
+<li>无穷大：指数位全为1，尾数位全为0</li>
+<li>NaN：指数位全为1，尾数位不全为0</li>
+</ul>
+<h5 id="舍入误差"><a href="#舍入误差" class="headerlink" title="舍入误差"></a>舍入误差</h5><p>本质上由于浮点数的尾数位有限，所以浮点数无法精确表示所有的实数，所以在计算中会产生舍入误差，这种误差是不可避免的，比如0.1在二进制中是一个无限循环小数，所以在计算机中是无法精确表示的，所以在计算中会产生误差。</p>
+<h4 id="例子-1"><a href="#例子-1" class="headerlink" title="例子"></a>例子</h4><ul>
+<li><p>浮点数比较,由于浮点数的舍入误差，所以不能直接用&#x3D;&#x3D;来比较浮点数是否相等</p>
+<pre><code class="c">#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+int main()
+&#123;
+  //float在十进制下的精度是6~7位
+  float a = 0.10000001f;
+  float b = 0.1f;
+  if(a==b)
+      printf(&quot;a==b\n&quot;);
+  else
+      printf(&quot;a!=b\n&quot;);
+  //需要使用fabs函数来比较浮点数是否相等
+  if(fabs(a-b)&lt;1e-8)
+      printf(&quot;a==b\n&quot;);
+  else
+      printf(&quot;a!=b\n&quot;);
+  return 0;
+&#125;
+</code></pre>
+</li>
+<li><p>快速计算平方根<br>&#96;&#96;&#96;c<br>&#x2F;&#x2F;经典的雷神之锤代码<br>float Q_rsqrt( float number )<br>{<br>  long i;<br>  float x2, y;<br>  const float threeHalfs &#x3D; 1.5f;</p>
+<p>  x2 &#x3D; number * 0.5f;<br>  y  &#x3D; number;<br>  i  &#x3D; * ( long * ) &amp;y;                       &#x2F;&#x2F; evil floating point bit level hacking<br>  i  &#x3D; 0x5f3759df - ( i &gt;&gt; 1 );               &#x2F;&#x2F; What the fuck?<br>  y  &#x3D; * ( float * ) &amp;i;<br>  y  &#x3D; y * ( threeHalfs - ( x2 * y * y ) );   &#x2F;&#x2F; 1st iteration</p>
+</li>
+</ul>
+<p>&#x2F;&#x2F;    y  &#x3D; y * ( threeHalfs - ( x2 * y * y ) );   &#x2F;&#x2F; 2nd iteration, this can be removed</p>
+<pre><code>return y;
+</code></pre>
+<p>}</p>
+<pre><code>
+* 浮点数快速转整数
+```c
+#define DOUBLE2INT(i, d) &#123; double t = ((d) + 6755399441055744.0); i = *((int *)(&amp;t)); &#125;
+</code></pre>
+<h3 id="输入-x2F-出缓冲"><a href="#输入-x2F-出缓冲" class="headerlink" title="输入&#x2F;出缓冲"></a>输入&#x2F;出缓冲</h3><p>stdio.h中有一个setbuf(FILE *stream, char *buf)函数，可以用来设置输入&#x2F;出缓冲，如果buf为NULL，则关闭缓冲，如果buf不为NULL，则设置缓冲区为buf，大小为BUFSIZ，BUFSIZE是stdio.h中定义的一个宏，表示缓冲区大小。缓冲的作用可以减少IO次数，提高效率。比如</p>
+<pre><code class="c">int main()
+&#123;
+    static char buf[BUFSIZ];
+    setbuf(stdout, buf);
+    printf(&quot;hello world&quot;);
+    printf(&quot;HI&quot;);
+    printf(&quot;BYE&quot;);
+    return 0;
+&#125;
+</code></pre>
+<p>当输出内容不足缓冲区大小时，不会立即输出，而是等到缓冲区满了或者调用fflush(stdout)函数才会真正调用相关的系统调用输出到终端。<br>利用strace跟踪上述程序会发现最终只有一个write系统调用，如果注释掉setbuf(stdout, buf)这一行，会发现有三个write系统调用。</p>
+<p>另外buf必须是一个非运行时分配的空间，因为buf最后一次清理是在main结束时，如果是运行时分配的空间，那么在main结束时会被释放，系统在清理buf时会出现段错误。<br>如果setbuf传入的指针是NULL则表示不对其进行缓冲，这在某些时候比较有用，比如一些程序在崩溃时没能来得及清理其输出缓冲，导致崩溃前的一些信息未能输出</p>
+<h3 id="预处理器"><a href="#预处理器" class="headerlink" title="预处理器"></a>预处理器</h3><p>对C的预处理器本质的认识要知道预处理器只是对C程序文本的处理，不涉及程序本身，所以预处理器严格上不算C语言的一部分</p>
+<ul>
+<li><p>宏定义中的空格<br>#define f (x) x<em>x与<br>#define f(x) x</em>x是不同的，前者会将f展开为(x) x<em>x，而后者会将f(x)展开为x</em>x<br>但在宏调用中，f (x)与f(x)是等价的</p>
+</li>
+<li><p>宏不是函数<br>函数会保证参数只被计算一次，而宏不会，比如</p>
+<pre><code class="c">#define max(a, b) ((a)&gt;(b)?(a):(b))
+int main()
+&#123;
+  int a = 1;
+  int b = 2;
+  printf(&quot;%d\n&quot;, max(a++, b++));
+  printf(&quot;%d\n&quot;, a);
+  printf(&quot;%d\n&quot;, b);
+  return 0;
+&#125;
+//max(a++, b++)会展开为((a++)&gt;(b++)?(a++):(b++))，所以a和b总有一个会被累加两次，与预想的结果不同
+//或者遇到max(*p++, *p++)这种情况，需要慎重考虑宏的使用
+</code></pre>
+</li>
+<li><p>宏不是语句<br>考虑assert的宏定义<br>&#96;&#96;&#96;c<br>#define assert(expr) if (!expr) __assert_fail(#expr, <strong>FILE</strong>, <strong>LINE</strong>, <strong>func</strong>)<br>上述定义在下面的代码中会出现问题<br>if (a &gt; 0)<br>  assert(a &gt; 0);<br>else<br>  printf(“a&lt;&#x3D;0\n”);<br>assert里的if语句会与else匹配，导致与预期不符，因为assert本身不是一个语句，不会被编译器认为是一个整体，甚至编译器不会感知到assert的存在<br>想要解决这个问题可以使用do{}while(0)的技巧<br>#define assert(expr) do{if (!expr) __assert_fail(#expr, <strong>FILE</strong>, <strong>LINE</strong>, <strong>func</strong>)}while(0)<br>这样将assert包裹在do{}while(0)中，使其成为一个语句，不会与else匹配<br>或者<br>#define assert(expr) ((void)(expr||__assert_fail(#expr, <strong>FILE</strong>, <strong>LINE</strong>, <strong>func</strong>)))<br>也能将其转换为一个语句</p>
+</li>
+</ul>
+<pre><code>
+</code></pre>
+]]></content>
+      <tags>
+        <tag>C</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python源码阅读</title>
+    <url>/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</url>
+    <content><![CDATA[<p>这篇文章主要记录自己阅读python源码的一些心得，参考文章如下:<br><a href="https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python">https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python</a><br><a href="https://fasionchan.com/python-source/preface/intra/">https://fasionchan.com/python-source/preface/intra/</a></p>
+]]></content>
+      <tags>
+        <tag>python 源码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mit-6.828</title>
+    <url>/2024/04/02/mit-6-828/</url>
+    <content><![CDATA[<p><strong>这篇文章主要记录自己做mit-6.828的实验与心得，用到的是2023年的lab，课程地址：<a href="https://pdos.csail.mit.edu/6.828/2023/schedule.html">https://pdos.csail.mit.edu/6.828/2023/schedule.html</a></strong></p>
+<h3 id="xv6-chapter-1-Introduction"><a href="#xv6-chapter-1-Introduction" class="headerlink" title="xv6 chapter 1:Introduction"></a>xv6 chapter 1:Introduction</h3><p>xv6是一个简单的类unix系统，它的很多设计思想建立在unix上，以下介绍的很多xv6的概念基本都能在类unix系统上找到对应<br>操作系统的任务之一就是通过提供一组服务让多个应用程序共享同一台的硬件资源，它要对底层的硬件进行管理和抽象，让应用不需要关注底层细节。<br>在xv6中，一个运行的中的程序叫作进程，从组成上看可以分成指令、数据和栈，指令控制进程的计算，数据服务计算，栈用来处理一些函数调用<br>当一个用户进程需要使用系统提供的服务时它会通过<em>系统调用</em>来实现，系统调用是一种特殊的函数调用，它会切换到内核态，然后执行内核态的代码，完成服务后再切换回用户态，所以就有用户空间与内核空间的概念</p>
+<ul>
+<li>I&#x2F;O重定向：在unix中，0是标准输入，1是标准输出，2是标准错误输出，可以通过修改这些文件描述符来实现输入输出重定向<br>从sh.c的代码可以看到fork和exec的一个常规配合，fork创建一个新的进程然后exec加载一个新的程序到进程中，不把它们实现成一个函数的原因之一是fork之后可以对新进程的一些属性进行修改，比如输入输出重定向等，在xv6中默认0是标准输入，1是标准输出，2是标准错误输出，所以可以通过修改这些文件描述符来实现输入输出重定向</li>
+<li>管道<br>管道是由内核管理的一个缓冲区，通常用来连接两个进程，将一个进程的输出经由管道作为另一个进程的输入，相关的实现由pipe与dup系统调用实现，来看书上的例子:<pre><code class="c">int p[2];
+ char *argv[2];
+ argv[0] = &quot;wc&quot;;
+ argv[1] = 0;
+ pipe(p);
+//pipe(p)创建一个管道，返回两个文件描述符，p[0]是读端，p[1]是写端
+ if(fork() == 0) &#123;
+ //子进程关闭0，描述符0空出，这个时候dup(p[0])会将p[0]复制到0上
+ close(0);
+ dup(p[0]);
+ //关闭p[0]是因为已经复制到0上了
+ close(p[0]);
+ //这里必须要关闭p[1],因为一个进程从管道读数据时如果没有数据会阻塞，要么等到有数据，要么这个管道的所
+ //有写端都关闭了，这样读端就会返回0而停止阻塞
+ close(p[1]);
+ //设置好文件描述符表后，加载wc程序
+ exec(&quot;/bin/wc&quot;, argv);
+ &#125; else &#123;
+ //父进程不需要读管道，关闭p[0]
+ close(p[0]);
+ write(p[1], &quot;hello world\n&quot;, 12);
+ close(p[1]);
+ &#125;
+ //上述程序相当于在命令行执行echo &quot;hello world&quot; | wc,其实从sh.c可以看到pipe命令的实现就大致如此
+</code></pre>
+</li>
+<li>文件系统<br>xv6的文件系统将一个文件看作一个二进制的数据数组，系统本身不对文件做解释。目录是一个记录文件名和文件位置的文件<br>mknod系统调用可以将某个设备映射成一个文件，以后对该设备的操作可以像文件一样对其进行操作<br>xv6里面一个文件有唯一的一份描述信息，这个描述信息有一个专门的结构叫inode，它记录了这个文件的类型(文件&#x2F;目录)，长度，在硬盘上的位置等<br>但一个inode可以有多个名字，这些名字叫link，比如&#x2F;a&#x2F;b&#x2F;c可以与&#x2F;d&#x2F;c表示同一文件，只要它们最终指向的inode是同一个即可<br>这也说明文件与文件名是独立的，一个文件可以有多个文件名<br>fstat系统调用会从文件描述符获取文件信息，将信息传入一个stat结构中<br>link系统调用会创建一个新的文件名，该文件名指向另一个文件名所代表的inode，inode的link数会加1，unlink系统调用会删除一个文件名，如果link数为0则删除inode</li>
+</ul>
+<h3 id="Lab-util-Unix-tools"><a href="#Lab-util-Unix-tools" class="headerlink" title="Lab util:Unix tools"></a>Lab util:Unix tools</h3><p>这个lab主要是熟悉xv6的启动和一些基本的unix开发工具和概念，环境的配置比较简单如果是在ubuntu上，直接点那个tool page的链接进行配置即可<br>如果对unix比较感兴趣可以看看这个<a href="https://www.harley.com/unix-book/book/chapters/chapter-list.html">Guide to Unix</a>的链接，里面有很多关于unix的基本概念和工具的介绍，如果想快点开始读完课程的基础介绍即可</p>
+<ol>
+<li>xv6的启动<br>按照lab步骤编译完成后每次 make qemu即可启动qemu并加载xv6系统</li>
+<li>实现一个sleep命令<br>实现一个用户程序sleep,按照提示它应该在user目录下，具体的实现方式是使用系统调用sleep，这个系统调用会让进程休眠一段时间，具体的实现可以参考sleep.c<pre><code class="c">#include &quot;kernel/types.h&quot;
+#include &quot;user/user.h&quot;
+int
+main(int argc,char *argv[])
+&#123;
+  if(argc &lt; 2)&#123;
+ fprintf(2,&quot;usage: sleep time\n&quot;);
+ exit(1);
+  &#125;
+  sleep(atoi(argv[1]));
+  exit(0);
+&#125;
+</code></pre>
+代码中的sleep系统调用声明在user.h中，实现在usys.S中，具体的实现可以参考usys.S，通过usys.pl生成，在usys.S中sleep被声明<br>为一个函数，实际会进行SYS_sleep系统调用，而sys_sleep的实现在kernel&#x2F;sysproc.c中，具体如下:</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>os lab</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>sourcetest</title>
+    <url>/2024/04/11/sourcetest/</url>
+    <content><![CDATA[<p><img src="/2024/04/11/sourcetest/test1s.jpg" alt="img"></p>
+]]></content>
   </entry>
 </search>
