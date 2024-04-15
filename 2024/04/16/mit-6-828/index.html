@@ -172,7 +172,7 @@
     <li>
         <div class="all active" data-rel="全部文章">全部文章
             
-                <small>(27)</small>
+                <small>(25)</small>
             
         </div>
     </li>
@@ -197,7 +197,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="27">
+<input type="hidden" id="yelog_site_posts_number" value="25">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -252,7 +252,7 @@
             </li>
         
             <li class="article-tag-list-item">
-                <i class="iconfont icon-tag"></i><a>计网学习</a>
+                <i class="iconfont icon-tag"></i><a>计网</a>
             </li>
         
             <li class="article-tag-list-item">
@@ -277,10 +277,6 @@
         
             <li class="article-tag-list-item">
                 <i class="iconfont icon-tag"></i><a>网络协议</a>
-            </li>
-        
-            <li class="article-tag-list-item">
-                <i class="iconfont icon-tag"></i><a>专业学习</a>
             </li>
         
             <li class="article-tag-list-item">
@@ -336,20 +332,20 @@
         
         
         <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828/"
+           data-tag="os lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828">mit-6.828</span>
+            <span class="post-date" title="2024-04-16 00:12:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
            href="/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"
            data-tag="python 源码"
            data-author="" >
             <span class="post-title" title="python源码阅读">python源码阅读</span>
             <span class="post-date" title="2024-04-08 12:17:22">2024/04/08</span>
-        </a>
-        
-        
-        <a  class="全部文章 "
-           href="/2024/04/02/mit-6-828/"
-           data-tag="os lab"
-           data-author="" >
-            <span class="post-title" title="mit-6.828">mit-6.828</span>
-            <span class="post-date" title="2024-04-02 08:16:16">2024/04/02</span>
         </a>
         
         
@@ -445,7 +441,7 @@
         
         <a  class="全部文章 "
            href="/2022/10/15/%E8%AE%A1%E7%BD%91-%E9%93%BE%E8%B7%AF%E5%B1%82/"
-           data-tag="计网学习"
+           data-tag="计网"
            data-author="" >
             <span class="post-title" title="计网-链路层">计网-链路层</span>
             <span class="post-date" title="2022-10-15 19:43:14">2022/10/15</span>
@@ -503,24 +499,6 @@
            data-author="" >
             <span class="post-title" title="大话设计模式">大话设计模式</span>
             <span class="post-date" title="2022-04-24 18:47:07">2022/04/24</span>
-        </a>
-        
-        
-        <a  class="全部文章 "
-           href="/2022/04/23/%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA/"
-           data-tag="专业学习"
-           data-author="" >
-            <span class="post-title" title="数字图像处理-图像增强">数字图像处理-图像增强</span>
-            <span class="post-date" title="2022-04-23 18:58:52">2022/04/23</span>
-        </a>
-        
-        
-        <a  class="全部文章 "
-           href="/2022/04/06/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="数字图像处理">数字图像处理</span>
-            <span class="post-date" title="2022-04-06 23:13:23">2022/04/06</span>
         </a>
         
         
@@ -614,7 +592,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-04-09 12:18:58'>2024-04-02 08:16</time>
+            发布时间 : <time class="date" title='最后更新: 2024-04-16 00:13:05'>2024-04-16 00:12</time>
         
     </div>
     <div class="article-meta">
@@ -685,23 +663,217 @@
 <li>文件系统<br>xv6的文件系统将一个文件看作一个二进制的数据数组，系统本身不对文件做解释。目录是一个记录文件名和文件位置的文件<br>mknod系统调用可以将某个设备映射成一个文件，以后对该设备的操作可以像文件一样对其进行操作<br>xv6里面一个文件有唯一的一份描述信息，这个描述信息有一个专门的结构叫inode，它记录了这个文件的类型(文件&#x2F;目录)，长度，在硬盘上的位置等<br>但一个inode可以有多个名字，这些名字叫link，比如&#x2F;a&#x2F;b&#x2F;c可以与&#x2F;d&#x2F;c表示同一文件，只要它们最终指向的inode是同一个即可<br>这也说明文件与文件名是独立的，一个文件可以有多个文件名<br>fstat系统调用会从文件描述符获取文件信息，将信息传入一个stat结构中<br>link系统调用会创建一个新的文件名，该文件名指向另一个文件名所代表的inode，inode的link数会加1，unlink系统调用会删除一个文件名，如果link数为0则删除inode</li>
 </ul>
 <h3 id="Lab-util-Unix-tools"><a href="#Lab-util-Unix-tools" class="headerlink" title="Lab util:Unix tools"></a>Lab util:Unix tools</h3><p>这个lab主要是熟悉xv6的启动和一些基本的unix开发工具和概念，环境的配置比较简单如果是在ubuntu上，直接点那个tool page的链接进行配置即可<br>如果对unix比较感兴趣可以看看这个<a target="_blank" rel="noopener" href="https://www.harley.com/unix-book/book/chapters/chapter-list.html">Guide to Unix</a>的链接，里面有很多关于unix的基本概念和工具的介绍，如果想快点开始读完课程的基础介绍即可</p>
-<ol>
+<ul>
+<li><ol>
 <li>xv6的启动<br>按照lab步骤编译完成后每次 make qemu即可启动qemu并加载xv6系统</li>
+</ol>
+</li>
+<li><ol start="2">
 <li>实现一个sleep命令<br>实现一个用户程序sleep,按照提示它应该在user目录下，具体的实现方式是使用系统调用sleep，这个系统调用会让进程休眠一段时间，具体的实现可以参考sleep.c<pre><code class="c">#include &quot;kernel/types.h&quot;
 #include &quot;user/user.h&quot;
 int
 main(int argc,char *argv[])
 &#123;
-  if(argc &lt; 2)&#123;
- fprintf(2,&quot;usage: sleep time\n&quot;);
- exit(1);
-  &#125;
-  sleep(atoi(argv[1]));
-  exit(0);
+if(argc &lt; 2)&#123;
+  fprintf(2,&quot;usage: sleep time\n&quot;);
+  exit(1);
+&#125;
+sleep(atoi(argv[1]));
+exit(0);
 &#125;
 </code></pre>
-代码中的sleep系统调用声明在user.h中，实现在usys.S中，具体的实现可以参考usys.S，通过usys.pl生成，在usys.S中sleep被声明<br>为一个函数，实际会进行SYS_sleep系统调用，而sys_sleep的实现在kernel&#x2F;sysproc.c中，具体如下:</li>
+代码中要用到的sleep系统调用声明在user.h中，实现在usys.S中，具体的实现可以参考usys.S，通过usys.pl生成，在usys.S中sleep被声明<br>为一个函数，实际会进行SYS_sleep系统调用，而sys_sleep的实现在kernel&#x2F;sysproc.c中，逻辑过程如下:<br>用户程序sleep会解析参数-&gt;然后调用sleep系统调用，这个系统调用的声明可以在user.h中看到声明但是找不到实现，原因在于它真正的实现在usys.S中，而它的作用就是利用指令调用sys_sleep-&gt;kernel文件夹代码里的sys_sleep才是真正进行休眠的地方<br>另外之所以要在Makefile中的UPROGS中加入sleep是因为编译好的sleep程序会被放到fs.img中，这样在启动xv6时就可以直接使用sleep命令，否则是无法使用的</li>
 </ol>
+</li>
+<li><ol start="3">
+<li>实现一个ping-pong<br>实现一个ping-pong程序，它会创建两个进程，它们会互相打印对方的pid<br>有了上面的例子，就有了一个编程的思路，先想想要用到哪些系统调用，然后去实现，实现如下:</li>
+</ol>
+</li>
+</ul>
+<pre><code class="c">//user/pingpong.c
+#include&quot;kernel/types.h&quot;
+#include&quot;user/user.h&quot;
+
+int
+main(int argc,char *argv[])
+&#123;
+        int p[2];
+        pipe(p);
+        char sig;
+        if(fork()==0)&#123;
+                read(p[0],&amp;sig,1);
+                printf(&quot;%d: received ping\n&quot;,getpid());
+                write(p[1],&amp;sig,1);
+        &#125;else&#123;
+                write(p[1],&amp;sig,1);
+                read(p[0],&amp;sig,1);
+                printf(&quot;%d: received pong\n&quot;,getpid());
+        &#125;
+        return 0;
+&#125;
+//像前面一样加入到Makefile中，运行./grad-lab-util pingpong即可看到通过测试
+</code></pre>
+<ul>
+<li><ol start="4">
+<li>实现一个primes<br>实现一个primes程序，它会输出2到n之间的所有素数，所给链接是一个介绍CSP(Communicating Sequential Processes)的一个文档，这个文档介绍了一种并发编程的思想，这种思想是通过多个进程之间的通信来实现并发，这种思想在Go语言中有体现，Go语言的goroutine就是这种思想的实现，这个primes程序就是通过这种思想的一个例子，下面这张图很好的解释了这种思想<br><img src="/2024/04/16/mit-6-828/CSP-%E5%9F%83%E6%B0%8F%E7%AD%9B.jpg" alt="CSP"><br>每个进程读入一个数，读到的第一个数可以判定为素数，然后将无法判定的数传递给下一个进程，这样就可以实现一个筛选的过程，这个过程就是一个并发的过程，每个进程都是独立的，它们之间通过管道进行通信，这个程序的实现如下:</li>
+</ol>
+</li>
+</ul>
+<pre><code class="c">//user/primes.c
+#include&quot;kernel/types.h&quot;
+#include&quot;user/user.h&quot;
+
+//子进程会获得父进程的管道参数，读入数据之后再创建一个新的管道参数传递给下一个进程
+void worker(int rfd,int wfd)
+&#123;
+        int prime;
+        int n;
+        //子进程不会传递数据给父进程，所以关闭写端
+        close(wfd);
+        if(read(rfd,&amp;prime,sizeof(prime))==0)&#123;
+                close(rfd);
+                exit(0);
+        &#125;
+        printf(&quot;prime %d\n&quot;,prime);
+        int p[2];
+        pipe(p);
+        if(fork()==0)&#123;
+                worker(p[0],p[1]);
+                exit(0);
+        &#125;else&#123;
+                close(p[0]);
+                while(read(rfd,&amp;n,sizeof(n)))&#123;
+                        if(n%prime!=0)&#123;
+                                write(p[1],&amp;n,sizeof(n));
+                        &#125;
+                &#125;
+                close(rfd);
+                close(p[1]);
+                wait(0);
+        &#125;
+&#125;
+
+int main(int argc,char *argv[])
+&#123;
+        int p[2];
+        pipe(p);
+        if(fork()==0)&#123;
+                worker(p[0],p[1]);
+                exit(0);
+        &#125;else&#123;
+                close(p[0]);
+                for(int i=2;i&lt;=35;i++)&#123;
+                        write(p[1],&amp;i,sizeof(i));
+                &#125;
+                close(p[1]);
+                wait(0);
+        &#125;
+&#125;
+</code></pre>
+<ul>
+<li>5.实现一个简单的find程序<br>这个程序一个是递归的思想注意不要递归查询当前目录的.与..目录，一个就是文件系统的操作，读取目录项，另外比较坑的一点是xv6每个目录都有一个空的目录项，如果不处理这个空目录项可能会去查询.&#x2F;&#x2F;&#x2F;这样的目录，实现如下:</li>
+</ul>
+<pre><code class="c">//user/find.c,可以参考user/ls.c的实现观察一些文件操作
+#include&quot;kernel/types.h&quot;
+#include&quot;kernel/stat.h&quot;
+#include&quot;user/user.h&quot;
+#include&quot;kernel/fs.h&quot;
+#include&quot;kernel/fcntl.h&quot;
+
+void
+find(char *path,const char *name)
+&#123;
+        char buf[512],*p;
+        int fd;
+        struct dirent de;
+        struct stat st;
+        if((fd=open(path,O_RDONLY))&lt;0)&#123;
+                printf(&quot;find: cannot open %s\n&quot;,path);
+                return;
+        &#125;
+        if(strlen(path)+1+DIRSIZ+1&gt;sizeof buf)&#123;
+                printf(&quot;find: path too long\n&quot;);
+                return;
+        &#125;
+        strcpy(buf,path);
+        p = buf+strlen(buf);
+        *p++ = &#39;/&#39;;
+        while(read(fd,&amp;de,sizeof(de))==sizeof(de))&#123;
+                if(strcmp(de.name,&quot;&quot;)==0||strcmp(de.name,&quot;.&quot;)==0||strcmp(de.name,&quot;..&quot;)==0)
+                        continue;
+                memmove(p,de.name,DIRSIZ);
+                p[DIRSIZ] = 0;
+                if(strcmp(de.name,name)==0)&#123;
+                        printf(&quot;%s\n&quot;,buf);
+                &#125;
+                if(stat(buf,&amp;st)&lt;0)&#123;
+                        printf(&quot;find: cannot stat %s\n&quot;,buf);
+                        continue;
+                &#125;
+                if(st.type == T_DIR)&#123;
+                        find(buf,name);
+                &#125;
+        &#125;
+        close(fd);
+&#125;
+
+int
+main(int argc,char *argv[])
+&#123;
+        int i;
+        if(argc &lt; 3)&#123;
+                printf(&quot;find usage: find dir file\n&quot;);
+                exit(-1);
+        &#125;else&#123;
+                for(i=2;i&lt;argc;i++)
+                        find(argv[1],argv[i]);
+                exit(0);
+        &#125;
+&#125;
+</code></pre>
+<ul>
+<li>6.实现一个xargs程序<br>xargs的功能主要就是将标准输入变为其后面程序的参数，比如<code>find . b | grep hello</code>会在所有的名为b的文件中匹配hello，所以xargs的工作主要是读取标准输入，然后将读取到的内容传递给一个命令，要注意的一点是main函数的argv的最后一个参数是一个NULL，拷贝完后要对i进行减一操作，实现如下:</li>
+</ul>
+<pre><code class="c">//user/xargs.c
+#include&quot;kernel/types.h&quot;
+#include&quot;user/user.h&quot;
+#include&quot;kernel/param.h&quot;
+int
+main(int argc,char *argv[])
+&#123;
+        int i,j;
+        char c;
+        static char *ag[MAXARG];
+        if(argc &gt; MAXARG -2)&#123;
+                printf(&quot;Exceed MAXARG:%d\n&quot;,MAXARG);
+                exit(-1);
+        &#125;
+
+        for(i=1;i&lt;argc;i++)&#123;
+                ag[i-1]=argv[i];
+        &#125;
+        j=0;
+        i--;
+        ag[i]=malloc(sizeof(char)*16);
+        while(read(0,&amp;c,sizeof(c)))&#123;
+                if(c!=&#39;\n&#39;)&#123;
+                        ag[i][j++]=c;
+                &#125;else&#123;
+                        ag[i][j]=0;
+                        i++;
+                        j=0;
+                        ag[i]=malloc(sizeof(char)*16);
+                &#125;
+        &#125;
+        ag[i]=0;
+        if(fork()==0)&#123;
+                exec(ag[0],ag);
+        &#125;else&#123;
+                wait(0);
+        &#125;
+        exit(0);
+&#125;
+</code></pre>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
