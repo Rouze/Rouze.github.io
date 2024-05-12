@@ -78,7 +78,8 @@ int main()&#123;
 <p>仍然使用上面的指令可以得到如下结果:<br><img src="https://s2.loli.net/2022/09/26/JTFveXcU1t8bka4.jpg" alt="test3s.jpg"><br>可以看到在g之前的拷贝就是拷的那个临时构建的变量,符合前面的猜想</p>
 ]]></content>
       <tags>
-        <tag>C 汇编</tag>
+        <tag>C</tag>
+        <tag>汇编</tag>
       </tags>
   </entry>
   <entry>
@@ -2283,7 +2284,8 @@ number:  T_INTLIT
 <p>参考文章:blog.huati365.com</p>
 ]]></content>
       <tags>
-        <tag>基于项目acwj的编译器学习</tag>
+        <tag>源码</tag>
+        <tag>编译</tag>
       </tags>
   </entry>
   <entry>
@@ -2755,7 +2757,8 @@ enum intr_status intr_get_status()
 <p>idt_table:中断函数数组,这里放的都是C语言写好的一些函数地址,等CPU根据idt里的中断门进入到某个中断入口后,那个入口后面的代码很可能会调用这里的函数<br>intr_entry_table:中断入口地址数组,中断描述符里的中断门里将CPU引导到中断入口,这个数组就是填的入口的地址,因为入口地址只有在定义中断向量那里才知道,所以这个数组是extern的<br>下面是简单的流程表示:<br>中断发生–&gt;CPU拿到向量号–&gt;CPU从IDTR指向的idt找到对应的中断门–&gt;中断门里有入口地址,CPU第一次跳转–&gt;到了入口地址之后进行了一些保护操作然后call 其它函数处理,CPU第二次跳转–&gt;函数返回–&gt;中断返回</p>
 ]]></content>
       <tags>
-        <tag>操作系统 操作系统真相还原</tag>
+        <tag>os</tag>
+        <tag>操作系统真相还原</tag>
       </tags>
   </entry>
   <entry>
@@ -3279,7 +3282,8 @@ void *get_kernel_pages(uint32_t pg_cnt)&#123;
 </code></pre>
 ]]></content>
       <tags>
-        <tag>操作系统 操作系统真相还原</tag>
+        <tag>os</tag>
+        <tag>操作系统真相还原</tag>
       </tags>
   </entry>
   <entry>
@@ -3856,6 +3860,96 @@ class Solution:
 </code></pre>
 <h3 id="完全二叉树的节点个数"><a href="#完全二叉树的节点个数" class="headerlink" title="完全二叉树的节点个数"></a>完全二叉树的节点个数</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/count-complete-tree-nodes/]">https://leetcode-cn.com/problems/count-complete-tree-nodes/]</a>: 给出一个完全二叉树，求出该树的节点个数。</p>
 <h3 id="爬楼梯"><a href="#爬楼梯" class="headerlink" title="爬楼梯"></a>爬楼梯</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/climbing-stairs/]">https://leetcode-cn.com/problems/climbing-stairs/]</a>: 假设你正在爬楼梯。需要 n 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶？<br>简单的递归和动态规划都可以解决，这里记录一下<strong>矩阵快速幂</strong>的解法</p>
+<p>对于一个齐次线性递推式，可以用矩阵快速幂来解决，$f(n)&#x3D;\sum_{i&#x3D;1}^{m}a_if(n-i)$可以表示为一个矩阵的形式如下:<br>$$<br>\begin{bmatrix}f(n)\<br>f(n-1)\<br>f(n-2)\<br>\vdots\<br>f(n-m+1)<br>\end{bmatrix}<br>&#x3D;<br>\begin{bmatrix}a_1&amp;a_2&amp;a_3&amp;\cdots&amp;a_m\<br>1&amp;0&amp;0&amp;\cdots&amp;0\<br>0&amp;1&amp;0&amp;\cdots&amp;0\<br>\vdots&amp;\vdots&amp;\vdots&amp;\ddots&amp;\vdots\<br>0&amp;0&amp;0&amp;\cdots&amp;1<br>\end{bmatrix}<br>\begin{bmatrix}f(n-1)\<br>f(n-2)\<br>f(n-3)\<br>\vdots\<br>f(n-m)<br>\end{bmatrix}<br>$$<br>右边的矩阵可以继续展开，直到f(1)为止，然后就可以用矩阵快速幂来求解，此题的递推式为f(n)&#x3D;f(n-1)+f(n-2),初始条件为f(1)&#x3D;1,f(2)&#x3D;2，最终的矩阵为<br>$$<br>\begin{bmatrix}f(n)\<br>f(n-1)<br>\end{bmatrix}<br>&#x3D;<br>\begin{bmatrix}1&amp;1\<br>1&amp;0<br>\end{bmatrix}^{n-1}<br>\begin{bmatrix}2\<br>1<br>\end{bmatrix}<br>$$</p>
+<pre><code class="c">
+void matrix_quick_pow(int a[2][2],int n)&#123;
+    //单位矩阵
+    int ans[2][2] = &#123;&#123;1,0&#125;,&#123;0,1&#125;&#125;;
+    int base[2][2];
+    for(int i=0;i&lt;2;i++)&#123;
+        for(int j=0;j&lt;2;j++)&#123;
+            base[i][j] = a[i][j];
+        &#125;
+    &#125;
+    while(n)&#123;
+        if(n&amp;1)&#123;
+            int c[2][2] = &#123;&#123;0,0&#125;,&#123;0,0&#125;&#125;;
+            for(int i=0;i&lt;2;i++)&#123;
+                for(int j=0;j&lt;2;j++)&#123;
+                    for(int k=0;k&lt;2;k++)&#123;
+                        c[i][j] += ans[i][k]*base[k][j];
+                    &#125;
+                &#125;
+            &#125;
+            for(int i=0;i&lt;2;i++)&#123;
+                for(int j=0;j&lt;2;j++)&#123;
+                    ans[i][j] = c[i][j];
+                &#125;
+            &#125;
+        &#125;  
+        int c[2][2]= &#123;&#123;0,0&#125;,&#123;0,0&#125;&#125;;
+        for(int i=0;i&lt;2;i++)&#123;
+            for(int j=0;j&lt;2;j++)&#123;
+                for(int k=0;k&lt;2;k++)&#123;
+                    c[i][j] += base[i][k]*base[k][j];
+                &#125;
+            &#125;
+        &#125;
+        for(int i=0;i&lt;2;i++)&#123;
+            for(int j=0;j&lt;2;j++)&#123;
+                base[i][j] = c[i][j];
+            &#125;
+        &#125;
+        n &gt;&gt;= 1;
+    &#125;
+    for(int i=0;i&lt;2;i++)&#123;
+        for(int j=0;j&lt;2;j++)&#123;
+            a[i][j] = ans[i][j];
+        &#125;
+&#125;
+
+int climbStairs(int n)&#123;
+    int a[2][2] = &#123;&#123;1,1&#125;,&#123;1,0&#125;&#125;;
+    matrix_quick_pow(a,n-1);
+    return 2*a[0][0]+a[1][0];
+&#125;
+</code></pre>
+<h3 id="负二进制转换"><a href="#负二进制转换" class="headerlink" title="负二进制转换"></a>负二进制转换</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/convert-to-base-2/]">https://leetcode-cn.com/problems/convert-to-base-2/]</a>: 给出数字 N，返回由 “0” 和 “1” 组成的字符串，该字符串是 N 的负二进制（base -2）表示。</p>
+<ol>
+<li>进制转换<br>首先明确负二进制的定义，负二进制的权值是-2的幂次方，即-2^0,-2^1,-2^2…，所以一个数的负二进制表示是将这个数分解为-2的幂次方的和，如果像正二进制数一样用除-2取余的方法来求负二进制数，会发现余数会出现0,1,-1三种情况，所以需要将余数为-1的情况转换为0,1的情况，如果n &#x3D; x*(-2)-1那n也可以表示为n &#x3D; (x+1)*(-2)+1，这样就可以将余数为-1的情况转换为1的情况</li>
+</ol>
+<pre><code class="python">
+class Solution:
+    def baseNeg2(self, N: int) -&gt; str:
+        ans = &quot;&quot;
+        while N:
+            x = N // -2
+            r = N % -2
+            if r &lt; 0:
+                x += 1
+                r += 2
+            ans += str(r)
+            N = x
+        return ans[::-1] if ans else &quot;0&quot;
+</code></pre>
+<ol start="2">
+<li>位运算<br>举一个例子10，它的原码表示为1010，为8+2，负二进制下表示为11110，为16-8+4-2&#x3D;&#x3D;8+2。一个想法是针对原码的二进制表示来进行运算得到结果。如果直接将原码作为答案只有部分数字是正确的，比如5在两边都表示为101，原因是它的二进制不包含奇数位的1，如果原码包含奇数位的1就需要进行处理，处理的方式就是向前进1位，因为原码表示中此处的1表示正数，如果想要它表示它原来的数值只要将该位前面一位进1那就相当于它还是原来的数值。比如10里面的两个1都是奇数位上的，向前进位得到11110，但如果是7这样原码表示为111，进位之后得到1011但是最高位的1仍然是奇数位所以继续进位得到11011，这样就得到了正确的负二进制表示。</li>
+</ol>
+<pre><code class="python">
+class Solution:
+    def baseNeg2(self, N: int) -&gt; str:
+        if N == 0:
+            return &quot;0&quot;
+        ans = &quot;&quot;
+        for i in range(1,32,2):
+            if N &amp; (1 &lt;&lt; i):
+                N += (1 &lt;&lt; (i+1))
+        
+        while N:
+            ans = str(N &amp; 1) + ans
+            N &gt;&gt;= 1
+        return ans if ans else &quot;0&quot;
+</code></pre>
 ]]></content>
       <tags>
         <tag>算法刷题</tag>
@@ -3933,7 +4027,8 @@ class Solution:
 </ol>
 ]]></content>
       <tags>
-        <tag>深度学习 计算机视觉</tag>
+        <tag>深度学习</tag>
+        <tag>计算机视觉</tag>
       </tags>
   </entry>
   <entry>
@@ -4224,7 +4319,8 @@ def get_data(html):
 </code></pre>
 ]]></content>
       <tags>
-        <tag>python 爬虫</tag>
+        <tag>python</tag>
+        <tag>爬虫</tag>
       </tags>
   </entry>
   <entry>
@@ -4411,9 +4507,17 @@ else
     <title>python源码阅读</title>
     <url>/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</url>
     <content><![CDATA[<p>这篇文章主要记录自己阅读python源码的一些心得，参考文章如下:<br><a href="https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python">https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python</a><br><a href="https://fasionchan.com/python-source/preface/intra/">https://fasionchan.com/python-source/preface/intra/</a></p>
+<h3 id="Doc"><a href="#Doc" class="headerlink" title="Doc"></a>Doc</h3><p>Doc文件夹里面包含了所有关于python的内容，比如faq文件夹里面的一些关于python的问题包含了为什么要使用缩进而不是花括号等问题，这个文件夹里面很多文件都是rst格式，可以看作一种跟markdown一样的标记语言，一方面可以直接给人阅读一方面用于计算机渲染文章组织结构，这些文件的实际效果可以在<a href="https://docs.python.org/3/reference/">dorcs.python.org</a>看到</p>
+<p>里面包括的一些文件夹有:</p>
+<ul>
+<li>faq 一些常见问题以及回答，比如design.rst里回答了为什么要将空格对齐作为语言本身的一部分，为什么python退出时不会释放所有资源，为什么要有list和tuple两种类型…另一值得一看的是programming.rst，里面记录了一些关于python编程的常见问题，比如局部变量的Unbounded Error和lambda表达式总是返回同一个值等</li>
+<li></li>
+</ul>
+<h3 id="Grammar"><a href="#Grammar" class="headerlink" title="Grammar"></a>Grammar</h3><p>这个文件夹主要描述了python的语法，Grammar文件用一种叫BNF的上下文无关文法描述了整个python的语法细节，是旧版的解析器生成文件，现在使用了一种叫PEG的方法来描述，放在python.gram文件里</p>
 ]]></content>
       <tags>
-        <tag>python 源码</tag>
+        <tag>python</tag>
+        <tag>源码</tag>
       </tags>
   </entry>
   <entry>
@@ -4454,7 +4558,7 @@ else
 <h3 id="Lab-util-Unix-tools"><a href="#Lab-util-Unix-tools" class="headerlink" title="Lab util:Unix tools"></a>Lab util:Unix tools</h3><p>这个lab主要是熟悉xv6的启动和一些基本的unix开发工具和概念，环境的配置比较简单如果是在ubuntu上，直接点那个tool page的链接进行配置即可<br>如果对unix比较感兴趣可以看看这个<a href="https://www.harley.com/unix-book/book/chapters/chapter-list.html">Guide to Unix</a>的链接，里面有很多关于unix的基本概念和工具的介绍，如果想快点开始读完课程的基础介绍即可</p>
 <ul>
 <li><ol>
-<li>xv6的启动<br>按照lab步骤编译完成后每次 make qemu即可启动qemu并加载xv6系统</li>
+<li>xv6的启动<br>按照lab步骤编译完成后每次 make qemu即可启动qemu并加载xv6系统，值得一提的是由于是risv-v版本，需要安装对应的工具链，直接使用原先的gcc和gdb会报错，比如make qemu之后另一窗口运行gdb会遇到<code>.gdbinit:2: Error in sourced command file:</code>，需要安装使用对应的gdb-multiarch。</li>
 </ol>
 </li>
 <li><ol start="2">
@@ -4663,9 +4767,219 @@ main(int argc,char *argv[])
         exit(0);
 &#125;
 </code></pre>
+<h3 id="xv6-chapter2-Operating-system-organization"><a href="#xv6-chapter2-Operating-system-organization" class="headerlink" title="xv6 chapter2: Operating system organization"></a>xv6 chapter2: Operating system organization</h3><ul>
+<li>资源抽象<br>Q: 为什么要有操作系统？，因为其实用户程序可以自己编写与硬件交互的程序，将需要的功能实现成一个库就可以<br>A: 上述方式在每个程序”合法”运行且没有bug时可以工作，但由于要同时运行多个用户程序，以及程序之间需要进行通信，就需要将硬件资源隔离开由操作系统统一管理，用户程序使用操作系统提供的统一的对硬件的抽象接口。比如Unix就把文件抽象为文件描述符与open,read,write和close四个系统调用。这样也减少了用户的开发负担，让用户程序可以更专注于业务逻辑。</li>
+</ul>
+<p>上面说到OS任务之一是将硬件资源进行抽象，最重要的硬件资源之一就是CPU，与之对应的抽象就是进程。对用户程序来说分配到进程就像分配到CPU，可以运行自己的代码，自己独占整个CPU，无需考虑对CPU的释放，对进程的调度和分配交给OS进行。另外还有对存储等的抽象，这在后面的页表会详细介绍。</p>
+<p>总的来说OS一个重要的任务就是对硬件资源进行抽象，并提供一组系统调用，对用户来说操作系统也表现为一组调用接口，其实这就跟问题里面的描述差不多，只不过这个”库”不是由用户写的，而是公共的。所以系统调用的设计都需要精心设计，做到简洁不简单。</p>
+<ul>
+<li>模式与安全性<br>上面提到了操作系统必须将硬件资源与用户程序隔离开，即有些命令只能由操作系统执行(比如一些硬件操作指令)，要做到这一点就必须在机器级别上区分系统和用户代码，否则仅靠程序是无法控制用户这种行为的。</li>
+</ul>
+<p>机器为这种隔离性的支持就是设定CPU的模式，不同的模式可以执行不同的指令，越级执行指令就会引发硬件中断停止程序并转到操作系统。RISC-V设定了3种模式:1.机器模式(拥有所有权限，一般在机器启动时处于该权限，主要用于配置机器) 2.管理者模式(操作系统运行在这一级别) 3.用户模式(用户程序级别)。所以操作系统的另一个定义也可以是<em>特权模式下运行的程序</em></p>
+<p>但是用户模式下能进行的动作是有限的，比如用户的确需要写入硬盘数据，这需要OS内的代码完成，而用户是不能直接调用内核的函数的，RISC-V提供了<code>ecall</code>指令来完成这个功能，用户调用的系统调用其实就是对ecall的包装。因为系统调用的入口是内核控制的，用户程序只能按照规定传入参数之后调用ecall，之后转到内核控制的入口处会由内核检查参数是否正确，防止用户程序传入恶意参数使内核跳转到恶意代码去执行。</p>
+<ul>
+<li><p>内核结构<br>常见的内核组织结构有宏内核和微内核两种，宏内核指整个OS都运行在特权级，这种组织的优点是效率比较高，各模块紧密结合。缺点就是一旦内核有bug将会引起重大的错误甚至宕机。而内核本身是一个巨大的项目，不可能消除所有的bug。与之相对的就是微内核结构，这种结构的kernel只留下一些最基础的功能在特权级比如进程通信与硬件操作。其它功能实现成一个用户程序运行在user mode下，比如文件系统和调度程序。xv6采用宏内核结构，代码组织如图所示，关于每个文件具体接口在kernel&#x2F;defs.h里面可以看到。<br><img src="/2024/04/16/mit-6-828/C2_kernel_source.jpg" alt="xv6代码组织"></p>
+</li>
+<li><p>xv6的第一个系统调用过程<br>RISC-V机器启动后会从从固定的ROM里执行一段程序，也就是loader，loader负责将内核加载进内存，然后将跳转到_entry，也就是entry.S(kernel&#x2F;entry.S)的内容。entry.S是每个CPU启动时首先执行的代码，具体内容为根据CPU的id将sp设置到对应的位置之后就调用start.c(kernel&#x2F;start.c)里的start函数。start函数主要负责配置一些机器选项，因为现在还处于机器模式，配置完成后将降低级别到特权模式。降低特权需要用到<code>mret</code>指令，start函数配置好一些基础设置(清空中断，关闭分页，初始化时钟中断)之后就设置好返回地址为main(kernel&#x2F;main.c)，main里面开始就真正初始化一些操作系统相关的内容，这里会根据CPU的id执行不一样的操作，一些公用的初始化操作由0号CPU完成，之后开启第一个进程，由userinit(kernel&#x2F;proc.c)完成。<br>这个userinit比较有意思单独说一下，在userinit调用之前进行的一系列初始化还没有开启一个真正的进程，所以现在系统处于一个没有进程的状态，一般情况下创建进程使用fork系统调用，但是因为当前不存在一个进程无法进行fork，所以第一个进程必须手动构造。下面是它的代码:<br>&#96;&#96;&#96;c<br>&#x2F;&#x2F; Set up first user process.<br>void<br>userinit(void)<br>{<br>struct proc *p;</p>
+<p>p &#x3D; allocproc();<br>initproc &#x3D; p;</p>
+<p>&#x2F;&#x2F; allocate one user page and copy initcode’s instructions<br>&#x2F;&#x2F; and data into it.<br>uvmfirst(p-&gt;pagetable, initcode, sizeof(initcode));<br>p-&gt;sz &#x3D; PGSIZE;</p>
+<p>&#x2F;&#x2F; prepare for the very first “return” from kernel to user.<br>p-&gt;trapframe-&gt;epc &#x3D; 0;      &#x2F;&#x2F; user program counter<br>p-&gt;trapframe-&gt;sp &#x3D; PGSIZE;  &#x2F;&#x2F; user stack pointer</p>
+<p>safestrcpy(p-&gt;name, “initcode”, sizeof(p-&gt;name));<br>p-&gt;cwd &#x3D; namei(“&#x2F;“);</p>
+<p>p-&gt;state &#x3D; RUNNABLE;</p>
+<p>release(&amp;p-&gt;lock);</p>
+</li>
+</ul>
+<p>}</p>
+<pre><code>代码的注释已经非常清晰了，先看一下整体的流程，首先调用allocproc申请到一个PCB，前面提到过每个进程都有一个PCB用于记录进程信息，然后就是关键的`uvmfirst(p-&gt;pagetable,initcode,sizeof(initcode))`，这里是在手动将命令放到进程的地址空间，因为这个进程不是fork得到的，没有用户代码，所以需要手动将代码放到它的地址空间。initcode已经在本文件前面定义过，是一个字节数组，由汇编的initcode.S编译成二进制然后查看它的二进制代码得到。initcode.S(user/initcode.S)里面的注释也非常清晰，就是相当于exec(&quot;init&quot;,argv)调用。然后进行一些PCB的其它初始化。
+现在看一下里面的细节，首先是allocproc函数，它是本文件的一个static函数，是一个分配PCB非常原始的操作，代码如下:
+```c
+static struct proc*
+allocproc(void)
+&#123;
+  struct proc *p;
+
+  for(p = proc; p &lt; &amp;proc[NPROC]; p++) &#123;
+    acquire(&amp;p-&gt;lock);
+    if(p-&gt;state == UNUSED) &#123;
+      goto found;
+    &#125; else &#123;
+      release(&amp;p-&gt;lock);
+    &#125;
+  &#125;
+  return 0;
+
+found:
+  p-&gt;pid = allocpid();
+  p-&gt;state = USED;
+
+  // Allocate a trapframe page.
+  if((p-&gt;trapframe = (struct trapframe *)kalloc()) == 0)&#123;
+    freeproc(p);
+    release(&amp;p-&gt;lock);
+    return 0;
+  &#125;
+
+  // An empty user page table.
+  p-&gt;pagetable = proc_pagetable(p);
+  if(p-&gt;pagetable == 0)&#123;
+    freeproc(p);
+    release(&amp;p-&gt;lock);
+    return 0;
+  &#125;
+
+  // Set up new context to start executing at forkret,
+  // which returns to user space.
+  memset(&amp;p-&gt;context, 0, sizeof(p-&gt;context));
+  p-&gt;context.ra = (uint64)forkret;
+  p-&gt;context.sp = p-&gt;kstack + PGSIZE;
+
+  return p;
+&#125;
+</code></pre>
+<p>首先它会寻找一个UNUSED的PCB，然后为它分配pid和页表等内容，关键的是<code>p-&gt;context.ra=(uint64)forkret</code>，也就是说每个进程申请初始化时默认是从fork过来然后恢复时进入到forkret，所以新进程被调度时恢复上下文首先会进到forkret，进行一些中断返回操作之后userinit会拉起一个init进程，这是第一个进程，同时它会创建一个shell进程。另外值得一提的是在allocproc里面对锁进行了acquire但最后没有release，将release交给了调用者，这样保证调用者在申请得到PCB之后具有对它的操作权。</p>
+<h3 id="Lab-system-calls"><a href="#Lab-system-calls" class="headerlink" title="Lab:system calls"></a>Lab:system calls</h3><p>做这个实验还需要知道xv6的系统调用过程，在book的4.2与4.3简单介绍了一下，更具体的系统调用过程可以在下一个实验了解。</p>
+<ol>
+<li><p>首先内核有各个系统调用的实现，它们都具有相同的函数声明格式即uint64 f(void)，这样就可以把它们放在一个统一的函数指针数组里，这个函数指针数组在kernel&#x2F;syscall.c里定义，也可以在这里看到所有系统调用的声明，对应的系统调用号在kernel&#x2F;syscall.h里定义。而各个系统调用的具体实现分散在几个文件里，kernel&#x2F;sysproc.c是与进程相关的系统调用，kernel&#x2F;sysfiles.c是与文件相关的系统调用。这些函数的相同点都是参数为void，函数需要的参数由kernel&#x2F;syscall.c里定义的函数(argint,argaddr,argfd)提取，一方面是为了统一系统调用函数的声明以放进一个数组，另一方面是为了安全，如果直接使用用户提供的参数可能用户传入一些恶意地址，然后系统被骗到对应地址进行操作。</p>
+</li>
+<li><p>用户那边无法直接调用sys_系函数，而是通过一种叫<em>stub</em>的机制完成。系统调用的声明参数都是void，且对用户不可见，只有具体的系统调用实现知道需要哪些参数，要从哪里提取，所以就需要为用户提供一组”库”，对用户来说它们就是普通的函数，根据函数声明使用即可，而它们内部会将参数设置成系统调用正确的参数再通过<code>ecall</code>指令陷入真正的内核，做这种工作的函数就称为stub，它们的名字一般与相应的系统调用所对应。user&#x2F;usys.pl会生成一份usys.S，这个汇编文件定义了用户的stub，做的工作就是将对应的trap号装到a7寄存器然后调用ecall指令，调用参数由编译器装到对应的寄存器，由于RISC-V架构有很多寄存器，函数调用参数基本都用寄存器传递(整数参数a0-a6，浮点数fa0-fa7)。</p>
+</li>
+<li><p>ecall会让代码跳转到uservec(kernel&#x2F;tramponline.S)，ecall跳转的地方由stvec决定，在trap.c里会被设置成kernelvec与uservec，前者用于内核态下发生异常，后者则是用户态下，uservec做好一些保护工作后就会调用usertrap(kernel&#x2F;trap.c)，在这里会保存一些寄存器的内容到每个进程的trapframe中，每个进程的trapframe的虚拟地址是一样，在进到uservec的时候只有特权级变了，pagetable还没有变，设置完后会跳转到usertrap(kernel&#x2F;trap.c)</p>
+</li>
+<li><p>usertrap进来之后会保存返回地址，然后将stvec设置为kernelvec，因为后面进入内核态之后的中断处理的操作会不一样，然后会判断引起中断的原因，如果中断号为8则调用syscall()对系统调用进行解析</p>
+</li>
+<li><p>syscall()定义在(kernel&#x2F;syscall.c)里面，主要是根据传来的系统调用号跳转到对应的系统调用，里面用到的syscalls就是一个函数指针数组</p>
+</li>
+</ol>
+<ul>
+<li><ol>
+<li>实现一个trace系统调用，接收一个mask参数，该参数会设置哪些系统调用被追踪，本设置只会影响该进程及其子进程，不影响其它进程，被trace的系统调用返回时需要输出系统调用的名称以及返回结果(类似于shell的strace)</li>
+</ol>
+</li>
+</ul>
+<p>根据提示，</p>
+<ol>
+<li>可以为每个进程设置一个变量来记录哪些系统调用被追踪了，由于是只影响本进程，所以非常适合放在PCB里面，另外为了尽可能表示多的系统调用，将该变量设为了一个uint64，可以表示64个系统调用，当前30都没有用到，所以是比较充足的。因此在proc.h里的proc结构体添加了<code>uint64 tmask</code>变量，它的初始化工作在allocproc里完成，放在acquire(&amp;p-&gt;lock)之后，<code>p-&gt;tmask = 0</code></li>
+<li>前面设置好了需要用到的数据结构，现在来实现sys_trace，它的实现如下:</li>
+</ol>
+<pre><code class="c">uint64
+sys_trace(void)
+&#123;
+    uint64 tmask;
+    argaddr(0,&amp;tmask);
+    myproc()-&gt;tmask = tmask;
+    return 0;
+
+&#125;
+</code></pre>
+<p>实现比较的简单，只要将参数设置到tmask即可，参考前面系统调用获取参数的方式，由于传进来的是一个uint64，所以使用argaddr来获取。由于要打印对应的系统调用名称以及一个进程可能会调用多个不同系统调用，最终打印的地方应该能看到系统调用号与系统调用的对应关系，以及系统调用成功的返回结果，而刚刚的syscall函数就很符合这个条件，于是修改syscall如下:</p>
+<pre><code class="c">void
+syscall(void)
+&#123;
+  int num;
+  struct proc *p = myproc();
+
+  num = p-&gt;trapframe-&gt;a7;
+  if(num &gt; 0 &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num]) &#123;
+    // Use num to lookup the system call function for num, call it,
+    // and store its return value in p-&gt;trapframe-&gt;a0
+    p-&gt;trapframe-&gt;a0 = syscalls[num]();
+    if(p-&gt;tmask &amp; (1&lt;&lt;num))&#123;
+      printf(&quot;%d: syscall %s -&gt; %d\n&quot;,
+            p-&gt;pid, syscallnames[num], p-&gt;trapframe-&gt;a0);
+    &#125;
+  &#125; else &#123;
+    printf(&quot;%d %s: unknown sys call %d\n&quot;,
+            p-&gt;pid, p-&gt;name, num);
+    p-&gt;trapframe-&gt;a0 = -1;
+  &#125;
+&#125;
+</code></pre>
+<p>就是利用p-&gt;tmask判断当前进程对该系统调用是否跟踪，如果跟踪则打印对应的名字与返回结果(存在a0寄存器里面)，syscallnames定义为一个char *[]，索引对应相对的系统调用名字，之后就是在syscall.h里为sys_trace分配系统调用号以及在syscalls对应添加sys_trace</p>
+<ol start="3">
+<li>上面主要是对内核的实现，用户不能直接调用，需要前面提到的stub，因此先在user.h里添加声明<code>int trace(uint64)</code>，然后在usys.pl里添加entry(“trace”)，另外由于把trace的参数设定为了uint64，我在ulib.c里添加了一个atol函数来将字符串转换为uint64</li>
+</ol>
+<ul>
+<li><ol start="2">
+<li>实现一个sysinfo系统调用，它接收一个struct sysinfo指针，系统调用会根据这个指针填充对应信息到用户空间的结构体内</li>
+</ol>
+</li>
+</ul>
+<p>这个实验难点在于怎么在内核空间往用户空间写数据，因为切换到内核空间之后页表会发生变化。但是根据提示发现内核里有一个叫copyout的函数负责这件事，在内核状态下将数据拷贝到用户空间下指定地址，一个重要的参数就是用户页表地址，这个可以从用myproc()获取当前运行进程然后从PCB获取，sysinfo实现如下:</p>
+<pre><code class="c">uint64
+sys_sysinfo(void)
+&#123;
+    uint64 addr;
+    struct sysinfo sinfo;
+    argaddr(0,&amp;addr);
+    sinfo.nproc = proc_unused();
+    sinfo.freemem = mem_unused();
+    if((copyout(myproc()-&gt;pagetable,addr,(char*)&amp;sinfo,sizeof(sinfo)) &lt; 0))
+        return -1;
+    return 0;
+&#125;
+</code></pre>
+<p>其中用到的proc_unusey与mem_unused分别实现在proc.c与kalloc.c，比较简单就不再列出。值得看下的是copyout的实现，在kernel&#x2F;vm.c里，代码如下:</p>
+<pre><code class="c">// Copy from kernel to user.
+// Copy len bytes from src to virtual address dstva in a given page table.
+// Return 0 on success, -1 on error.
+int
+copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
+&#123;
+  uint64 n, va0, pa0;
+  pte_t *pte;
+
+  while(len &gt; 0)&#123;
+    va0 = PGROUNDDOWN(dstva);
+    if(va0 &gt;= MAXVA)
+      return -1;
+    pte = walk(pagetable, va0, 0);
+    if(pte == 0 || (*pte &amp; PTE_V) == 0 || (*pte &amp; PTE_U) == 0 ||
+       (*pte &amp; PTE_W) == 0)
+      return -1;
+    pa0 = PTE2PA(*pte);
+    n = PGSIZE - (dstva - va0);
+    if(n &gt; len)
+      n = len;
+    memmove((void *)(pa0 + (dstva - va0)), src, n);
+
+    len -= n;
+    src += n;
+    dstva = va0 + PGSIZE;
+  &#125;
+  return 0;
+&#125;
+</code></pre>
+<p>依然是非常规范优雅的代码风格，注释非常清晰，整个操作还是在内核状态下操作的，所以肯定有一个将用户空间地址转换到内核空间地址的过程，walk与PTE2PA就是做这个工作的，walk可以根据pagetable来查找虚拟地址va0对应的PTE，PTE2PA能根据pte的内容得出对应的物理地址，而内核空间的页表是可以直接访问所有物理地址的，也就是得到的这个物理地址在内核状态下可以直接用，所以可以直接使用memmove。</p>
 ]]></content>
       <tags>
-        <tag>os lab</tag>
+        <tag>os</tag>
+        <tag>lab</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python拾遗</title>
+    <url>/2024/04/26/python%E6%8B%BE%E9%81%97/</url>
+    <content><![CDATA[<p>这篇博客主要记录一些深入的python知识点<br>主要参考文章:<br><a href="https://docs.python.org/3/library/index.html">python官方文档</a><br><a href="https://tenthousandmeters.com/blog/python-behind-the-scenes-11-how-the-python-import-system-works/">https://tenthousandmeters.com/blog/python-behind-the-scenes-11-how-the-python-import-system-works/</a></p>
+<h2 id="python的import系统"><a href="#python的import系统" class="headerlink" title="python的import系统"></a>python的import系统</h2><h3 id="什么是module与module-object"><a href="#什么是module与module-object" class="headerlink" title="什么是module与module object"></a>什么是module与module object</h3><p>module是python的一个类型，在types模块中有定义，为types.ModuleType<br>几种文件可以作为module:</p>
+<ul>
+<li>.py文件</li>
+<li>.so文件</li>
+<li>.pyc文件</li>
+<li>.pyd文件</li>
+<li>.zip文件<br>(可以从sys.path查看有哪些路径包含这些文件)</li>
+</ul>
+<h3 id="package与submodule"><a href="#package与submodule" class="headerlink" title="package与submodule"></a>package与submodule</h3><p>module可以拥有submodule,拥有submodule的module称为package<br>所以package是一种特殊的module，它含有__path__属性，指向一个list，list中的元素是str，表示package的搜索路径</p>
+<p>-m switch<br>solution and explanation<br><a href="https://stackoverflow.com/questions/16981921/relative-imports-in-python-3">https://stackoverflow.com/questions/16981921/relative-imports-in-python-3</a></p>
+<h3 id="import的过程"><a href="#import的过程" class="headerlink" title="import的过程"></a>import的过程</h3><p>import是对__import__函数的封装，__import__函数的参数是一个str，表示module的名字<br>? 为什么__import__是一个python函数，而不是一个c函数<br>__import__的具体过程：</p>
+<ol>
+<li>resolve the module name</li>
+</ol>
+<p>可以echo “import math” | python -m dis<br>可以查看__import__的docstring看看它的参数是什么</p>
+<p>circular import的原因和解决方法</p>
+]]></content>
+      <tags>
+        <tag>python</tag>
+        <tag>源码</tag>
       </tags>
   </entry>
 </search>
