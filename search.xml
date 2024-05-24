@@ -3656,7 +3656,7 @@ Host: www.baidu.com
   <entry>
     <title>刷题</title>
     <url>/2024/01/19/%E5%88%B7%E9%A2%98/</url>
-    <content><![CDATA[<h4 id="数字范围与"><a href="#数字范围与" class="headerlink" title="数字范围与"></a>数字范围与</h4><p><em>Brian Kernighan 算法</em><br>n&amp;(n-1) 会将n的二进制表示中的最低位为1的改为0<br>(题目描述)[!<a href="https://leetcode.cn/problems/bitwise-and-of-numbers-range/description/?envType=study-plan-v2&amp;envId=top-interview-150%5D">https://leetcode.cn/problems/bitwise-and-of-numbers-range/description/?envType=study-plan-v2&amp;envId=top-interview-150]</a>: 给定两个整数，计算在范围[m,n]内所有数字的按位与，包括m和n</p>
+    <content><![CDATA[<h4 id="数字范围与"><a href="#数字范围与" class="headerlink" title="数字范围与"></a>数字范围与</h4><p><em>Brian Kernighan 算法</em><br>n&amp;(n-1) 会将n的二进制表示中的最低位为1的改为0<br><a href="https://leetcode.cn/problems/bitwise-and-of-numbers-range/description/?envType=study-plan-v2&envId=top-interview-150">题目描述</a>: 给定两个整数，计算在范围[m,n]内所有数字的按位与，包括m和n</p>
 <p>本质就是计算n和m的二进制表示的公共前缀,利用上面的算法,每次将n的最低位为1的改为0,直到n &lt; m此时n就是公共前缀</p>
 <pre><code class="c++">int rangeBitwiseAnd(int m, int n) &#123;
     while(m&lt;n)&#123;
@@ -3676,7 +3676,7 @@ Host: www.baidu.com
     return m &lt;&lt; shift;
 &#125;
 </code></pre>
-<h4 id="跳跃游戏II"><a href="#跳跃游戏II" class="headerlink" title="跳跃游戏II"></a>跳跃游戏II</h4><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/jump-game-ii/]">https://leetcode-cn.com/problems/jump-game-ii/]</a>: 给定一个非负整数数组，你最初位于数组的第一个位置。数组中的每个元素代表你在该位置可以跳跃的最大长度。你的目标是使用最少的跳跃次数到达数组的最后一个位置。</p>
+<h4 id="跳跃游戏II"><a href="#跳跃游戏II" class="headerlink" title="跳跃游戏II"></a>跳跃游戏II</h4><p><a href="https://leetcode-cn.com/problems/jump-game-ii/">题目描述</a>: 给定一个非负整数数组，你最初位于数组的第一个位置。数组中的每个元素代表你在该位置可以跳跃的最大长度。你的目标是使用最少的跳跃次数到达数组的最后一个位置。</p>
 <p>题目保证可以到达最后一个位置，贪心选择可以跳跃得最远的位置进行跳跃<br>这题的关键是在一次遍历中根据已有信息维护得到当前能跳到的最远位置</p>
 <pre><code class="c++">class Solution &#123;
 public:
@@ -3695,7 +3695,7 @@ public:
     &#125;
 &#125;;
 </code></pre>
-<h4 id="H指数"><a href="#H指数" class="headerlink" title="H指数"></a>H指数</h4><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/h-index/]">https://leetcode-cn.com/problems/h-index/]</a>: 给定一位研究者的论文被引用次数数组（被引用次数是非负整数），编写一个方法计算出研究者的 h 指数。h 指数的定义: “h 代表“高引用次数”（high citations），一名科研人员的 h 指数是指他（她）的 （N 篇论文中）至多有 h 篇论文分别被引用了至少 h 次。”</p>
+<h4 id="H指数"><a href="#H指数" class="headerlink" title="H指数"></a>H指数</h4><p><a href="https://leetcode-cn.com/problems/h-index/">题目描述</a>: 给定一位研究者的论文被引用次数数组（被引用次数是非负整数），编写一个方法计算出研究者的 h 指数。h 指数的定义: “h 代表“高引用次数”（high citations），一名科研人员的 h 指数是指他（她）的 （N 篇论文中）至多有 h 篇论文分别被引用了至少 h 次。”</p>
 <p>排序的方法就不写了，这里主要记录一下二分查找答案的思路<br>由于要找的h是一个0-n的整数，可以二分查找这个值，得到一个mid之后去验证是否满足条件</p>
 <pre><code class="c++">class Solution &#123;
 public:
@@ -3722,7 +3722,7 @@ public:
     &#125;
 &#125;;
 </code></pre>
-<h3 id="加油站"><a href="#加油站" class="headerlink" title="加油站"></a>加油站</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/gas-station/]">https://leetcode-cn.com/problems/gas-station/]</a>: 一条环路上有N个加油站，其中第i个加油站有gas[i]升汽油。你有一辆油箱容量无限的的汽车，从第i个加油站开往第i+1个加油站需要消耗汽油cost[i]升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。</p>
+<h3 id="加油站"><a href="#加油站" class="headerlink" title="加油站"></a>加油站</h3><p>[题目描述](!<a href="https://leetcode-cn.com/problems/gas-station/]">https://leetcode-cn.com/problems/gas-station/]</a>: 一条环路上有N个加油站，其中第i个加油站有gas[i]升汽油。你有一辆油箱容量无限的的汽车，从第i个加油站开往第i+1个加油站需要消耗汽油cost[i)升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。</p>
 <p>题目保证答案唯一，假设从i出发最远能到j，则i到j之间的任意一个加油站都不可能到达j，因为如果i最远能到j那i能到达i与j之间的任意一个加油站k，而到达时油箱剩余的油量肯定大于等于0，相当于从k出发再自带大于等于0的油量也只能到j，所以i到j之间的任意一个加油站都不可能到达j</p>
 <pre><code class="c++">class Solution &#123;
 public:
@@ -3743,7 +3743,7 @@ public:
     &#125;
 &#125;;
 </code></pre>
-<h3 id="分糖果"><a href="#分糖果" class="headerlink" title="分糖果"></a>分糖果</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/candy/]">https://leetcode-cn.com/problems/candy/]</a>: 老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。你需要按照以下要求，帮助老师给这些孩子分发糖果：每个孩子至少分配到 1 个糖果。相邻的孩子中，评分高的孩子必顶得多的糖果。那么这样下来，老师至少需要准备多少颗糖果呢？</p>
+<h3 id="分糖果"><a href="#分糖果" class="headerlink" title="分糖果"></a>分糖果</h3><p><a href="https://leetcode-cn.com/problems/candy/">题目描述</a>: 老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。你需要按照以下要求，帮助老师给这些孩子分发糖果：每个孩子至少分配到 1 个糖果。相邻的孩子中，评分高的孩子必顶得多的糖果。那么这样下来，老师至少需要准备多少颗糖果呢？</p>
 <p><strong>两边遍历思想</strong>，先只看左边，再只看右边，取两次遍历的最大值</p>
 <pre><code class="c">int candy(int* ratings, int ratingsSize) &#123;
     int *left = malloc(ratingsSize*sizeof(int));
@@ -3767,7 +3767,7 @@ public:
     return re;
 &#125;
 </code></pre>
-<h3 id="长度最小的子数组"><a href="#长度最小的子数组" class="headerlink" title="长度最小的子数组"></a>长度最小的子数组</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/minimum-size-subarray-sum/]">https://leetcode-cn.com/problems/minimum-size-subarray-sum/]</a>: 给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。如果不存在符合条件的连续子数组，返回 0。</p>
+<h3 id="长度最小的子数组"><a href="#长度最小的子数组" class="headerlink" title="长度最小的子数组"></a>长度最小的子数组</h3><p><a href="https://leetcode-cn.com/problems/minimum-size-subarray-sum/">题目描述</a>: 给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。如果不存在符合条件的连续子数组，返回 0。</p>
 <p>滑动窗口比较容易想到，这里记录一下<strong>利用前缀和+二分查找的思想</strong><br>由于所给数组都是正数，所以前缀和是一个递增序列，从0开始遍历下标，确定下标后二分查找target+pre[i]的位置，这个位置就是最小的j使得pre[j]-pre[i]&gt;&#x3D;target</p>
 <pre><code class="c">
 int lowerbound(int arr[],int low,int high,int target)&#123;
@@ -3798,7 +3798,7 @@ int minSubArrayLen(int target, int* nums, int numsSize)&#123;
     return re==INT_MAX?0:re;
 &#125;
 </code></pre>
-<h3 id="对称二叉树"><a href="#对称二叉树" class="headerlink" title="对称二叉树"></a>对称二叉树</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/symmetric-tree/]">https://leetcode-cn.com/problems/symmetric-tree/]</a>: 给定一个二叉树，检查它是否是镜像对称的。<br>这个题一个比较有意思的地方在于写出比较两颗树是否镜像对称的函数之后，然后判断自身是否与自身镜像对称即可</p>
+<h3 id="对称二叉树"><a href="#对称二叉树" class="headerlink" title="对称二叉树"></a>对称二叉树</h3><p><a href="https://leetcode-cn.com/problems/symmetric-tree/">题目描述</a>: 给定一个二叉树，检查它是否是镜像对称的。<br>这个题一个比较有意思的地方在于写出比较两颗树是否镜像对称的函数之后，然后判断自身是否与自身镜像对称即可</p>
 <pre><code class="c">bool isSymmetric2(struct TreeNode* root1,struct TreeNode* root2)&#123;
     if(root1&amp;&amp;root2)&#123;
         if(root1-&gt;val!=root2-&gt;val)
@@ -3814,9 +3814,9 @@ bool isSymmetric(struct TreeNode* root)&#123;
     return isSymmetric2(root,root);
 &#125;
 </code></pre>
-<h3 id="三数之和"><a href="#三数之和" class="headerlink" title="三数之和"></a>三数之和</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/3sum/]">https://leetcode-cn.com/problems/3sum/]</a>: 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c &#x3D; 0 ？请你找出所有满足条件且不重复的三元组。</p>
+<h3 id="三数之和"><a href="#三数之和" class="headerlink" title="三数之和"></a>三数之和</h3><p><a href="https://leetcode-cn.com/problems/3sum/">题目描述</a>: 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c &#x3D; 0 ？请你找出所有满足条件且不重复的三元组。</p>
 <p>暴力列举i,j,k需要O(n^3)的复杂度,可以先排序，列举i,j,因为nums[i]和nums[j]确定之后剩下的值是确定的,由于</p>
-<h3 id="两数之和"><a href="#两数之和" class="headerlink" title="两数之和"></a>两数之和</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/two-sum/]">https://leetcode-cn.com/problems/two-sum/]</a>: 给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回它们的数组下标。</p>
+<h3 id="两数之和"><a href="#两数之和" class="headerlink" title="两数之和"></a>两数之和</h3><p><a href="https://leetcode-cn.com/problems/two-sum/">题目描述</a>: 给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回它们的数组下标。</p>
 <p>一种思路是先确定答案的第一个值然后找第二个值，这样需要O(n^2)的复杂度，另一种思路是<strong>先找到答案的第二个值，然后找第一个值，在遍历过程中哈希记录已经遍历过的值这样可以加快查找的效率</strong></p>
 <pre><code class="python3"># O(n^2)
 class Solution:
@@ -3836,7 +3836,7 @@ class Solution:
                 return [hashmap[target-nums[i]],i]
             hashmap[nums[i]] = i
 </code></pre>
-<h3 id="有效数独"><a href="#有效数独" class="headerlink" title="有效数独"></a>有效数独</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/valid-sudoku/]">https://leetcode-cn.com/problems/valid-sudoku/]</a>: 判断一个 9x9 的数独是否有效。只需要根据以下规则，验证已经填入的数字是否有效即可。数字 1-9 在每一行只能出现一次。数字 1-9 在每一列只能出现一次。数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。</p>
+<h3 id="有效数独"><a href="#有效数独" class="headerlink" title="有效数独"></a>有效数独</h3><p><a href="https://leetcode-cn.com/problems/valid-sudoku/">题目描述</a>: 判断一个 9x9 的数独是否有效。只需要根据以下规则，验证已经填入的数字是否有效即可。数字 1-9 在每一行只能出现一次。数字 1-9 在每一列只能出现一次。数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。</p>
 <p>关于块的规律是board[i][j]所在的块可以看作sub[i&#x2F;3][j&#x2F;3]，可以用一个sub[3][3][9]的数组来记录每个块的数字出现情况<br>然后用两个二维数组row[9][9]和col[9][9]来记录每一行和每一列的数字情况，row[i][x]表示第i行数字x的出现次数，col[j][x]表示第j列数字x的出现次数，另外由于只是1-9的数字，可以数位哈希压缩空间</p>
 <pre><code class="c">bool isValidSudoku(char** board, int boardSize, int* boardColSize) &#123;
     int row[9]=&#123;0&#125;;
@@ -3858,8 +3858,8 @@ class Solution:
     return true;
 &#125;
 </code></pre>
-<h3 id="完全二叉树的节点个数"><a href="#完全二叉树的节点个数" class="headerlink" title="完全二叉树的节点个数"></a>完全二叉树的节点个数</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/count-complete-tree-nodes/]">https://leetcode-cn.com/problems/count-complete-tree-nodes/]</a>: 给出一个完全二叉树，求出该树的节点个数。</p>
-<h3 id="爬楼梯"><a href="#爬楼梯" class="headerlink" title="爬楼梯"></a>爬楼梯</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/climbing-stairs/]">https://leetcode-cn.com/problems/climbing-stairs/]</a>: 假设你正在爬楼梯。需要 n 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶？<br>简单的递归和动态规划都可以解决，这里记录一下<strong>矩阵快速幂</strong>的解法</p>
+<h3 id="完全二叉树的节点个数"><a href="#完全二叉树的节点个数" class="headerlink" title="完全二叉树的节点个数"></a>完全二叉树的节点个数</h3><p><a href="!https://leetcode-cn.com/problems/count-complete-tree-nodes/">题目描述</a>: 给出一个完全二叉树，求出该树的节点个数。</p>
+<h3 id="爬楼梯"><a href="#爬楼梯" class="headerlink" title="爬楼梯"></a>爬楼梯</h3><p><a href="!https://leetcode-cn.com/problems/climbing-stairs/">题目描述</a>: 假设你正在爬楼梯。需要 n 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶？<br>简单的递归和动态规划都可以解决，这里记录一下<strong>矩阵快速幂</strong>的解法</p>
 <p>对于一个齐次线性递推式，可以用矩阵快速幂来解决，$f(n)&#x3D;\sum_{i&#x3D;1}^{m}a_if(n-i)$可以表示为一个矩阵的形式如下:<br>$$<br>\begin{bmatrix}f(n)\<br>f(n-1)\<br>f(n-2)\<br>\vdots\<br>f(n-m+1)<br>\end{bmatrix}<br>&#x3D;<br>\begin{bmatrix}a_1&amp;a_2&amp;a_3&amp;\cdots&amp;a_m\<br>1&amp;0&amp;0&amp;\cdots&amp;0\<br>0&amp;1&amp;0&amp;\cdots&amp;0\<br>\vdots&amp;\vdots&amp;\vdots&amp;\ddots&amp;\vdots\<br>0&amp;0&amp;0&amp;\cdots&amp;1<br>\end{bmatrix}<br>\begin{bmatrix}f(n-1)\<br>f(n-2)\<br>f(n-3)\<br>\vdots\<br>f(n-m)<br>\end{bmatrix}<br>$$<br>右边的矩阵可以继续展开，直到f(1)为止，然后就可以用矩阵快速幂来求解，此题的递推式为f(n)&#x3D;f(n-1)+f(n-2),初始条件为f(1)&#x3D;1,f(2)&#x3D;2，最终的矩阵为<br>$$<br>\begin{bmatrix}f(n)\<br>f(n-1)<br>\end{bmatrix}<br>&#x3D;<br>\begin{bmatrix}1&amp;1\<br>1&amp;0<br>\end{bmatrix}^{n-1}<br>\begin{bmatrix}2\<br>1<br>\end{bmatrix}<br>$$</p>
 <pre><code class="c">
 void matrix_quick_pow(int a[2][2],int n)&#123;
@@ -3914,7 +3914,7 @@ int climbStairs(int n)&#123;
     return 2*a[0][0]+a[1][0];
 &#125;
 </code></pre>
-<h3 id="负二进制转换"><a href="#负二进制转换" class="headerlink" title="负二进制转换"></a>负二进制转换</h3><p>(题目描述)[!<a href="https://leetcode-cn.com/problems/convert-to-base-2/]">https://leetcode-cn.com/problems/convert-to-base-2/]</a>: 给出数字 N，返回由 “0” 和 “1” 组成的字符串，该字符串是 N 的负二进制（base -2）表示。</p>
+<h3 id="负二进制转换"><a href="#负二进制转换" class="headerlink" title="负二进制转换"></a>负二进制转换</h3><p><a href="!https://leetcode-cn.com/problems/convert-to-base-2/">题目描述</a>: 给出数字 N，返回由 “0” 和 “1” 组成的字符串，该字符串是 N 的负二进制（base -2）表示。</p>
 <ol>
 <li>进制转换<br>首先明确负二进制的定义，负二进制的权值是-2的幂次方，即-2^0,-2^1,-2^2…，所以一个数的负二进制表示是将这个数分解为-2的幂次方的和，如果像正二进制数一样用除-2取余的方法来求负二进制数，会发现余数会出现0,1,-1三种情况，所以需要将余数为-1的情况转换为0,1的情况，如果n &#x3D; x*(-2)-1那n也可以表示为n &#x3D; (x+1)*(-2)+1，这样就可以将余数为-1的情况转换为1的情况</li>
 </ol>
@@ -3933,7 +3933,7 @@ class Solution:
         return ans[::-1] if ans else &quot;0&quot;
 </code></pre>
 <ol start="2">
-<li>位运算<br>举一个例子10，它的原码表示为1010，为8+2，负二进制下表示为11110，为16-8+4-2&#x3D;&#x3D;8+2。一个想法是针对原码的二进制表示来进行运算得到结果。如果直接将原码作为答案只有部分数字是正确的，比如5在两边都表示为101，原因是它的二进制不包含奇数位的1，如果原码包含奇数位的1就需要进行处理，处理的方式就是向前进1位，因为原码表示中此处的1表示正数，如果想要它表示它原来的数值只要将该位前面一位进1那就相当于它还是原来的数值。比如10里面的两个1都是奇数位上的，向前进位得到11110，但如果是7这样原码表示为111，进位之后得到1011但是最高位的1仍然是奇数位所以继续进位得到11011，这样就得到了正确的负二进制表示。</li>
+<li>位运算<br>举一个例子10，它的原码表示为1010，为8+2，负二进制下表示为11110，为16-8+4-2&#x3D;&#x3D;8+2。一个想法是针对原码的二进制表示来进行运算得到结果。如果直接将原码作为答案只有部分数字是正确的，比如5在两边都表示为101，原因是它的二进制不包含奇数位的1，如果原码包含奇数位的1就需要进行处理，处理的方式就是向前进1位，因为原码表示中此处的1表示正数，如果想要它表示它原来的数值只要将该位前面一位进1那就相当于它还是原来的数值。比如10(十进制)的二进制表示1010里面的两个1都是奇数位上的，向前进位得到11110，但如果是7这样原码表示为111，进位之后得到1011但是最高位的1仍然是奇数位所以继续进位得到11011，这样就得到了正确的负二进制表示。</li>
 </ol>
 <pre><code class="python">
 class Solution:
@@ -3949,6 +3949,39 @@ class Solution:
             ans = str(N &amp; 1) + ans
             N &gt;&gt;= 1
         return ans if ans else &quot;0&quot;
+</code></pre>
+<h3 id="吃掉N个橘子的最少天数"><a href="#吃掉N个橘子的最少天数" class="headerlink" title="吃掉N个橘子的最少天数"></a>吃掉N个橘子的最少天数</h3><p><a href="!https://leetcode.cn/problems/minimum-number-of-days-to-eat-n-oranges/description/">题目描述</a>: 厨房里总共有 n 个橘子，你决定每一天选择如下方式之一吃这些橘子：<br>吃掉一个橘子。<br>如果剩余橘子数 n 能被 2 整除，那么你可以吃掉 n&#x2F;2 个橘子。<br>如果剩余橘子数 n 能被 3 整除，那么你可以吃掉 2*(n&#x2F;3) 个橘子。<br>每天你只能从以上 3 种方案中选择一种方案。<br>请你返回吃掉所有 n 个橘子的最少天数。</p>
+<p>简化描述：从n开始，每天可以选择将n变为n-1,n&#x2F;2,n&#x2F;3(后面两种情况需要能整除)，问将n变为0的最少天数</p>
+<p>第一比较直观的想法是从1开始递推到n，如果知道f(1)~f(n-1)的所有值，则</p>
+<pre><code class="c">f(n) = f(n-1)+1
+if n%2==0:
+    f(n) = min(f(n),f(n/2)+1)
+if n%3==0:
+    f(n) = min(f(n),f(n/3)+1)
+</code></pre>
+<p>但是这样是O(n)的复杂度，对于题目来说会超时</p>
+<p>一个很直观的想法就是应该尽量减少只吃1个橘子的操作，尽量用2和3来减少橘子的数量，假设连续进行了k次只吃1个橘子之后进行了一次吃2个橘子，那么这k+1天的操作，剩余的橘子为:<br>$(n-k)&#x2F;2$<br>令k0 &#x3D; n%2,则<br>$(n-k0)&#x2F;2 - (k-k0)&#x2F;2 &#x3D; (n-k)&#x2F;2$<br>也就是先进行k0次-1操作然后折半然后再进行(k-k0)&#x2F;2次-1操作可以达到与原来一样的效果，而现在进行的-1操作次数为<br>$k0+(k-k0)&#x2F;2$<br>容易证明小于等于k，同理可以证明对于3的情况也是一样的，所以可以用下面的方式来解决，总结起来就是-1操作尽量为&#x2F;2与&#x2F;3服务，由于k0&#x3D;n%2与k0&#x3D;n%3，连续的-1操作不会超过2。</p>
+<pre><code class="c">int minDays(int n)&#123;
+    if(n&lt;=1)
+        return n;
+    return min(n%2+1+minDays(n/2),n%3+1+minDays(n/3));
+&#125;
+</code></pre>
+<p>由上述公式可以得到时间复杂度公式:<br>$T(n) &#x3D; T(n&#x2F;2) + T(n&#x2F;3) + 1$<br>将$T(n) &#x3D; O(n^t)$代入得到:<br>$O(n^t) &#x3D; O(n^t&#x2F;2) + O(n^t&#x2F;3) + 1$<br>两边同时除以O(n^t)得到:<br>$1 &#x3D; 1&#x2F;2^t + 1&#x2F;3^t$<br>可以解出t≈0.78</p>
+<p>由于递归会有重复计算，可以用记忆化搜索来解决</p>
+<pre><code class="c++">class Solution &#123;
+private:
+    unordered_map&lt;int,int&gt; umap;
+public:
+    int minDays(int n) &#123;
+        if(n&lt;=1)
+            return 1;
+        if(umap.count(n))
+            return umap[n];
+        umap[n] = min(minDays(n&gt;&gt;1)+1+n%2,minDays(n/3)+1+n%3);
+        return umap[n];
+    &#125;
+&#125;;
 </code></pre>
 ]]></content>
       <tags>
@@ -4508,12 +4541,43 @@ else
     <url>/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</url>
     <content><![CDATA[<p>这篇文章主要记录自己阅读python源码的一些心得，参考文章如下:<br><a href="https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python">https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python</a><br><a href="https://fasionchan.com/python-source/preface/intra/">https://fasionchan.com/python-source/preface/intra/</a></p>
 <h3 id="Doc"><a href="#Doc" class="headerlink" title="Doc"></a>Doc</h3><p>Doc文件夹里面包含了所有关于python的内容，比如faq文件夹里面的一些关于python的问题包含了为什么要使用缩进而不是花括号等问题，这个文件夹里面很多文件都是rst格式，可以看作一种跟markdown一样的标记语言，一方面可以直接给人阅读一方面用于计算机渲染文章组织结构，这些文件的实际效果可以在<a href="https://docs.python.org/3/reference/">dorcs.python.org</a>看到</p>
-<p>里面包括的一些文件夹有:</p>
+<p>里面重要的一些文件夹有:</p>
 <ul>
-<li>faq 一些常见问题以及回答，比如design.rst里回答了为什么要将空格对齐作为语言本身的一部分，为什么python退出时不会释放所有资源，为什么要有list和tuple两种类型…另一值得一看的是programming.rst，里面记录了一些关于python编程的常见问题，比如局部变量的Unbounded Error和lambda表达式总是返回同一个值等</li>
-<li></li>
+<li>faq 一些常见问题以及回答，比如design.rst里回答了为什么要将空格对齐作为语言本身的一部分，为什么python退出时不会释放所有资源，为什么要有list和tuple两种类型…另一值得一看的是<em>programming.rst</em>，里面记录了一些关于python编程的常见问题，比如局部变量的Unbounded Error和lambda表达式总是返回同一个值等</li>
+<li>reference 有关语言的参考手册，比如模块系统，语法规则，数据模型等</li>
+<li>c-api 有关python的c扩展api</li>
 </ul>
-<h3 id="Grammar"><a href="#Grammar" class="headerlink" title="Grammar"></a>Grammar</h3><p>这个文件夹主要描述了python的语法，Grammar文件用一种叫BNF的上下文无关文法描述了整个python的语法细节，是旧版的解析器生成文件，现在使用了一种叫PEG的方法来描述，放在python.gram文件里</p>
+<h3 id="Grammar"><a href="#Grammar" class="headerlink" title="Grammar"></a>Grammar</h3><p>这个文件夹主要描述了python语言的文法定义<br>Grammar文件用一种叫BNF的上下文无关文法描述了整个python的语法细节，是旧版的解析器生成文件，现在使用了一种叫PEG的方法来描述，放在python.gram文件里，Tokens存储了python所有的词法单元，比如关键字，操作符等。是编译python需要用到的文件而不是python执行时会用到的文件，准确的来说该文件执行之后会为Python生成一个语法解析表，python用到的是这个表而不是Grammar文件来判断语法。生成这个表的工具叫<em>pgen</em>，在python源码的Parser文件夹里面有c和python两个版本。比如更改Grammar文件里面的内容<code>pass_stmt: &#39;pass&#39;</code>为<code>pass_stmt: &#39;pass&#39; | &#39;preceed&#39;</code>，执行<code>make regen-grammar</code>会调用pgen生成一个新的语法解析表，并重新编译python解释器，输出如下:</p>
+<pre><code># Regenerate Doc/library/token-list.inc from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py rst \
+        ./Grammar/Tokens \
+        ./Doc/library/token-list.inc
+# Regenerate Include/token.h from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py h \
+        ./Grammar/Tokens \
+        ./Include/token.h
+# Regenerate Parser/token.c from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py c \
+        ./Grammar/Tokens \
+        ./Parser/token.c
+# Regenerate Lib/token.py from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py py \
+        ./Grammar/Tokens \
+        ./Lib/token.py
+# Regenerate Include/graminit.h and Python/graminit.c
+# from Grammar/Grammar using pgen
+PYTHONPATH=. python3.8 -m Parser.pgen ./Grammar/Grammar \
+        ./Grammar/Tokens \
+        ./Include/graminit.h.new \
+        ./Python/graminit.c.new
+python3.8 ./Tools/scripts/update_file.py ./Include/graminit.h ./Include/graminit.h.new
+python3.8 ./Tools/scripts/update_file.py ./Python/graminit.c ./Python/graminit.c.new
+</code></pre>
+<p>可以很清楚看到哪些文件被更新了，其中用于python解释器进行语法解析的解析表表现为Python&#x2F;graminit.c，Include&#x2F;graminit.h，这两个文件会被编译到python解释器中，用于解析python代码<br>pgen的工作就是根据Grammar文件内容生成一个DFA，这个Python&#x2F;graminit.c文件就是这个DFA的实现。</p>
 ]]></content>
       <tags>
         <tag>python</tag>
@@ -4950,6 +5014,186 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 &#125;
 </code></pre>
 <p>依然是非常规范优雅的代码风格，注释非常清晰，整个操作还是在内核状态下操作的，所以肯定有一个将用户空间地址转换到内核空间地址的过程，walk与PTE2PA就是做这个工作的，walk可以根据pagetable来查找虚拟地址va0对应的PTE，PTE2PA能根据pte的内容得出对应的物理地址，而内核空间的页表是可以直接访问所有物理地址的，也就是得到的这个物理地址在内核状态下可以直接用，所以可以直接使用memmove。</p>
+<h3 id="xv6-chapter3-Page-tables"><a href="#xv6-chapter3-Page-tables" class="headerlink" title="xv6 chapter3: Page tables"></a>xv6 chapter3: Page tables</h3><ul>
+<li>硬件转换过程<br>xv6运行在Sv39的RISC-V架构上，也就是只有低39位用于虚拟地址寻址，高25位没有用到。一个RISC-V的页表逻辑上是一个有2^27个PTE的数组，每个数组元素是一个PTE，一个PTE指示了4KB大小的物理页框，在RISC-V下PTE内容为一个44位的物理地址10位标志位。因此39位的虚拟地址其中高27位用于索引PTE，低12位用于表示页内偏移。从一个PTE可以获得一个44位的物理地址基地址，然后加上低12位的偏移就可以得到一个最终访问的物理地址。<br>因此在riscv.h(kernel&#x2F;riscv.h)里关于PTE2PA与PTE2PTE的宏定义如下:</li>
+</ul>
+<pre><code class="c">#define PTE2PA(pte) (((pte)&gt;&gt;10)&lt;&lt;12)
+#define PA2PTE(pa) ((((uint64)pa)&gt;&gt;12)&lt;&lt;10)
+</code></pre>
+<p>PTE2PA先将传入的pte内容右移10位清除标志位，剩下的低44位就是一个基地址，由于物理内存也以4KB为单位，再左移12位就能得到下一个页表的实际物理基地址，而PA2PTE则相反，先将物理地址右移12位清除低12位的偏移，然后左移10位得到一个PTE的内容。理解上述操作的关键点就是所有的页表都是4KB大小，每个页表一定是4KB对齐的。</p>
+<p>xv6的具体地址翻译过程如图所示，主要分成三个步骤<br><img src="/2024/04/16/mit-6-828/address_translation.jpg" alt="地址翻译图"><br>27位的PTE索引被分成3级，每级9位，每级的索引用于索引下一级的页表，最后一级的索引用于索引物理页框。每级表有512个项，第一级的表其物理地址存放在satp寄存器。</p>
+<p>通常每个CPU会有各自的页表，且内核的页表往往能访问整个物理空间，这样使得内核可以去修改页表的内容</p>
+<p><img src="/2024/04/16/mit-6-828/kernel_address_map.jpg" alt="内核地址空间映射"><br>qemu模拟的RISC-V架构RAM是从0x80 000 000开始的，下面的内存用作MMIO，xv6的内核预留空间为128M(PHYSTOP为128*1024*1024)，具体的布局可以在kernel&#x2F;memlayout.h里看到。</p>
+<ul>
+<li>内核地址空间<br>kernel&#x2F;memlayout.h里有关于物理和逻辑空间的布局设计，用一系列的宏为各个区域划分了边界，而主要的内存空间的操作放在kernel&#x2F;vm.c里。<br>里面的核心数据结构pagetable_t实际是一个指针，用来指示一张页表的物理地址，指示的页表可能是3级中的任何一级。有关内核的操作以kvm开头，有关用户空间的操作以uvm开头。下面是内核空间配置的过程:</li>
+</ul>
+<ol>
+<li>内核的虚拟空间初始化在main里调用kvminit(kernel&#x2F;vm.c)完成，而kvminit做的事就是调用同文件下的kvmmake，直到此时内核还没有开启分页，所有的操作都是直接访问物理地址。kvmmake主要就是完成对几个关键区域的映射，从代码来开KERNEBASE以下的空间都是直接映射，因为这些空间跟MMIO相关。</li>
+<li>最终编译出来的内核的代码的大小由etext-KERNBASE得到，etext由链接器产生，在kernel&#x2F;kernel.ld可以看到。然后etext到PHYSTOP的内容也是直接映射，最后的TRAMPOLINE是映射到trampoline(kernel&#x2F;trampoline.S)处。</li>
+<li>调用proc_mapstacks(kernel&#x2F;proc.c)为所有的PCB分配一个内核栈，这个函数会将这些栈映射到对应位置</li>
+</ol>
+<p>上述过程有一个很重要的函数是mappages(kernel&#x2F;vm.c)，它是用来将虚拟地址映射到物理地址的，代码如下:</p>
+<pre><code class="c">int
+mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
+&#123;
+  uint64 a, last;
+  pte_t *pte;
+
+  if((va % PGSIZE) != 0)
+    panic(&quot;mappages: va not aligned&quot;);
+
+  if((size % PGSIZE) != 0)
+    panic(&quot;mappages: size not aligned&quot;);
+
+  if(size == 0)
+    panic(&quot;mappages: size&quot;);
+
+  a = va;
+  last = va + size - PGSIZE;
+  for(;;)&#123;
+    if((pte = walk(pagetable, a, 1)) == 0)
+      return -1;
+    if(*pte &amp; PTE_V)
+      panic(&quot;mappages: remap&quot;);
+    *pte = PA2PTE(pa) | perm | PTE_V;
+    if(a == last)
+      break;
+    a += PGSIZE;
+    pa += PGSIZE;
+  &#125;
+  return 0;
+&#125;
+</code></pre>
+<p>mappages的功能就是将虚拟地址va开始的size大小空间映射到pa，perm是此块地址的权限，映射的PTE写到传入的pagetable上。代码首先进行了对于传入地址的一系列检查，要求va必须是4KB对齐的，也就是必须是某个页的基址，size也必须是4KB对齐的，所以目前所有的内存操作都是以页为单位的。之后一个重要函数walk(kernel&#x2F;vm.c)出现了，它的代码如下:</p>
+<pre><code class="c">pte_t *
+walk(pagetable_t pagetable, uint64 va, int alloc)
+&#123;
+  if(va &gt;= MAXVA)
+    panic(&quot;walk&quot;);
+
+  for(int level = 2; level &gt; 0; level--) &#123;
+    pte_t *pte = &amp;pagetable[PX(level, va)];
+    if(*pte &amp; PTE_V) &#123;
+      pagetable = (pagetable_t)PTE2PA(*pte);
+    &#125; else &#123;
+      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0)
+        return 0;
+      memset(pagetable, 0, PGSIZE);
+      *pte = PA2PTE(pagetable) | PTE_V;
+    &#125;
+  &#125;
+  return &amp;pagetable[PX(0, va)];
+&#125;
+</code></pre>
+<p>wallk函数的功能是根据传入的pagetable查找虚拟地址va对应的最后一级pte，如果alloc非0则在查找过程中发现不存在时自动申请。前面已经说过，1)pagetable_t类型其实就是一个指针，所以传入的pagetable就是一个地址，也可以看作一个数组，可以用pagetable[index]来检索这张表第index项。2)一个虚拟地址的前高27位被分成了3级，每级的PTE包含下一级PTE表的起始地址。<code>PX(level,va)</code>就是取va中某一级的内容，所以<code>pte_t *pte = &amp;pagetable[PX(level, va)]</code>就是在模拟CPU进行地址解析，可以看到最后返回的是<code>&amp;pagetable[PX(0,va)]</code>也就是直接指向va的pte指针。现在回到mappages，通过walk得到va所在PTE之后进行检查，是否是重映射等，然后将对应内容写道PTE上即可。</p>
+<p>上面涉及的代码所用地址都是直接映射，所以传入的pagetable以及一些其它指针可以直接使用。尤其是walk里面需要对va解析，每次得到的新的PTE表基址是直接用的。上面的代码都是在kvminit中调用kvmmake使用，此时只是准备好了内核需要使用的页表但还没有真正装上，kvminithart(kernel&#x2F;vm.c)负责将这张制作好的页表(根页表)地址加载到satp寄存器并开启分页</p>
+<ul>
+<li>物理地址管理<br>对虚拟地址的管理最终会落到物理空间的管理，前面的walk里会使用kalloc(kernel&#x2F;kalloc.c)分配页表，kalloc分配就是一个物理页表，所以除了前面一些关于虚拟地址和页表操作的管理，还需要有一套物理地址的管理，这部分代码主要在(kernel&#x2F;kalloc.c)里实现</li>
+</ul>
+<ol>
+<li><p>首先xv6划定的可用物理地址，为了简化问题xv6没有去检测实际的物理内存大小，直接假设有128M的物理内存，除开内核代码与数据占用的页剩下的都属于可用并需要被管理的页，内核代码的结束由end(kernel&#x2F;kernel.l)提供，所以总共可用空间为PHYSTOP-end</p>
+</li>
+<li><p>用于管理空闲页的数据结构是<code>struct run</code>它只包含一个同类型的指针元素，既然是一个数据结构必然有存储它们的地方，这个地方就是页本身，每个页的起始地址存放的就是一个struct run的指针，指向下一个空闲页地址(可以用gdb停在main的kvminit那里，此时kinit已执行完成，可以手动查看各个页的起始内容是什么)，如果被分出去了就会被覆盖。所以对空闲页的管理其实就是对这个单向链表的管理，出于效率考虑所有的操作都在链表头进行，即分配和回收都在链表头进行，这可以在后面的kalloc与kfree里看到。</p>
+</li>
+<li><p>由于后面会实现多进程，可能会有多个进程同时申请物理页，所以加了一个锁来控制对空闲链表的访问，最终定义的结构如下:</p>
+</li>
+</ol>
+<pre><code class="c">struct &#123;
+        struct spinlock lock;
+        struct run *freelist;
+&#125; kmem;
+</code></pre>
+<p>介绍完上面基本就结束了，下面看几个重要函数：<br>kinit()是在main里调用的，会在kvminit之前调用，因为kvminit会用到kalloc函数，而kinit的主要工作就是初始化kmem，lock由initlock完成，freelist由freerange完成，而freerange主要调用kfree完成,kfree的代码比较简单，对传入的物理地址进行判断然后置1，之后就是将其插入到freelist。与之相对的kalloc内容流程相似。</p>
+<ul>
+<li>用户进程地址空间<br>对于用户进程来说地址空间是从0开始到MAXVA，理论上就是256GB的空间，用户进程的地址空间格局如下:<br><img src="/2024/04/16/mit-6-828/process_address_space.jpg" alt="用户进程地址空间"><br>其中最上面的trampoline与trapframe没有U标志，也就是用户模式下无权访问，这两个区域用于系统调用，涉及内核。其它一些guarh和unused区域用来防止溢出，其标志位的V会被设置为0，当溢出发生就会访问这些区域而触发异常。可以看到xv6中栈段大小是固定的为一个PGSIZE，这个栈由exec根据elf文件分配。下面介绍exec:<br>exec(kernel&#x2F;exec.c)是一个系统调用，它会把一个二进制文件加载到内存并为这个程序设置相应的地址空间。要为程序设置相应的地址空间就需要知道程序的布局，比如各个段的大小、相对位置，这些只有程序自己知道，所以要让exec知道这些信息程序就必须在某处提供关于自己布局的信息，这样一个完整的程序除了程序本身的内容比如二进制代码，数据等，还有一些描述信息。各个平台有各自组织这些数据的格式在linux上是ELF格式(windows上是PE)，关于elf的结构在kernel&#x2F;elf.h中定义，但更重要的是另一个结构就是<code>proghdr</code>，它描述了程序执行时的内存布局，一个程序中可能会有多个proghdr，其在文件的位置由ELF给出，利用readelf工具查看_init程序如图<br><img src="/2024/04/16/mit-6-828/elf.jpg" alt="elf 程序头"></li>
+</ul>
+<p>Offset表示该段在文件中的偏移，filesz表示该段在文件中的大小，memsz表示该段在内存中的大小，一般情况下memsz&gt;&#x3D;files，因为一些像未初始化全局变量和静态变量的内容默认为0，程序本身不存储这些0，而是在加载是将这些内容填0，比如第二个Loaz中含有bss段，可以看到它的memsz是0x30而filesz是0x10。vaddr表示该段应该映射的虚拟地址。</p>
+<p>exec一方面要与文件系统接触一方面要与内存管理接触，由于xv6的文件系统实现了log机制，代码中的begin_op与end_op就是用来实现这个的，具体原理见后面的文件系统部分。这里主要介绍与内存管理相关的部分。代码到49行之前都是在对ELF文件的读取和校验，<code>pagetable=proc_pagetable()</code>这里是在为新的进程分配一张全新的页表，这张页表只映射了中断会用到的trapframe与trampoline的空间。之后就是循环读取每个proghdr，对每个proghdr调用loadseg(kernel&#x2F;exec.c)函数，这个函数的主要工作就是将文件中的内容加载到内存中，代码如下:</p>
+<pre><code class="c">for(i=0, off=elf.phoff; i&lt;elf.phnum; i++, off+=sizeof(ph))&#123;
+    if(readi(ip, 0, (uint64)&amp;ph, off, sizeof(ph)) != sizeof(ph))
+      goto bad;
+    if(ph.type != ELF_PROG_LOAD)
+      continue;
+    if(ph.memsz &lt; ph.filesz)
+      goto bad;
+    if(ph.vaddr + ph.memsz &lt; ph.vaddr)
+      goto bad;
+    if(ph.vaddr % PGSIZE != 0)
+      goto bad;
+    uint64 sz1;
+    if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz, flags2perm(ph.flags))) == 0)
+      goto bad;
+    sz = sz1;
+    if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) &lt; 0)
+      goto bad;
+  &#125;
+  iunlock(ip);
+  ip = 0;
+  end_op();
+</code></pre>
+<p>可以看到对加载的段是有一些检查的，其中<code>ph.memsz + ph.vaddr &lt; ph.vaddr</code>是为了防止溢出，<code>ph.vaddr % PGSIZE != 0</code>是为了保证虚拟地址是4KB对齐的，这样可以保证每个段都是整页的。之后就是分配足够的空间然后进行<code>loadseg</code>调用，loadeseg的代码比较简单，就是将ip所指文件的off处开始的filesz大小的内容加载到虚拟地址vaddr处，其中用到的walkaddr(kernel&#x2F;vm.c)函数是用来将虚拟地址映射到物理地址的，就是利用walk函数得到最后一级pte然后利用PTE2PA得到物理地址，但是有一个对PTE_U的检查，说明该函数只用于查找用户空间的映射。这里是只加载了filesz，而不是memsz，初始化为0的工作在uvmalloc里已经完成了，申请到的页都会先被清0，因此不用再故意初始化。至此加载程序的工作完成，后面是设置trapframe，设置用户栈，设置用户PC等工作，代码如下:</p>
+<pre><code class="c">  p = myproc();
+  uint64 oldsz = p-&gt;sz;
+
+  // Allocate two pages at the next page boundary.
+  // Make the first inaccessible as a stack guard.
+  // Use the second as the user stack.
+  sz = PGROUNDUP(sz);
+  uint64 sz1;
+  if((sz1 = uvmalloc(pagetable, sz, sz + 2*PGSIZE, PTE_W)) == 0)
+    goto bad;
+  sz = sz1;
+  uvmclear(pagetable, sz-2*PGSIZE);
+  sp = sz;
+  stackbase = sp - PGSIZE;
+
+</code></pre>
+<p>进行到这里已经是程序内容加载完成，现在的sz就是程序的边界，先对齐之后由申请了两个新的页，这两个新的页一个用作栈一个用作防止栈溢出的guardpage，uvmclear就是把guardpage的PTE_U置为0，使得用户访问时报错。之后是将exec中的参数传递给用户程序:</p>
+<pre><code class="c"> // Push argument strings, prepare rest of stack in ustack.
+  for(argc = 0; argv[argc]; argc++) &#123;
+    if(argc &gt;= MAXARG)
+      goto bad;
+    sp -= strlen(argv[argc]) + 1;
+    sp -= sp % 16; // riscv sp must be 16-byte aligned
+    if(sp &lt; stackbase)
+      goto bad;
+    if(copyout(pagetable, sp, argv[argc], strlen(argv[argc]) + 1) &lt; 0)
+      goto bad;
+    ustack[argc] = sp;
+  &#125;
+  ustack[argc] = 0;
+
+  // push the array of argv[] pointers.
+  sp -= (argc+1) * sizeof(uint64);
+  sp -= sp % 16;
+  if(sp &lt; stackbase)
+    goto bad;
+  if(copyout(pagetable, sp, (char *)ustack, (argc+1)*sizeof(uint64)) &lt; 0)
+    goto bad;
+ 
+  // arguments to user main(argc, argv)
+  // argc is returned via the system call return
+  // value, which goes in a0.
+  p-&gt;trapframe-&gt;a1 = sp;
+</code></pre>
+<p>因为所有的程序都是从main开始的，而main的完整声明是<code>int main(int argc,char *argv[])</code>，这里就是在设置argc与argv，其中argc由exec的返回值得到放到a0寄存器，因为exec是系统调用，结束之后会在syscall那里将返回值放到a0寄存器。而argv本质上是一个指针，应该被传递给a1寄存器(a0-a6用来传递参数)。还有一个问题就是参数不属于程序的一部分，但是程序运行时由需要访问，所以需要有地方存放这些内容，xv6选择的地方就是stack这一页，直接从栈顶开始拷贝参数，每拷贝完一个就记录其地址放到ustack里面，最后再将ustack拷贝进去，并把现在的sp(现在的sp就相当于ustack)放到a1寄存器，之后argv[x]就会访问到对应参数的地址，最后就是设置程序下次执行的地址:</p>
+<pre><code class="c">  // Save program name for debugging.
+  for(last=s=path; *s; s++)
+    if(*s == &#39;/&#39;)
+      last = s+1;
+  safestrcpy(p-&gt;name, last, sizeof(p-&gt;name));
+
+  // Commit to the user image.
+  oldpagetable = p-&gt;pagetable;
+  p-&gt;pagetable = pagetable;
+  p-&gt;sz = sz;
+  p-&gt;trapframe-&gt;epc = elf.entry;  // initial program counter = main
+  p-&gt;trapframe-&gt;sp = sp; // initial stack pointer
+  proc_freepagetable(oldpagetable, oldsz);
+
+  return argc; // this ends up in a0, the first argument to main(argc, argv)
+</code></pre>
+<p>ELF里面会包含一个程序入口地址，将其放到epc寄存器，然后将之前构造的页表替换当前页表，栈指针也设置好，最后释放之前的页表，返回argc，这样就完成了exec的工作。</p>
 ]]></content>
       <tags>
         <tag>os</tag>
@@ -4976,7 +5220,80 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 </ol>
 <p>可以echo “import math” | python -m dis<br>可以查看__import__的docstring看看它的参数是什么</p>
 <p>circular import的原因和解决方法</p>
-]]></content>
+<h2 id="python的local与global变量"><a href="#python的local与global变量" class="headerlink" title="python的local与global变量"></a>python的local与global变量</h2><p>在Doc的programming FAQ中提到</p>
+<blockquote>
+<p>In Python, variables that are only referenced inside a function are implicitly<br>global.  If a variable is assigned a value anywhere within the function’s body,<br>it’s assumed to be a local unless explicitly declared as global.<br>已经非常明确说明了如果函数内部有对该变量的赋值操作，那么该变量就是local变量，否则就默认global变量</p>
+</blockquote>
+<h3 id="与闭包的联系"><a href="#与闭包的联系" class="headerlink" title="与闭包的联系"></a>与闭包的联系</h3><p>由于闭包里可能会对外部变量进行引用，这时候就会涉及到local与global变量的问题有以下例子:</p>
+<pre><code class="python">squares = []
+for i in range(5):
+    squares.append(lambda: i ** 2)
+print(squares[0]()) # 16
+print(squares[1]()) # 16
+</code></pre>
+<p>无论调用squares中的哪个函数，都会返回16，这是因为闭包中的i是对外部变量i的引用，当闭包被调用时才去访问这个变量，而此时外部变量i已经变成了4<br>如果想要得到正确的结果，可以使用默认参数的方式:</p>
+<pre><code class="python">for i in range(5):
+    squares.append(lambda x=i: x ** 2)
+</code></pre>
+<p>这样每次调用闭包时，都会创建一个新的变量x，而x的值是在闭包创建时就已经确定了</p>
+<h3 id="如何在多个module中共享变量"><a href="#如何在多个module中共享变量" class="headerlink" title="如何在多个module中共享变量"></a>如何在多个module中共享变量</h3><p>在python中，module是一个namespace，不同的module之间是相互独立的，如果想要在多个module中共享变量，可以使用import来实现，但是这样会导致循环import的问题，解决方法是将变量放在一个单独的module中，然后在需要使用的module中import这个module，一般这个module会被命名为config或者settings</p>
+<pre><code class="python"># config.py
+x = 1
+y = 2
+# module1.py
+import config
+config.x = 2
+# main.py
+import module1
+import config
+print(config.x)
+</code></pre>
+<h2 id="python中的数字与字符串"><a href="#python中的数字与字符串" class="headerlink" title="python中的数字与字符串"></a>python中的数字与字符串</h2><h3 id="向下取整"><a href="#向下取整" class="headerlink" title="向下取整"></a>向下取整</h3><p>-22 &#x2F;&#x2F; 10 &#x3D; -3这与C语言不同，C语言中-22 &#x2F; 10 &#x3D; -2。这么做的原因是python中<code>i % j</code>的结果正负号与j相同，而C语言中<code>i % j</code>的结果正负号与i相同。因为python认为j取负数的情况很少，取正数的情况很多(比如现在是10点，问190个小时之前是几点，-190%12返回2会比返回-10好，表示从当前开始继续向正方向走两个小时)。如果要满足i%j的结果与j正负相同，且i &#x3D;&#x3D; (i&#x2F;&#x2F;j)*j+(i%j)那i&#x2F;&#x2F;j的结果就必须向下取整，也就与C不一样</p>
+<h3 id="字符串与数字互转"><a href="#字符串与数字互转" class="headerlink" title="字符串与数字互转"></a>字符串与数字互转</h3><p>python的int函数可以将字符串转为10进制数字，默认传入的字符串是10进制的，如果传入的字符串是16进制的，需要指定base参数，python中的16进制以0x开头，八进制以0o开头，二进制以0b开头</p>
+<p>将数字转为字符串用f-string可以很方便的实现，f-string是python3.6引入的新特性，可以在字符串前加f来使用，里面可以使用{}来引用变量，也可以在{}中使用表达式来计算以及格式化输出</p>
+<h3 id="字符串是不可变对象"><a href="#字符串是不可变对象" class="headerlink" title="字符串是不可变对象"></a>字符串是不可变对象</h3><p>在python中字符串是不可变对象，主要原因有以下几点:</p>
+<ol>
+<li>很多时候字符串会作为hash的key，如果字符串是可变的，那么hash值也会变化，这样就不能作为字典的key</li>
+<li>字符串是不可变的，可以在多个线程中共享，不用担心线程安全问题</li>
+<li>性能优化，由于字符串不可变，可以在内存中共享，减少内存占用</li>
+</ol>
+<p>如果想要原地修改字符串可以使用io.StringIO，它是一个类文件对象，可以像文件一样读写，但是它是在内存中的，不会写入磁盘。也可以使用array.array，它是一个数组对象，可以存储任意类型的数据，但是它的元素必须是同一种类型，例子如下：</p>
+<pre><code class="python">import array
+# &#39;u&#39;表示array的元素是unicode字符
+a = array.array(&#39;u&#39;, &#39;hello&#39;)
+a[0] = &#39;H&#39;
+print(a) # array(&#39;u&#39;, &#39;Hello&#39;)
+a.tounicode() # &#39;Hello&#39;
+</code></pre>
+<p>但常见的方法是将字符串转为list，然后修改，再转回字符串</p>
+<pre><code class="python">a = list(&#39;hello&#39;)
+a[0] = &#39;H&#39;
+&#39;&#39;.join(a) # &#39;Hello&#39;
+</code></pre>
+<h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>两个分析性能的工具是cProfile和timeit，cProfile是一个分析器，可以查看函数调用的次数和时间，timeit是一个计时器，可以查看代码的运行时间</p>
+<h2 id="序列-tuple与list"><a href="#序列-tuple与list" class="headerlink" title="序列(tuple与list)"></a>序列(tuple与list)</h2><p>tuple(seq)会将可迭代对象转化为一个tuple，<em>如果seq本身就是一个tuple，那么就会返回seq本身</em>，如果seq是一个字符串，那么就会返回一个包含字符串中每个字符的tuple。list(seq)类似.</p>
+<h3 id="删除重复元素"><a href="#删除重复元素" class="headerlink" title="删除重复元素"></a>删除重复元素</h3><p>比较常见的方法是使用set，但是这样会改变元素的顺序，如果想要保持原来的顺序，可以使用OrderedDict</p>
+<pre><code class="python">from collections import OrderedDict
+def remove_duplicates(seq):
+    return list(OrderedDict.fromkeys(seq))
+</code></pre>
+<h3 id="多维数组"><a href="#多维数组" class="headerlink" title="多维数组"></a>多维数组</h3><p>一般推荐使用numpy构建多维数组，如果想使用list的嵌套实现多维数组需要注意列表的深浅拷贝问题，下面是一个经典的例子:</p>
+<pre><code class="python">a = [[0]*3]*3
+# a = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+a[0][0] = 1
+# a = [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
+</code></pre>
+<p>这是因为<code>[0]*3</code>会创建一个包含3个0的list，然后<code>[[0]*3]*3</code>会创建一个包含3个指向同一个list的list，也就是说list与*的运算是浅拷贝，正确的方法是使用列表生成式</p>
+<pre><code class="python">a = [[0]*3 for _ in range(3)]
+</code></pre>
+<h3 id="序列的-x3D-操作"><a href="#序列的-x3D-操作" class="headerlink" title="序列的+&#x3D;操作"></a>序列的+&#x3D;操作</h3><p>在python中+&#x3D;会调用对象的__iadd__方法，如果对象没有实现__iadd__方法，那么就会调用__add__方法，然后将结果赋值给原对象。</p>
+<pre><code class="python">a_tuple = ([],1)
+a_tuple[0] += [1]
+# TypeError: &#39;tuple&#39; object does not support item assignment
+# print(a_tuple) ([1], 1)
+</code></pre>
+<p>上面的错误是因为+&#x3D;被解释为a_tuple[0] &#x3D; a_tuple[0]._<em>iadd</em><em>([1])，而tuple是不可变对象所以a_tuple[0]被赋值时会报错，但a_tuple[0]._<em>iadd</em></em>([1])是可以执行的，所以虽然会报错，但是a_tuple的值已经被修改了</p>
+<h2 id="类与对象"><a href="#类与对象" class="headerlink" title="类与对象"></a>类与对象</h2>]]></content>
       <tags>
         <tag>python</tag>
         <tag>源码</tag>

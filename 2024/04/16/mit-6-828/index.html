@@ -611,7 +611,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-05-12 20:45:44'>2024-04-16 00:12</time>
+            发布时间 : <time class="date" title='最后更新: 2024-05-24 20:24:22'>2024-04-16 00:12</time>
         
     </div>
     <div class="article-meta">
@@ -633,7 +633,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter-1-Introduction"><span class="toc-text">xv6 chapter 1:Introduction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lab-util-Unix-tools"><span class="toc-text">Lab util:Unix tools</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter2-Operating-system-organization"><span class="toc-text">xv6 chapter2: Operating system organization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lab-system-calls"><span class="toc-text">Lab:system calls</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter-1-Introduction"><span class="toc-text">xv6 chapter 1:Introduction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lab-util-Unix-tools"><span class="toc-text">Lab util:Unix tools</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter2-Operating-system-organization"><span class="toc-text">xv6 chapter2: Operating system organization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lab-system-calls"><span class="toc-text">Lab:system calls</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter3-Page-tables"><span class="toc-text">xv6 chapter3: Page tables</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1076,6 +1076,186 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 &#125;
 </code></pre>
 <p>依然是非常规范优雅的代码风格，注释非常清晰，整个操作还是在内核状态下操作的，所以肯定有一个将用户空间地址转换到内核空间地址的过程，walk与PTE2PA就是做这个工作的，walk可以根据pagetable来查找虚拟地址va0对应的PTE，PTE2PA能根据pte的内容得出对应的物理地址，而内核空间的页表是可以直接访问所有物理地址的，也就是得到的这个物理地址在内核状态下可以直接用，所以可以直接使用memmove。</p>
+<h3 id="xv6-chapter3-Page-tables"><a href="#xv6-chapter3-Page-tables" class="headerlink" title="xv6 chapter3: Page tables"></a>xv6 chapter3: Page tables</h3><ul>
+<li>硬件转换过程<br>xv6运行在Sv39的RISC-V架构上，也就是只有低39位用于虚拟地址寻址，高25位没有用到。一个RISC-V的页表逻辑上是一个有2^27个PTE的数组，每个数组元素是一个PTE，一个PTE指示了4KB大小的物理页框，在RISC-V下PTE内容为一个44位的物理地址10位标志位。因此39位的虚拟地址其中高27位用于索引PTE，低12位用于表示页内偏移。从一个PTE可以获得一个44位的物理地址基地址，然后加上低12位的偏移就可以得到一个最终访问的物理地址。<br>因此在riscv.h(kernel&#x2F;riscv.h)里关于PTE2PA与PTE2PTE的宏定义如下:</li>
+</ul>
+<pre><code class="c">#define PTE2PA(pte) (((pte)&gt;&gt;10)&lt;&lt;12)
+#define PA2PTE(pa) ((((uint64)pa)&gt;&gt;12)&lt;&lt;10)
+</code></pre>
+<p>PTE2PA先将传入的pte内容右移10位清除标志位，剩下的低44位就是一个基地址，由于物理内存也以4KB为单位，再左移12位就能得到下一个页表的实际物理基地址，而PA2PTE则相反，先将物理地址右移12位清除低12位的偏移，然后左移10位得到一个PTE的内容。理解上述操作的关键点就是所有的页表都是4KB大小，每个页表一定是4KB对齐的。</p>
+<p>xv6的具体地址翻译过程如图所示，主要分成三个步骤<br><img src="/2024/04/16/mit-6-828/address_translation.jpg" alt="地址翻译图"><br>27位的PTE索引被分成3级，每级9位，每级的索引用于索引下一级的页表，最后一级的索引用于索引物理页框。每级表有512个项，第一级的表其物理地址存放在satp寄存器。</p>
+<p>通常每个CPU会有各自的页表，且内核的页表往往能访问整个物理空间，这样使得内核可以去修改页表的内容</p>
+<p><img src="/2024/04/16/mit-6-828/kernel_address_map.jpg" alt="内核地址空间映射"><br>qemu模拟的RISC-V架构RAM是从0x80 000 000开始的，下面的内存用作MMIO，xv6的内核预留空间为128M(PHYSTOP为128*1024*1024)，具体的布局可以在kernel&#x2F;memlayout.h里看到。</p>
+<ul>
+<li>内核地址空间<br>kernel&#x2F;memlayout.h里有关于物理和逻辑空间的布局设计，用一系列的宏为各个区域划分了边界，而主要的内存空间的操作放在kernel&#x2F;vm.c里。<br>里面的核心数据结构pagetable_t实际是一个指针，用来指示一张页表的物理地址，指示的页表可能是3级中的任何一级。有关内核的操作以kvm开头，有关用户空间的操作以uvm开头。下面是内核空间配置的过程:</li>
+</ul>
+<ol>
+<li>内核的虚拟空间初始化在main里调用kvminit(kernel&#x2F;vm.c)完成，而kvminit做的事就是调用同文件下的kvmmake，直到此时内核还没有开启分页，所有的操作都是直接访问物理地址。kvmmake主要就是完成对几个关键区域的映射，从代码来开KERNEBASE以下的空间都是直接映射，因为这些空间跟MMIO相关。</li>
+<li>最终编译出来的内核的代码的大小由etext-KERNBASE得到，etext由链接器产生，在kernel&#x2F;kernel.ld可以看到。然后etext到PHYSTOP的内容也是直接映射，最后的TRAMPOLINE是映射到trampoline(kernel&#x2F;trampoline.S)处。</li>
+<li>调用proc_mapstacks(kernel&#x2F;proc.c)为所有的PCB分配一个内核栈，这个函数会将这些栈映射到对应位置</li>
+</ol>
+<p>上述过程有一个很重要的函数是mappages(kernel&#x2F;vm.c)，它是用来将虚拟地址映射到物理地址的，代码如下:</p>
+<pre><code class="c">int
+mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
+&#123;
+  uint64 a, last;
+  pte_t *pte;
+
+  if((va % PGSIZE) != 0)
+    panic(&quot;mappages: va not aligned&quot;);
+
+  if((size % PGSIZE) != 0)
+    panic(&quot;mappages: size not aligned&quot;);
+
+  if(size == 0)
+    panic(&quot;mappages: size&quot;);
+
+  a = va;
+  last = va + size - PGSIZE;
+  for(;;)&#123;
+    if((pte = walk(pagetable, a, 1)) == 0)
+      return -1;
+    if(*pte &amp; PTE_V)
+      panic(&quot;mappages: remap&quot;);
+    *pte = PA2PTE(pa) | perm | PTE_V;
+    if(a == last)
+      break;
+    a += PGSIZE;
+    pa += PGSIZE;
+  &#125;
+  return 0;
+&#125;
+</code></pre>
+<p>mappages的功能就是将虚拟地址va开始的size大小空间映射到pa，perm是此块地址的权限，映射的PTE写到传入的pagetable上。代码首先进行了对于传入地址的一系列检查，要求va必须是4KB对齐的，也就是必须是某个页的基址，size也必须是4KB对齐的，所以目前所有的内存操作都是以页为单位的。之后一个重要函数walk(kernel&#x2F;vm.c)出现了，它的代码如下:</p>
+<pre><code class="c">pte_t *
+walk(pagetable_t pagetable, uint64 va, int alloc)
+&#123;
+  if(va &gt;= MAXVA)
+    panic(&quot;walk&quot;);
+
+  for(int level = 2; level &gt; 0; level--) &#123;
+    pte_t *pte = &amp;pagetable[PX(level, va)];
+    if(*pte &amp; PTE_V) &#123;
+      pagetable = (pagetable_t)PTE2PA(*pte);
+    &#125; else &#123;
+      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0)
+        return 0;
+      memset(pagetable, 0, PGSIZE);
+      *pte = PA2PTE(pagetable) | PTE_V;
+    &#125;
+  &#125;
+  return &amp;pagetable[PX(0, va)];
+&#125;
+</code></pre>
+<p>wallk函数的功能是根据传入的pagetable查找虚拟地址va对应的最后一级pte，如果alloc非0则在查找过程中发现不存在时自动申请。前面已经说过，1)pagetable_t类型其实就是一个指针，所以传入的pagetable就是一个地址，也可以看作一个数组，可以用pagetable[index]来检索这张表第index项。2)一个虚拟地址的前高27位被分成了3级，每级的PTE包含下一级PTE表的起始地址。<code>PX(level,va)</code>就是取va中某一级的内容，所以<code>pte_t *pte = &amp;pagetable[PX(level, va)]</code>就是在模拟CPU进行地址解析，可以看到最后返回的是<code>&amp;pagetable[PX(0,va)]</code>也就是直接指向va的pte指针。现在回到mappages，通过walk得到va所在PTE之后进行检查，是否是重映射等，然后将对应内容写道PTE上即可。</p>
+<p>上面涉及的代码所用地址都是直接映射，所以传入的pagetable以及一些其它指针可以直接使用。尤其是walk里面需要对va解析，每次得到的新的PTE表基址是直接用的。上面的代码都是在kvminit中调用kvmmake使用，此时只是准备好了内核需要使用的页表但还没有真正装上，kvminithart(kernel&#x2F;vm.c)负责将这张制作好的页表(根页表)地址加载到satp寄存器并开启分页</p>
+<ul>
+<li>物理地址管理<br>对虚拟地址的管理最终会落到物理空间的管理，前面的walk里会使用kalloc(kernel&#x2F;kalloc.c)分配页表，kalloc分配就是一个物理页表，所以除了前面一些关于虚拟地址和页表操作的管理，还需要有一套物理地址的管理，这部分代码主要在(kernel&#x2F;kalloc.c)里实现</li>
+</ul>
+<ol>
+<li><p>首先xv6划定的可用物理地址，为了简化问题xv6没有去检测实际的物理内存大小，直接假设有128M的物理内存，除开内核代码与数据占用的页剩下的都属于可用并需要被管理的页，内核代码的结束由end(kernel&#x2F;kernel.l)提供，所以总共可用空间为PHYSTOP-end</p>
+</li>
+<li><p>用于管理空闲页的数据结构是<code>struct run</code>它只包含一个同类型的指针元素，既然是一个数据结构必然有存储它们的地方，这个地方就是页本身，每个页的起始地址存放的就是一个struct run的指针，指向下一个空闲页地址(可以用gdb停在main的kvminit那里，此时kinit已执行完成，可以手动查看各个页的起始内容是什么)，如果被分出去了就会被覆盖。所以对空闲页的管理其实就是对这个单向链表的管理，出于效率考虑所有的操作都在链表头进行，即分配和回收都在链表头进行，这可以在后面的kalloc与kfree里看到。</p>
+</li>
+<li><p>由于后面会实现多进程，可能会有多个进程同时申请物理页，所以加了一个锁来控制对空闲链表的访问，最终定义的结构如下:</p>
+</li>
+</ol>
+<pre><code class="c">struct &#123;
+        struct spinlock lock;
+        struct run *freelist;
+&#125; kmem;
+</code></pre>
+<p>介绍完上面基本就结束了，下面看几个重要函数：<br>kinit()是在main里调用的，会在kvminit之前调用，因为kvminit会用到kalloc函数，而kinit的主要工作就是初始化kmem，lock由initlock完成，freelist由freerange完成，而freerange主要调用kfree完成,kfree的代码比较简单，对传入的物理地址进行判断然后置1，之后就是将其插入到freelist。与之相对的kalloc内容流程相似。</p>
+<ul>
+<li>用户进程地址空间<br>对于用户进程来说地址空间是从0开始到MAXVA，理论上就是256GB的空间，用户进程的地址空间格局如下:<br><img src="/2024/04/16/mit-6-828/process_address_space.jpg" alt="用户进程地址空间"><br>其中最上面的trampoline与trapframe没有U标志，也就是用户模式下无权访问，这两个区域用于系统调用，涉及内核。其它一些guarh和unused区域用来防止溢出，其标志位的V会被设置为0，当溢出发生就会访问这些区域而触发异常。可以看到xv6中栈段大小是固定的为一个PGSIZE，这个栈由exec根据elf文件分配。下面介绍exec:<br>exec(kernel&#x2F;exec.c)是一个系统调用，它会把一个二进制文件加载到内存并为这个程序设置相应的地址空间。要为程序设置相应的地址空间就需要知道程序的布局，比如各个段的大小、相对位置，这些只有程序自己知道，所以要让exec知道这些信息程序就必须在某处提供关于自己布局的信息，这样一个完整的程序除了程序本身的内容比如二进制代码，数据等，还有一些描述信息。各个平台有各自组织这些数据的格式在linux上是ELF格式(windows上是PE)，关于elf的结构在kernel&#x2F;elf.h中定义，但更重要的是另一个结构就是<code>proghdr</code>，它描述了程序执行时的内存布局，一个程序中可能会有多个proghdr，其在文件的位置由ELF给出，利用readelf工具查看_init程序如图<br><img src="/2024/04/16/mit-6-828/elf.jpg" alt="elf 程序头"></li>
+</ul>
+<p>Offset表示该段在文件中的偏移，filesz表示该段在文件中的大小，memsz表示该段在内存中的大小，一般情况下memsz&gt;&#x3D;files，因为一些像未初始化全局变量和静态变量的内容默认为0，程序本身不存储这些0，而是在加载是将这些内容填0，比如第二个Loaz中含有bss段，可以看到它的memsz是0x30而filesz是0x10。vaddr表示该段应该映射的虚拟地址。</p>
+<p>exec一方面要与文件系统接触一方面要与内存管理接触，由于xv6的文件系统实现了log机制，代码中的begin_op与end_op就是用来实现这个的，具体原理见后面的文件系统部分。这里主要介绍与内存管理相关的部分。代码到49行之前都是在对ELF文件的读取和校验，<code>pagetable=proc_pagetable()</code>这里是在为新的进程分配一张全新的页表，这张页表只映射了中断会用到的trapframe与trampoline的空间。之后就是循环读取每个proghdr，对每个proghdr调用loadseg(kernel&#x2F;exec.c)函数，这个函数的主要工作就是将文件中的内容加载到内存中，代码如下:</p>
+<pre><code class="c">for(i=0, off=elf.phoff; i&lt;elf.phnum; i++, off+=sizeof(ph))&#123;
+    if(readi(ip, 0, (uint64)&amp;ph, off, sizeof(ph)) != sizeof(ph))
+      goto bad;
+    if(ph.type != ELF_PROG_LOAD)
+      continue;
+    if(ph.memsz &lt; ph.filesz)
+      goto bad;
+    if(ph.vaddr + ph.memsz &lt; ph.vaddr)
+      goto bad;
+    if(ph.vaddr % PGSIZE != 0)
+      goto bad;
+    uint64 sz1;
+    if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz, flags2perm(ph.flags))) == 0)
+      goto bad;
+    sz = sz1;
+    if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) &lt; 0)
+      goto bad;
+  &#125;
+  iunlock(ip);
+  ip = 0;
+  end_op();
+</code></pre>
+<p>可以看到对加载的段是有一些检查的，其中<code>ph.memsz + ph.vaddr &lt; ph.vaddr</code>是为了防止溢出，<code>ph.vaddr % PGSIZE != 0</code>是为了保证虚拟地址是4KB对齐的，这样可以保证每个段都是整页的。之后就是分配足够的空间然后进行<code>loadseg</code>调用，loadeseg的代码比较简单，就是将ip所指文件的off处开始的filesz大小的内容加载到虚拟地址vaddr处，其中用到的walkaddr(kernel&#x2F;vm.c)函数是用来将虚拟地址映射到物理地址的，就是利用walk函数得到最后一级pte然后利用PTE2PA得到物理地址，但是有一个对PTE_U的检查，说明该函数只用于查找用户空间的映射。这里是只加载了filesz，而不是memsz，初始化为0的工作在uvmalloc里已经完成了，申请到的页都会先被清0，因此不用再故意初始化。至此加载程序的工作完成，后面是设置trapframe，设置用户栈，设置用户PC等工作，代码如下:</p>
+<pre><code class="c">  p = myproc();
+  uint64 oldsz = p-&gt;sz;
+
+  // Allocate two pages at the next page boundary.
+  // Make the first inaccessible as a stack guard.
+  // Use the second as the user stack.
+  sz = PGROUNDUP(sz);
+  uint64 sz1;
+  if((sz1 = uvmalloc(pagetable, sz, sz + 2*PGSIZE, PTE_W)) == 0)
+    goto bad;
+  sz = sz1;
+  uvmclear(pagetable, sz-2*PGSIZE);
+  sp = sz;
+  stackbase = sp - PGSIZE;
+
+</code></pre>
+<p>进行到这里已经是程序内容加载完成，现在的sz就是程序的边界，先对齐之后由申请了两个新的页，这两个新的页一个用作栈一个用作防止栈溢出的guardpage，uvmclear就是把guardpage的PTE_U置为0，使得用户访问时报错。之后是将exec中的参数传递给用户程序:</p>
+<pre><code class="c"> // Push argument strings, prepare rest of stack in ustack.
+  for(argc = 0; argv[argc]; argc++) &#123;
+    if(argc &gt;= MAXARG)
+      goto bad;
+    sp -= strlen(argv[argc]) + 1;
+    sp -= sp % 16; // riscv sp must be 16-byte aligned
+    if(sp &lt; stackbase)
+      goto bad;
+    if(copyout(pagetable, sp, argv[argc], strlen(argv[argc]) + 1) &lt; 0)
+      goto bad;
+    ustack[argc] = sp;
+  &#125;
+  ustack[argc] = 0;
+
+  // push the array of argv[] pointers.
+  sp -= (argc+1) * sizeof(uint64);
+  sp -= sp % 16;
+  if(sp &lt; stackbase)
+    goto bad;
+  if(copyout(pagetable, sp, (char *)ustack, (argc+1)*sizeof(uint64)) &lt; 0)
+    goto bad;
+ 
+  // arguments to user main(argc, argv)
+  // argc is returned via the system call return
+  // value, which goes in a0.
+  p-&gt;trapframe-&gt;a1 = sp;
+</code></pre>
+<p>因为所有的程序都是从main开始的，而main的完整声明是<code>int main(int argc,char *argv[])</code>，这里就是在设置argc与argv，其中argc由exec的返回值得到放到a0寄存器，因为exec是系统调用，结束之后会在syscall那里将返回值放到a0寄存器。而argv本质上是一个指针，应该被传递给a1寄存器(a0-a6用来传递参数)。还有一个问题就是参数不属于程序的一部分，但是程序运行时由需要访问，所以需要有地方存放这些内容，xv6选择的地方就是stack这一页，直接从栈顶开始拷贝参数，每拷贝完一个就记录其地址放到ustack里面，最后再将ustack拷贝进去，并把现在的sp(现在的sp就相当于ustack)放到a1寄存器，之后argv[x]就会访问到对应参数的地址，最后就是设置程序下次执行的地址:</p>
+<pre><code class="c">  // Save program name for debugging.
+  for(last=s=path; *s; s++)
+    if(*s == &#39;/&#39;)
+      last = s+1;
+  safestrcpy(p-&gt;name, last, sizeof(p-&gt;name));
+
+  // Commit to the user image.
+  oldpagetable = p-&gt;pagetable;
+  p-&gt;pagetable = pagetable;
+  p-&gt;sz = sz;
+  p-&gt;trapframe-&gt;epc = elf.entry;  // initial program counter = main
+  p-&gt;trapframe-&gt;sp = sp; // initial stack pointer
+  proc_freepagetable(oldpagetable, oldsz);
+
+  return argc; // this ends up in a0, the first argument to main(argc, argv)
+</code></pre>
+<p>ELF里面会包含一个程序入口地址，将其放到epc寄存器，然后将之前构造的页表替换当前页表，栈指针也设置好，最后释放之前的页表，返回argc，这样就完成了exec的工作。</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>

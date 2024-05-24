@@ -611,7 +611,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-05-11 15:50:26'>2024-04-08 12:17</time>
+            发布时间 : <time class="date" title='最后更新: 2024-05-13 20:08:26'>2024-04-08 12:17</time>
         
     </div>
     <div class="article-meta">
@@ -651,12 +651,43 @@
       
         <p>这篇文章主要记录自己阅读python源码的一些心得，参考文章如下:<br><a target="_blank" rel="noopener" href="https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python">https://realpython.com/cpython-source-code-guide/#why-is-cpython-written-in-c-and-not-python</a><br><a target="_blank" rel="noopener" href="https://fasionchan.com/python-source/preface/intra/">https://fasionchan.com/python-source/preface/intra/</a></p>
 <h3 id="Doc"><a href="#Doc" class="headerlink" title="Doc"></a>Doc</h3><p>Doc文件夹里面包含了所有关于python的内容，比如faq文件夹里面的一些关于python的问题包含了为什么要使用缩进而不是花括号等问题，这个文件夹里面很多文件都是rst格式，可以看作一种跟markdown一样的标记语言，一方面可以直接给人阅读一方面用于计算机渲染文章组织结构，这些文件的实际效果可以在<a target="_blank" rel="noopener" href="https://docs.python.org/3/reference/">dorcs.python.org</a>看到</p>
-<p>里面包括的一些文件夹有:</p>
+<p>里面重要的一些文件夹有:</p>
 <ul>
-<li>faq 一些常见问题以及回答，比如design.rst里回答了为什么要将空格对齐作为语言本身的一部分，为什么python退出时不会释放所有资源，为什么要有list和tuple两种类型…另一值得一看的是programming.rst，里面记录了一些关于python编程的常见问题，比如局部变量的Unbounded Error和lambda表达式总是返回同一个值等</li>
-<li></li>
+<li>faq 一些常见问题以及回答，比如design.rst里回答了为什么要将空格对齐作为语言本身的一部分，为什么python退出时不会释放所有资源，为什么要有list和tuple两种类型…另一值得一看的是<em>programming.rst</em>，里面记录了一些关于python编程的常见问题，比如局部变量的Unbounded Error和lambda表达式总是返回同一个值等</li>
+<li>reference 有关语言的参考手册，比如模块系统，语法规则，数据模型等</li>
+<li>c-api 有关python的c扩展api</li>
 </ul>
-<h3 id="Grammar"><a href="#Grammar" class="headerlink" title="Grammar"></a>Grammar</h3><p>这个文件夹主要描述了python的语法，Grammar文件用一种叫BNF的上下文无关文法描述了整个python的语法细节，是旧版的解析器生成文件，现在使用了一种叫PEG的方法来描述，放在python.gram文件里</p>
+<h3 id="Grammar"><a href="#Grammar" class="headerlink" title="Grammar"></a>Grammar</h3><p>这个文件夹主要描述了python语言的文法定义<br>Grammar文件用一种叫BNF的上下文无关文法描述了整个python的语法细节，是旧版的解析器生成文件，现在使用了一种叫PEG的方法来描述，放在python.gram文件里，Tokens存储了python所有的词法单元，比如关键字，操作符等。是编译python需要用到的文件而不是python执行时会用到的文件，准确的来说该文件执行之后会为Python生成一个语法解析表，python用到的是这个表而不是Grammar文件来判断语法。生成这个表的工具叫<em>pgen</em>，在python源码的Parser文件夹里面有c和python两个版本。比如更改Grammar文件里面的内容<code>pass_stmt: &#39;pass&#39;</code>为<code>pass_stmt: &#39;pass&#39; | &#39;preceed&#39;</code>，执行<code>make regen-grammar</code>会调用pgen生成一个新的语法解析表，并重新编译python解释器，输出如下:</p>
+<pre><code># Regenerate Doc/library/token-list.inc from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py rst \
+        ./Grammar/Tokens \
+        ./Doc/library/token-list.inc
+# Regenerate Include/token.h from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py h \
+        ./Grammar/Tokens \
+        ./Include/token.h
+# Regenerate Parser/token.c from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py c \
+        ./Grammar/Tokens \
+        ./Parser/token.c
+# Regenerate Lib/token.py from Grammar/Tokens
+# using Tools/scripts/generate_token.py
+python3.8 ./Tools/scripts/generate_token.py py \
+        ./Grammar/Tokens \
+        ./Lib/token.py
+# Regenerate Include/graminit.h and Python/graminit.c
+# from Grammar/Grammar using pgen
+PYTHONPATH=. python3.8 -m Parser.pgen ./Grammar/Grammar \
+        ./Grammar/Tokens \
+        ./Include/graminit.h.new \
+        ./Python/graminit.c.new
+python3.8 ./Tools/scripts/update_file.py ./Include/graminit.h ./Include/graminit.h.new
+python3.8 ./Tools/scripts/update_file.py ./Python/graminit.c ./Python/graminit.c.new
+</code></pre>
+<p>可以很清楚看到哪些文件被更新了，其中用于python解释器进行语法解析的解析表表现为Python&#x2F;graminit.c，Include&#x2F;graminit.h，这两个文件会被编译到python解释器中，用于解析python代码<br>pgen的工作就是根据Grammar文件内容生成一个DFA，这个Python&#x2F;graminit.c文件就是这个DFA的实现。</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
