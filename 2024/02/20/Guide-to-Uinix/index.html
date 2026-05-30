@@ -8,13 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="喜欢计算机理论的大学生一名">
 <meta property="og:type" content="website">
-<meta property="og:title" content="分类">
-<meta property="og:url" content="http://example.com/categories/index.html">
+<meta property="og:title" content="关于">
+<meta property="og:url" content="http://example.com/about/index.html">
 <meta property="og:site_name" content="若则">
 <meta property="og:description" content="喜欢计算机理论的大学生一名">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-07-18T02:48:30.000Z">
-<meta property="article:modified_time" content="2021-07-18T02:50:14.629Z">
+<meta property="article:published_time" content="2021-07-18T02:48:15.000Z">
+<meta property="article:modified_time" content="2021-07-18T02:49:26.598Z">
 <meta property="article:author" content="Rouze">
 <meta name="twitter:card" content="summary">
 
@@ -276,10 +276,6 @@
             </li>
         
             <li class="article-tag-list-item">
-                <i class="iconfont icon-tag"></i><a>数据库</a>
-            </li>
-        
-            <li class="article-tag-list-item">
                 <i class="iconfont icon-tag"></i><a>算法刷题</a>
             </li>
         
@@ -340,8 +336,17 @@
         
         
         <a  class="全部文章 "
+           href="/2024/08/14/Effective-Modern-C/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Effective Modern C++">Effective Modern C++</span>
+            <span class="post-date" title="2024-08-14 16:13:17">2024/08/14</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
            href="/2024/04/26/python%E6%8B%BE%E9%81%97/"
-           data-tag="python,源码"
+           data-tag="源码,python"
            data-author="" >
             <span class="post-title" title="python拾遗">python拾遗</span>
             <span class="post-date" title="2024-04-26 10:59:47">2024/04/26</span>
@@ -359,7 +364,7 @@
         
         <a  class="全部文章 "
            href="/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"
-           data-tag="python,源码"
+           data-tag="源码,python"
            data-author="" >
             <span class="post-title" title="python源码阅读">python源码阅读</span>
             <span class="post-date" title="2024-04-08 12:17:22">2024/04/08</span>
@@ -399,15 +404,6 @@
            data-author="" >
             <span class="post-title" title="HttpNote">HttpNote</span>
             <span class="post-date" title="2024-02-20 20:43:49">2024/02/20</span>
-        </a>
-        
-        
-        <a  class="全部文章 "
-           href="/2024/01/29/%E6%95%B0%E6%8D%AE%E5%BA%93/"
-           data-tag="数据库"
-           data-author="" >
-            <span class="post-title" title="数据库学习笔记">数据库学习笔记</span>
-            <span class="post-date" title="2024-01-29 11:30:55">2024/01/29</span>
         </a>
         
         
@@ -485,7 +481,7 @@
         
         <a  class="全部文章 "
            href="/2022/10/01/Pratt-Parse%E7%9A%84%E7%90%86%E8%A7%A3/"
-           data-tag="源码,编译"
+           data-tag="编译,源码"
            data-author="" >
             <span class="post-title" title="Pratt-Parse的理解">Pratt-Parse的理解</span>
             <span class="post-date" title="2022-10-01 23:30:49">2022/10/01</span>
@@ -609,7 +605,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-03-14 14:38:37'>2024-02-20 21:49</time>
+            发布时间 : <time class="date" title='最后更新: 2024-08-27 23:48:41'>2024-02-20 21:49</time>
         
     </div>
     <div class="article-meta">
@@ -631,7 +627,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix-FileSystem"><span class="toc-text">Unix FileSystem</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-and-Job-Control"><span class="toc-text">Process and Job Control</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix-Command-Line"><span class="toc-text">Unix Command Line</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Command-Syntax"><span class="toc-text">Command Syntax</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix-File-System"><span class="toc-text">Unix File System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-and-Job-Control"><span class="toc-text">Process and Job Control</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -648,7 +644,21 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>原文链接: <a target="_blank" rel="noopener" href="https://www.harley.com/unix-book/book/chapters/chapter-list.html">Guide to Unix</a></p>
-<h2 id="Unix-FileSystem"><a href="#Unix-FileSystem" class="headerlink" title="Unix FileSystem"></a>Unix FileSystem</h2><p>Unix文件分为三种类型：普通文件，目录文件，特殊文件</p>
+<h2 id="Unix-Command-Line"><a href="#Unix-Command-Line" class="headerlink" title="Unix Command Line"></a>Unix Command Line</h2><h3 id="Command-Syntax"><a href="#Command-Syntax" class="headerlink" title="Command Syntax"></a>Command Syntax</h3><p>常见的命令语法都是如下的形式:<br><code>command [Options] [args]</code>，比如<code>ls -l -F file1 file2</code>，其中的-l与-F就属于Options，file1 file2都是args的组成成分，一条命令可以有多个option，它们都以-开头，如果有多个同时存在可以把它们分开写，也可以合并在一起，且顺序随意上面的命令与<code>ls -lF file1 file2</code>和<code>ls -Fl file1 file2</code>等效。可以发现上述形式的option都是单个字母，<code>ls -help</code>将会被解析为<code>ls -h -e -l -p</code>，为了消除这种歧义并方便记忆option，linux加入了–式的option，<code>ls -r </code>与<code>ls --reverse</code>就是等效的。</p>
+<p><strong>语法描述的格式</strong><br>在使用man或者使用命令本身的–help参数时都会列出命令的使用格式，这种格式遵循着一种通用的规则，如下是在busybox里使用<code>ls --help</code>的部分输出:</p>
+<pre><code>Usage: ls [-1AaCxdLHRFplinshrSXvctu] [-w WIDTH] [FILE]...  
+</code></pre>
+<p>这种语法表达的规则如下:</p>
+<ol>
+<li>方括号里的内容可选</li>
+<li>不在方括号里的内容必填</li>
+<li>粗体字必须按照原样敲出来</li>
+<li>斜体字必须替换为对应的值</li>
+<li>一个arg后面跟着…的话表示可以填任意个arg</li>
+<li>如果某个option单独在方括号，表示该option必须与某个arg配合使用</li>
+<li>如果有多个内容由|分开，表示该arg有两种模式<h2 id="Unix-File-System"><a href="#Unix-File-System" class="headerlink" title="Unix File System"></a>Unix File System</h2></li>
+</ol>
+<p>Unix文件分为三种类型：普通文件，目录文件，特殊文件</p>
 <ul>
 <li>普通文件：存储数据</li>
 <li>目录文件：存储文件名和指向文件的指针</li>
