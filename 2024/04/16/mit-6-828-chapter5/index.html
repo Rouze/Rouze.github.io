@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>mit-6.828 - Chapter 5: Interrupts and device drivers | 若则</title>
+  <meta name="keywords" content=" os , lab ">
+  <meta name="description" content="mit-6.828 - Chapter 5: Interrupts and device drivers | 若则">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="喜欢计算机理论的大学生一名">
+<meta property="og:type" content="website">
+<meta property="og:title" content="关于">
+<meta property="og:url" content="http://example.com/about/index.html">
+<meta property="og:site_name" content="若则">
+<meta property="og:description" content="喜欢计算机理论的大学生一名">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-18T02:48:15.000Z">
+<meta property="article:modified_time" content="2021-07-18T02:49:26.598Z">
+<meta property="article:author" content="Rouze">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar2.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/sublime.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar2.jpg"/>
+</a>
+<div class="author">
+    <span>Rouze</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/Rouze"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="facebook"
+               href="https://www.facebook.com/faker.tops"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-facebook"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="zhihu"
+               href="https://www.zhihu.com/people/jaytp/activities"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-zhihu"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:2128099421@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=2128099421&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(34)</small>
+            
+        </div>
+    </li>
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="34">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>编译</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>操作系统真相还原</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>汇编</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>计算机视觉</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>计网</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>爬虫</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>设计模式</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>深度学习</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>算法刷题</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>网络协议</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>源码</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>acm</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>C</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>C++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>git</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>lab</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>leveldb</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>os</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SICP笔记</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>Unix命令</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>windows</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2026/06/21/leveldb%E4%B9%8BCompact/"
+           data-tag="leveldb"
+           data-author="" >
+            <span class="post-title" title="leveldb之Compact">leveldb之Compact</span>
+            <span class="post-date" title="2026-06-21 17:47:17">2026/06/21</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/08/14/Effective-Modern-C/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Effective Modern C++">Effective Modern C++</span>
+            <span class="post-date" title="2024-08-14 16:13:17">2024/08/14</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/26/python%E6%8B%BE%E9%81%97/"
+           data-tag="源码,python"
+           data-author="" >
+            <span class="post-title" title="python拾遗">python拾遗</span>
+            <span class="post-date" title="2024-04-26 10:59:47">2024/04/26</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter8/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 8: File System">mit-6.828 - Chapter 8: File System</span>
+            <span class="post-date" title="2024-04-16 00:18:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter6/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 6: Locks">mit-6.828 - Chapter 6: Locks</span>
+            <span class="post-date" title="2024-04-16 00:17:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter5/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 5: Interrupts and device drivers">mit-6.828 - Chapter 5: Interrupts and device drivers</span>
+            <span class="post-date" title="2024-04-16 00:16:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter4/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 4: Trap and System Calls">mit-6.828 - Chapter 4: Trap and System Calls</span>
+            <span class="post-date" title="2024-04-16 00:15:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter3/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 3: Page tables">mit-6.828 - Chapter 3: Page tables</span>
+            <span class="post-date" title="2024-04-16 00:14:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter2/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 2: Operating system organization">mit-6.828 - Chapter 2: Operating system organization</span>
+            <span class="post-date" title="2024-04-16 00:13:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828">mit-6.828</span>
+            <span class="post-date" title="2024-04-16 00:12:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter1/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 1: Introduction">mit-6.828 - Chapter 1: Introduction</span>
+            <span class="post-date" title="2024-04-16 00:12:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"
+           data-tag="源码,python"
+           data-author="" >
+            <span class="post-title" title="python源码阅读">python源码阅读</span>
+            <span class="post-date" title="2024-04-08 12:17:22">2024/04/08</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/27/python%E7%88%AC%E8%99%AB%E5%AE%9E%E6%88%98%E5%85%A5%E9%97%A8/"
+           data-tag="python,爬虫"
+           data-author="" >
+            <span class="post-title" title="python爬虫实战入门">python爬虫实战入门</span>
+            <span class="post-date" title="2024-02-27 13:52:23">2024/02/27</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/21/TCPNote/"
+           data-tag="网络协议"
+           data-author="" >
+            <span class="post-title" title="TCPNote">TCPNote</span>
+            <span class="post-date" title="2024-02-21 16:38:07">2024/02/21</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/20/Guide-to-Uinix/"
+           data-tag="Unix命令"
+           data-author="" >
+            <span class="post-title" title="Guide_to_Uinix">Guide_to_Uinix</span>
+            <span class="post-date" title="2024-02-20 21:49:43">2024/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/20/HttpNote/"
+           data-tag="网络协议"
+           data-author="" >
+            <span class="post-title" title="HttpNote">HttpNote</span>
+            <span class="post-date" title="2024-02-20 20:43:49">2024/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/19/%E5%88%B7%E9%A2%98/"
+           data-tag="算法刷题"
+           data-author="" >
+            <span class="post-title" title="刷题">刷题</span>
+            <span class="post-date" title="2024-01-19 11:47:35">2024/01/19</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/12/C%E8%AF%AD%E8%A8%80%E6%8B%BE%E9%81%97/"
+           data-tag="C"
+           data-author="" >
+            <span class="post-title" title="C语言拾遗">C语言拾遗</span>
+            <span class="post-date" title="2024-01-12 09:26:07">2024/01/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E5%9F%BA%E7%A1%80/"
+           data-tag="深度学习"
+           data-author="" >
+            <span class="post-title" title="深度学习-基础">深度学习-基础</span>
+            <span class="post-date" title="2024-01-08 09:57:53">2024/01/08</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E8%A7%86%E8%A7%89/"
+           data-tag="深度学习,计算机视觉"
+           data-author="" >
+            <span class="post-title" title="深度学习-视觉">深度学习-视觉</span>
+            <span class="post-date" title="2024-01-08 09:07:24">2024/01/08</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2023/07/01/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%87%BD%E6%95%B0/"
+           data-tag="SICP笔记"
+           data-author="" >
+            <span class="post-title" title="数据与函数">数据与函数</span>
+            <span class="post-date" title="2023-07-01 19:21:32">2023/07/01</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/15/%E8%AE%A1%E7%BD%91-%E9%93%BE%E8%B7%AF%E5%B1%82/"
+           data-tag="计网"
+           data-author="" >
+            <span class="post-title" title="计网-链路层">计网-链路层</span>
+            <span class="post-date" title="2022-10-15 19:43:14">2022/10/15</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/07/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
+           data-tag="os,操作系统真相还原"
+           data-author="" >
+            <span class="post-title" title="内存管理">内存管理</span>
+            <span class="post-date" title="2022-10-07 19:12:16">2022/10/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/02/%E4%B8%AD%E6%96%AD/"
+           data-tag="os,操作系统真相还原"
+           data-author="" >
+            <span class="post-title" title="中断">中断</span>
+            <span class="post-date" title="2022-10-02 20:31:38">2022/10/02</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/01/Pratt-Parse%E7%9A%84%E7%90%86%E8%A7%A3/"
+           data-tag="编译,源码"
+           data-author="" >
+            <span class="post-title" title="Pratt-Parse的理解">Pratt-Parse的理解</span>
+            <span class="post-date" title="2022-10-01 23:30:49">2022/10/01</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/09/25/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/"
+           data-tag="C,汇编"
+           data-author="" >
+            <span class="post-title" title="C语言里函数返回结构体的汇编分析">C语言里函数返回结构体的汇编分析</span>
+            <span class="post-date" title="2022-09-25 08:54:51">2022/09/25</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/07/04/git%E5%AD%A6%E4%B9%A0/"
+           data-tag="git"
+           data-author="" >
+            <span class="post-title" title="git学习">git学习</span>
+            <span class="post-date" title="2022-07-04 08:40:38">2022/07/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="大话设计模式">大话设计模式</span>
+            <span class="post-date" title="2022-04-24 18:47:07">2022/04/24</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/04/Windows%E7%BC%96%E7%A8%8B/"
+           data-tag="windows"
+           data-author="" >
+            <span class="post-title" title="Windows编程">Windows编程</span>
+            <span class="post-date" title="2022-04-04 20:29:52">2022/04/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/EffectiveC++/"
+           data-tag="C++"
+           data-author="" >
+            <span class="post-title" title="Effective C++">Effective C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/ExceptionalC++/"
+           data-tag="C++"
+           data-author="" >
+            <span class="post-title" title="Exceptional C++">Exceptional C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/Kuangbin-%E5%B9%B6%E6%9F%A5%E9%9B%86/"
+           data-tag="acm"
+           data-author="" >
+            <span class="post-title" title="Kuangbin-并查集">Kuangbin-并查集</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/MoreEffectiveC++/"
+           data-tag="C++"
+           data-author="" >
+            <span class="post-title" title="More Effective C++">More Effective C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/"
+           data-tag="acm"
+           data-author="" >
+            <span class="post-title" title="Kuangbin-简单搜索">Kuangbin-简单搜索</span>
+            <span class="post-date" title="2021-07-20 00:03:54">2021/07/20</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-mit-6-828-chapter5" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">mit-6.828 - Chapter 5: Interrupts and device drivers</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color3">os</a>
+            
+            <a class="color4">lab</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2026-06-30 01:09:43'>2024-04-16 00:16</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter5-Interrupts-and-device-drivers"><span class="toc-text">xv6 chapter5: Interrupts and device drivers</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Lab-Copy-on-Write-Fork-for-xv6"><span class="toc-text">Lab: Copy-on-Write Fork for xv6</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="xv6-chapter5-Interrupts-and-device-drivers"><a href="#xv6-chapter5-Interrupts-and-device-drivers" class="headerlink" title="xv6 chapter5: Interrupts and device drivers"></a>xv6 chapter5: Interrupts and device drivers</h3><p>这一章主要讲操作系统如何控制和组织硬件，之前的操作多集中在CPU这一硬件的操作，但还有很多其它硬件需要操作系统管理，这也是操作系统的基本任务之一。<br>在操作系统中每个硬件有其专门为其编写的控制代码，这部分代码叫作该硬件的驱动(driver)，它的工作包括配置硬件，处理中断，与进程交互等，总的来说驱动代码需要非常清楚硬件的各种接口才能编写。当硬件需要内核协作时就会发出interrupt，内核解析出该trap类型并调用相应的interrupt handler。这一过程在xv6中具体体现为trap解析出该trap来自外部设备时调用devintr处理，在devintr中进一步解析哪个设备发出中断并调用相应的handler。<br>一般驱动代码分为两部分，一部分是提供给进程或者内核使用的高级接口，比如通过read想要从磁盘读取数据，这部分代码只需要设置一些参数后就等待下面的操作完成，另一部分就是驱动的低级处理代码，这部分代码通常与硬件相关，以interrupt handler的形式出现，当底部操作完成时即可通知或唤醒上层正在等待的代码。</p>
+<p>xv6的控制台输入<br>在kernel&#x2F;console.c中就是控制台的驱动代码，它主要负责处理键入的字符(通过另一个硬件UART传递)，比如Ctrl+u等特殊字符，以及利用一个buffer将其累积为一行行的数据，供相应的read系统调用使用。整个console.c里面主要由<code>consputc</code>，<code>consolewrite</code>，<code>consoleread</code>，<code>consoleintr</code>几个函数组成，第一函数由内核使用，用于内核将一个字符传入到console，可以看到它只是简单的发送功能，除了删除字符特殊处理了一下，该函数不在consolewrite中使用，一方面区分了内核与用户对console的一些控制逻辑，另一方面是为了防止死锁(原理下章提到，由于这章锁使用较多建议先阅读下章再回来看这章)，因为uartputc会有一个spinlock来控制并发，如果中断和用户都用这个lock会导致死锁，内核使用的consputc会调用uart中不使用锁的函数。后面两个函数则用于用户的write与read调用，可以在consoleinit中看到两个函数被绑定为CONSOLE相应的系统调用，最后一个consoleintr则是在系统接受到字符产生中断时会被调用，用户按下键盘之后UART首先接收到这个字符然后产生中断，该中断会调用uartintr，而uartintr会调用consoleintr来处理一些特殊字符比如Ctrl+p等，如果只是普通字符consoleintr则会将其存储到cons.buf当中供以后的read使用，可以看到当遇到’\n’与’\r’时会调用wake来唤醒一个进程。</p>
+<p>在kernel&#x2F;uart.c中的则是关于UART(Universal Asynchronous&#x2F;Synchronous Transmitter)的驱动，也可以看作console驱动管理的硬件，操作系统需要通过一组寄存器来控制它，且该部件使用了mmio方式控制，从UART0(0x10000000)出开始就是该硬件的寄存器，每个寄存器大小为8bit，具体功能详见其手册。比较重要的几个寄存器如下:<br>    0: RHR &#x2F; THR – receive&#x2F;transmit holding register<br>    1: IER – interrupt enable register, RX_ENABLE&#x3D;0x1 and TX_ENABLE&#x3D;0x2<br>    …<br>    5: LSR – line status register, RX_READY&#x3D;0x1 and TX_IDLE&#x3D;0x20<br>可以将UART看作三个部分，receive hardware，transmit hardware，以及内部维护一个FIFO，当按下键盘时uart产生interrupt，经devintr解析后会调用uartintr，先从寄存器读出该字符然后传递给consoleintr处理该字符。</p>
+<p>xv6的控制台输出<br>前面提到的consoleintr如果要在屏幕上显示一个字符会调用uartputc完成，前面说过uart有三部分，要在屏幕上显示的字符是由transmit hardware传输到屏幕端的，在uart.c里维护了一个buffer，存储需要传输到屏幕的字符，uartputc本质上就是将字符放到这个缓冲区里面，没有真正去发送这个字符，真正完成发送这个动作的是uartstart，它会检查当前的传送器是否可用，然后进行一些其它的逻辑检查，如果一切准备就绪那就将字符写到对应寄存器发送，当发送完成时会产生新的中断，在uartintr中又调用了uartstart，所以当需要发送多个字符时只有第一次发送会主动调用uartstart，后面都是由中断自动完成。</p>
+<p>xv6的时钟中断<br>RISC-V有硬件产生恒定频率的信号，且需要时钟中断工作在机器模式下，这也就意味着时钟中断的处理会有独立的一套寄存器，且与普通的内核代码有区别，具体的代码放在start.c里，这段代码会在main之前被执行，timerinit就在此处被调用，其主要工作就是配置CLINT，使其按照一定的delay触发一个中断，并设置好对应的中断处理入口。xv6允许中断在任何时候发生，即使是在执行内核代码，发生时钟中断时也可能切换线程，这也就导致内核线程可能被挂起然后被另外的CPU所执行。</p>
+<h4 id="Lab-Copy-on-Write-Fork-for-xv6"><a href="#Lab-Copy-on-Write-Fork-for-xv6" class="headerlink" title="Lab: Copy-on-Write Fork for xv6"></a>Lab: Copy-on-Write Fork for xv6</h4><p>在traps那章的结束介绍了一些关于Page Fault的重要应用，这个实验就是要实现其中的cow<br>这里再说一下cow的原理，由于大部分fork调用之后都会紧跟一个exec调用，exec调用会构造一个新的页表并释放当前页表，可在原始的xv6中，fork会将父进程地址空间的所有内容全部拷贝一份，而这份页表几乎没怎么使用就会被后面的exec释放掉，中间这份深拷贝几乎是多余的。如果只拷贝父进程的页表项目，并且将所有页表项都设置为只读，子进程就能通过构造的页表访问父进程的所有内容，当需要向某个地址写入内容时则会触发中断，内核此时为其分配一个新的页并将内容拷贝至该页然后修改pte使其指向该页，并将其PTE_W置1，这样中断返回时用户再次访问该地址即可写入。</p>
+<p>其中几个需要解决的主要问题如下：</p>
+<ol>
+<li>怎么区分一个页是否是cow页，因为如果该页原先就是只读页而子进程如果向该页写入就应该触发错误，只有该页为cow页才会为其申请新的页</li>
+<li>当某个只读页被复制到多个进程，其中的一个进程如果释放地址空间则会将该页释放，导致其它进程无法读取或者读取到错误信息，需要记录一个页的引用次数</li>
+<li>让中断处理程序能识别出该种类型的中断</li>
+</ol>
+<p>第一个问题可以通过利用PTE的reserved位来标记该页是否为cow页，在riscv.h里添加一个宏即可:<br><code>#define PTE_RSW (1L &lt;&lt; 8) // cow page mark</code></p>
+<p>第二个问题我使用了一个固定大小的数组来记录每个物理页被引用的次数，定义在kernel&#x2F;kalloc.c中：</p>
+<pre><code class="c">#define PA2HASH(pa) (((uint64)pa-KERNBASE)&gt;&gt;PGSHIFT)
+
+void freerange(void *pa_start, void *pa_end);
+
+extern char end[]; // first address after kernel.
+                   // defined by kernel.ld.
+
+struct &#123;
+        struct spinlock lock;
+  uint8 pagecnt[((PHYSTOP-KERNBASE)&gt;&gt;PGSHIFT)+100];
+&#125; pageref;
+</code></pre>
+<p>由于内核与用户的代码在KERNBASE以后，ens是一个变量无法在定义时确定，预估内核代码100个页以下，<br>由于此结构可能被多个线程同时访问所以需要设定一个锁来保证正确性。</p>
+<p>对于第三个问题，可以查阅RISC-V的手册，在kernel&#x2F;trap.c里的devintr</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2022Rouze
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":200,"height":324},"mobile":{"show":true},"log":false});</script></body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().trim().split('\n').length, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: ;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+    #post .pjax article :not(pre) > code {
+        color: #24292e;
+        font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+        background-color: rgba(27,31,35,.05);
+        border-radius: 3px;
+        font-size: 85%;
+        margin: 0;
+        padding: .2em .4em;
+    }
+    
+</style>
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>mit-6.828 - Chapter 4: Trap and System Calls | 若则</title>
+  <meta name="keywords" content=" os , lab ">
+  <meta name="description" content="mit-6.828 - Chapter 4: Trap and System Calls | 若则">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="喜欢计算机理论的大学生一名">
+<meta property="og:type" content="website">
+<meta property="og:title" content="关于">
+<meta property="og:url" content="http://example.com/about/index.html">
+<meta property="og:site_name" content="若则">
+<meta property="og:description" content="喜欢计算机理论的大学生一名">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-18T02:48:15.000Z">
+<meta property="article:modified_time" content="2021-07-18T02:49:26.598Z">
+<meta property="article:author" content="Rouze">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar2.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/sublime.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar2.jpg"/>
+</a>
+<div class="author">
+    <span>Rouze</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/Rouze"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="facebook"
+               href="https://www.facebook.com/faker.tops"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-facebook"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="zhihu"
+               href="https://www.zhihu.com/people/jaytp/activities"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-zhihu"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:2128099421@qq.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=2128099421&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="全部文章">全部文章
+            
+                <small>(34)</small>
+            
+        </div>
+    </li>
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">关于</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">友链</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="34">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">全部文章</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>编译</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>操作系统真相还原</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>汇编</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>计算机视觉</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>计网</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>爬虫</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>设计模式</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>深度学习</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>算法刷题</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>网络协议</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>源码</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>acm</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>C</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>C++</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>git</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>lab</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>leveldb</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>os</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>python</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>SICP笔记</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>Unix命令</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>windows</a>
+            </li>
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="全部文章 "
+           href="/2026/06/21/leveldb%E4%B9%8BCompact/"
+           data-tag="leveldb"
+           data-author="" >
+            <span class="post-title" title="leveldb之Compact">leveldb之Compact</span>
+            <span class="post-date" title="2026-06-21 17:47:17">2026/06/21</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/08/14/Effective-Modern-C/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Effective Modern C++">Effective Modern C++</span>
+            <span class="post-date" title="2024-08-14 16:13:17">2024/08/14</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/26/python%E6%8B%BE%E9%81%97/"
+           data-tag="源码,python"
+           data-author="" >
+            <span class="post-title" title="python拾遗">python拾遗</span>
+            <span class="post-date" title="2024-04-26 10:59:47">2024/04/26</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter8/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 8: File System">mit-6.828 - Chapter 8: File System</span>
+            <span class="post-date" title="2024-04-16 00:18:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter6/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 6: Locks">mit-6.828 - Chapter 6: Locks</span>
+            <span class="post-date" title="2024-04-16 00:17:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter5/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 5: Interrupts and device drivers">mit-6.828 - Chapter 5: Interrupts and device drivers</span>
+            <span class="post-date" title="2024-04-16 00:16:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter4/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 4: Trap and System Calls">mit-6.828 - Chapter 4: Trap and System Calls</span>
+            <span class="post-date" title="2024-04-16 00:15:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter3/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 3: Page tables">mit-6.828 - Chapter 3: Page tables</span>
+            <span class="post-date" title="2024-04-16 00:14:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter2/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 2: Operating system organization">mit-6.828 - Chapter 2: Operating system organization</span>
+            <span class="post-date" title="2024-04-16 00:13:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828">mit-6.828</span>
+            <span class="post-date" title="2024-04-16 00:12:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/16/mit-6-828-chapter1/"
+           data-tag="os,lab"
+           data-author="" >
+            <span class="post-title" title="mit-6.828 - Chapter 1: Introduction">mit-6.828 - Chapter 1: Introduction</span>
+            <span class="post-date" title="2024-04-16 00:12:16">2024/04/16</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/04/08/python%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"
+           data-tag="源码,python"
+           data-author="" >
+            <span class="post-title" title="python源码阅读">python源码阅读</span>
+            <span class="post-date" title="2024-04-08 12:17:22">2024/04/08</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/27/python%E7%88%AC%E8%99%AB%E5%AE%9E%E6%88%98%E5%85%A5%E9%97%A8/"
+           data-tag="python,爬虫"
+           data-author="" >
+            <span class="post-title" title="python爬虫实战入门">python爬虫实战入门</span>
+            <span class="post-date" title="2024-02-27 13:52:23">2024/02/27</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/21/TCPNote/"
+           data-tag="网络协议"
+           data-author="" >
+            <span class="post-title" title="TCPNote">TCPNote</span>
+            <span class="post-date" title="2024-02-21 16:38:07">2024/02/21</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/20/Guide-to-Uinix/"
+           data-tag="Unix命令"
+           data-author="" >
+            <span class="post-title" title="Guide_to_Uinix">Guide_to_Uinix</span>
+            <span class="post-date" title="2024-02-20 21:49:43">2024/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/02/20/HttpNote/"
+           data-tag="网络协议"
+           data-author="" >
+            <span class="post-title" title="HttpNote">HttpNote</span>
+            <span class="post-date" title="2024-02-20 20:43:49">2024/02/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/19/%E5%88%B7%E9%A2%98/"
+           data-tag="算法刷题"
+           data-author="" >
+            <span class="post-title" title="刷题">刷题</span>
+            <span class="post-date" title="2024-01-19 11:47:35">2024/01/19</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/12/C%E8%AF%AD%E8%A8%80%E6%8B%BE%E9%81%97/"
+           data-tag="C"
+           data-author="" >
+            <span class="post-title" title="C语言拾遗">C语言拾遗</span>
+            <span class="post-date" title="2024-01-12 09:26:07">2024/01/12</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E5%9F%BA%E7%A1%80/"
+           data-tag="深度学习"
+           data-author="" >
+            <span class="post-title" title="深度学习-基础">深度学习-基础</span>
+            <span class="post-date" title="2024-01-08 09:57:53">2024/01/08</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2024/01/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0-%E8%A7%86%E8%A7%89/"
+           data-tag="深度学习,计算机视觉"
+           data-author="" >
+            <span class="post-title" title="深度学习-视觉">深度学习-视觉</span>
+            <span class="post-date" title="2024-01-08 09:07:24">2024/01/08</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2023/07/01/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%87%BD%E6%95%B0/"
+           data-tag="SICP笔记"
+           data-author="" >
+            <span class="post-title" title="数据与函数">数据与函数</span>
+            <span class="post-date" title="2023-07-01 19:21:32">2023/07/01</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/15/%E8%AE%A1%E7%BD%91-%E9%93%BE%E8%B7%AF%E5%B1%82/"
+           data-tag="计网"
+           data-author="" >
+            <span class="post-title" title="计网-链路层">计网-链路层</span>
+            <span class="post-date" title="2022-10-15 19:43:14">2022/10/15</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/07/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
+           data-tag="os,操作系统真相还原"
+           data-author="" >
+            <span class="post-title" title="内存管理">内存管理</span>
+            <span class="post-date" title="2022-10-07 19:12:16">2022/10/07</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/02/%E4%B8%AD%E6%96%AD/"
+           data-tag="os,操作系统真相还原"
+           data-author="" >
+            <span class="post-title" title="中断">中断</span>
+            <span class="post-date" title="2022-10-02 20:31:38">2022/10/02</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/10/01/Pratt-Parse%E7%9A%84%E7%90%86%E8%A7%A3/"
+           data-tag="编译,源码"
+           data-author="" >
+            <span class="post-title" title="Pratt-Parse的理解">Pratt-Parse的理解</span>
+            <span class="post-date" title="2022-10-01 23:30:49">2022/10/01</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/09/25/C%E8%AF%AD%E8%A8%80%E9%87%8C%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90/"
+           data-tag="C,汇编"
+           data-author="" >
+            <span class="post-title" title="C语言里函数返回结构体的汇编分析">C语言里函数返回结构体的汇编分析</span>
+            <span class="post-date" title="2022-09-25 08:54:51">2022/09/25</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/07/04/git%E5%AD%A6%E4%B9%A0/"
+           data-tag="git"
+           data-author="" >
+            <span class="post-title" title="git学习">git学习</span>
+            <span class="post-date" title="2022-07-04 08:40:38">2022/07/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/24/%E5%A4%A7%E8%AF%9D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
+           data-tag="设计模式"
+           data-author="" >
+            <span class="post-title" title="大话设计模式">大话设计模式</span>
+            <span class="post-date" title="2022-04-24 18:47:07">2022/04/24</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2022/04/04/Windows%E7%BC%96%E7%A8%8B/"
+           data-tag="windows"
+           data-author="" >
+            <span class="post-title" title="Windows编程">Windows编程</span>
+            <span class="post-date" title="2022-04-04 20:29:52">2022/04/04</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/EffectiveC++/"
+           data-tag="C++"
+           data-author="" >
+            <span class="post-title" title="Effective C++">Effective C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/ExceptionalC++/"
+           data-tag="C++"
+           data-author="" >
+            <span class="post-title" title="Exceptional C++">Exceptional C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/Kuangbin-%E5%B9%B6%E6%9F%A5%E9%9B%86/"
+           data-tag="acm"
+           data-author="" >
+            <span class="post-title" title="Kuangbin-并查集">Kuangbin-并查集</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/MoreEffectiveC++/"
+           data-tag="C++"
+           data-author="" >
+            <span class="post-title" title="More Effective C++">More Effective C++</span>
+            <span class="post-date" title="2021-07-20 15:26:15">2021/07/20</span>
+        </a>
+        
+        
+        <a  class="全部文章 "
+           href="/2021/07/20/Kuangbin-%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2/"
+           data-tag="acm"
+           data-author="" >
+            <span class="post-title" title="Kuangbin-简单搜索">Kuangbin-简单搜索</span>
+            <span class="post-date" title="2021-07-20 00:03:54">2021/07/20</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-mit-6-828-chapter4" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">mit-6.828 - Chapter 4: Trap and System Calls</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color3">os</a>
+            
+            <a class="color4">lab</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+            发布时间 : <time class="date" title='最后更新: 2026-06-30 01:09:43'>2024-04-16 00:15</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-chapter4-Trap-and-System-Calls"><span class="toc-text">xv6 chapter4: Trap and System Calls</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Lab-traps"><span class="toc-text">Lab: traps</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="xv6-chapter4-Trap-and-System-Calls"><a href="#xv6-chapter4-Trap-and-System-Calls" class="headerlink" title="xv6 chapter4: Trap and System Calls"></a>xv6 chapter4: Trap and System Calls</h3><p>在xv6中有三种情况会导致CPU搁置普通命令的执行，强制转换到某块特殊代码，分别是：</p>
+<ol>
+<li>system call，当用户态下使用ecall指令时会触发</li>
+<li>exception，当一条指令执行时发生错误时触发，如除0以及访问非法地址</li>
+<li>interrupt，外部设备发生中断时触发，比如磁盘读写完成<br>上面三种情况统一用trap来表示，xv6在内核中处理所有的trap，无论什么代码执行时发生了trap它都不应该具体知道将会发生什么，只要当一个调用并且可以恢复当前状态就行。</li>
+</ol>
+<p>xv6对trap的处理分为四个阶段：</p>
+<ol>
+<li>由硬件自动发生的行为，比如保存PC用于恢复等</li>
+<li>一些汇编代码，逐步进入到内核状态</li>
+<li>一个用于解析trap，用于跳转的C函数</li>
+<li>具体处理对应trap的函数<br>另外对trap发生的情况也分成了三类:1.用户态发生的trap 2.内核态发生的trap 3.时间中断</li>
+</ol>
+<ul>
+<li>RISC-V trap machinery<br>RISC-V有一套控制寄存器来控制trap的处理，内核通过设置这些寄存器来控制trap的过程，有关硬件的主要定义放在kernel&#x2F;riscv.h中，其中最重要的几个寄存为:</li>
+</ul>
+<ol>
+<li>stvec，内核将trap处理函数的地址写入这个寄存器，当trap发生时CPU会跳转到这个地址，由于前面将trap进行三种分类，不同trap需要安装不同的vector到stvec中，在内核态下需要安装kernelvec(kernel&#x2F;kernelvec.S)，在用户态下安装的是uservec(kernel&#x2F;trampoline.S)，由于两种trap发生时的处理方式不同，所以需要不同的vector，具体的安装在kernel&#x2F;trap.c中可以看见，当进入内核态时会将kernelvec安装到stvec中，而内核返回用户态时(在userret中)会将uservec安装到stvec中。</li>
+<li>sepc，trap发生时RISC-V会自动将pc存到sepc，将来sret时会从这里读值装入到pc，中间内核可以去修改sepc的内容从而控制返回的地方</li>
+<li>scause，RISC-V会将触发trap的原因放在这个寄存器，比如syscall被编号为8</li>
+<li>sstatus，status里面的SIE位控制trap的开关，当SIE为1时trap才会被响应，可以防止递归trap。另外SPP位用来区分trap来自用户态还是内核态以及sret返回的模式</li>
+</ol>
+<p>每个CPU都有各自的一套控制寄存器，也就是说多核CPU可以同时处理多个trap，当一个trap发生时RISC-V硬件的处理流程如下:</p>
+<ol>
+<li>判断SIE位是否为1，如果不是则忽略trap</li>
+<li>关闭SIE位</li>
+<li>将pc存到sepc</li>
+<li>保存当前状态(user&#x2F;supervisor)到sstatus的SPP位</li>
+<li>将scause设置为trap的原因</li>
+<li>更改模式到supervisor</li>
+<li>从stvec中读取地址装载到pc</li>
+<li>开始执行pc<br>注意上面的步骤中除了pc寄存器的内容被保存，其它寄存器内容都没有保存，且没有涉及到内核栈和页表的切换，这些任务硬件都交给了内核的处理函数来完成，原因就是为内核保留足够的灵活性，决定哪些寄存器需要保存，机器只做最基本的工作，这样便于内核定制最快的trap处理过程。</li>
+</ol>
+<ul>
+<li>Traps from user space<br>前面说了一些trap的定义以及机器做的准备工作，现在详细看下从用户态发生一个trap的过程。<br>从几个函数调用过程来看用户态发生trap的过程为uservec(trampoline.S)-&gt;usertrap(kernel&#x2F;trap.c)-&gt;usertrapret(kernel&#x2F;trap.c)-&gt;userret(kernel&#x2F;trampoline.S)。由于trap发生时RISC-V硬件不会切换页表到内核态，所以将要执行的stvec地址必须是用户页表里可见的，而trap处理函数的执行又必定会切换到内核空间，所以为了能在内核和用户态下都能以同样方式访问trap处理函数，xv6将这段代码放在了trampoline页中，将其映射到用户和内核的TRAPOLEINE位置，这样切换页表后仍能继续访问这段代码，同时为了防止用户访问和修改这段代码其PTE_U位没有设置。现在先假设trap已经发生，硬件工作已经完成，应该从stvec中读取到uservec的地址并装载到pc，所以下面看看uservec的代码:</li>
+</ul>
+<pre><code class="assembly">#include &quot;riscv.h&quot;
+#include &quot;memlayout.h&quot;
+
+.section trampsec
+.globl trampoline
+.globl usertrap
+trampoline:
+.align 4
+.globl uservec
+uservec:
+        #
+        # trap.c sets stvec to point here, so
+        # traps from user space start here,
+        # in supervisor mode, but with a
+        # user page table.
+        #
+
+        # save user a0 in sscratch so
+        # a0 can be used to get at TRAPFRAME.
+        csrw sscratch, a0
+
+        # each process has a separate p-&gt;trapframe memory area,
+        # but it&#39;s mapped to the same virtual address
+        # (TRAPFRAME) in every process&#39;s user page table.
+        li a0, TRAPFRAME
+
+        # save the user registers in TRAPFRAME
+        sd ra, 40(a0)
+        sd sp, 48(a0)
+        sd gp, 56(a0)
+        sd tp, 64(a0)
+        sd t0, 72(a0)
+        sd t1, 80(a0)
+        sd t2, 88(a0)
+        sd s0, 96(a0)
+        sd s1, 104(a0)
+        sd a1, 120(a0)
+        sd a2, 128(a0)
+        sd a3, 136(a0)
+        sd a4, 144(a0)
+        sd a5, 152(a0)
+        sd a6, 160(a0)
+        sd a7, 168(a0)
+        sd s2, 176(a0)
+        sd s3, 184(a0)
+        sd s4, 192(a0)
+        sd s5, 200(a0)
+        sd s6, 208(a0)
+        sd s7, 216(a0)
+        sd s8, 224(a0)
+        sd s9, 232(a0)
+        sd s10, 240(a0)
+        sd s11, 248(a0)
+        sd t3, 256(a0)
+        sd t4, 264(a0)
+        sd t5, 272(a0)
+        sd t6, 280(a0)
+
+        # save the user a0 in p-&gt;trapframe-&gt;a0
+        csrr t0, sscratch
+        sd t0, 112(a0)
+
+        # initialize kernel stack pointer, from p-&gt;trapframe-&gt;kernel_sp
+        ld sp, 8(a0)
+
+        # make tp hold the current hartid, from p-&gt;trapframe-&gt;kernel_hartid
+        ld tp, 32(a0)
+
+        # load the address of usertrap(), from p-&gt;trapframe-&gt;kernel_trap
+        ld t0, 16(a0)
+
+        # fetch the kernel page table address, from p-&gt;trapframe-&gt;kernel_satp.
+        ld t1, 0(a0)
+
+        # wait for any previous memory operations to complete, so that
+        # they use the user page table.
+        sfence.vma zero, zero
+
+        # install the kernel page table.
+        csrw satp, t1
+
+        # flush now-stale user entries from the TLB.
+        sfence.vma zero, zero
+
+        # jump to usertrap(), which does not return
+        jr t0
+</code></pre>
+<p>由于RISC-V没有自动保存通用寄存器，所以到这里之后应该手动保存这些寄存器以用于以后恢复，有两个方案存储，一个是像pc那样专门设置寄存器来存储，但现在要存储的寄存器过多，如果都单独设置一个将使寄存器数量翻倍，另一个就是存在内存里面，xv6安排了一个页专门用于trap发生时的信息存储，由于此时还没有切换内核页表，每个用户进程在初始化时都在其虚拟空间TRAPFRAM设置了一个页来存储这些信息，但是存储操作还是需要用到一个中间寄存器来传输数据，RISC-V提供了sscratch寄存器，先将a0存到sscratch然后将TRAPFRAM装到a0，之后就是将各个寄存器内容存到trapframe当中，trapframe的具体布局可以在kernel&#x2F;proc.h看到，到<code>sd t0,112(a0)</code>算是存储完所有寄存器，后面开始加载一些进入内核需要的信息，比如从PCB读出内核栈指针，hartid，内核页表，trap处理函数地址等加载到约定寄存器，等待所有的内存操作完成后使用<code>csrw satp,t1</code>将内核页表装载到satp寄存器，刷新TLB，最后跳转到trap处理函数usertrap(kernel&#x2F;trap.c)，下面时usertrap的代码:</p>
+<pre><code class="c">void
+usertrap(void)
+&#123;
+  int which_dev = 0;
+
+  if((r_sstatus() &amp; SSTATUS_SPP) != 0)
+    panic(&quot;usertrap: not from user mode&quot;);
+
+  // send interrupts and exceptions to kerneltrap(),
+  // since we&#39;re now in the kernel.
+  w_stvec((uint64)kernelvec);
+
+  struct proc *p = myproc();
+
+  // save user program counter.
+  p-&gt;trapframe-&gt;epc = r_sepc();
+
+  if(r_scause() == 8)&#123;
+    // system call
+
+    if(killed(p))
+      exit(-1);
+
+    // sepc points to the ecall instruction,
+    // but we want to return to the next instruction.
+    p-&gt;trapframe-&gt;epc += 4;
+
+    // an interrupt will change sepc, scause, and sstatus,
+    // so enable only now that we&#39;re done with those registers.
+    intr_on();
+
+    syscall();
+  &#125; else if((which_dev = devintr()) != 0)&#123;
+    // ok
+  &#125; else &#123;
+    printf(&quot;usertrap(): unexpected scause %p pid=%d\n&quot;, r_scause(), p-&gt;pid);
+    printf(&quot;            sepc=%p stval=%p\n&quot;, r_sepc(), r_stval());
+    setkilled(p);
+  &#125;
+
+  if(killed(p))
+    exit(-1);
+
+  // give up the CPU if this is a timer interrupt.
+  if(which_dev == 2)
+    yield();
+
+  usertrapret();
+&#125;
+</code></pre>
+<p>首先判断是否从用户态进入的usertrap，因为内核态发生trap应该进入kerneltrap，然后将stvec设置为kernelvec，因为此时已经进入内核态，后面发生什么trap应该由kernelvec处理。之后从sepc中读出trap发生时的pc存到trapframe中，注意这里是发生时的pc而不是下一条指令的pc，硬件不对trap发生后的行为进行猜测，为内核提供足够的灵活性。之后根据scause的值判断是否是系统调用产生的trap，如果是就将epc加4，让系统调用完成后返回到用户ecall的下一条指令，然后打开中断，调用syscall函数处理系统调用，因为trap发生时会自动关闭中断，之所以在这里打开是因为要保证时间中断能正常发生，防止进程长时间占用CPU，而选择在此处打开中断是因为trap会更改sepc，scause和sstatus的值，到这里时这些内容已经使用完毕，可以开启中断。如果不是系统调用则判断是否是设备中断，通过devintr()处理并返回设备号，如果也不是设备中断说明是exception，打印一些信息后设置进程为killed状态，最后判断进程是否被kill，如果是则调用exit函数，最后如果是时间中断则调用yield函数，最后调用usertrapret(kernel&#x2F;trap.c)函数返回用户态，下面是usertrapret的代码:</p>
+<pre><code class="c">void
+usertrapret(void)
+&#123;
+  struct proc *p = myproc();
+
+  // we&#39;re about to switch the destination of traps from
+  // kerneltrap() to usertrap(), so turn off interrupts until
+  // we&#39;re back in user space, where usertrap() is correct.
+  intr_off();
+
+  // send syscalls, interrupts, and exceptions to uservec in trampoline.S
+  uint64 trampoline_uservec = TRAMPOLINE + (uservec - trampoline);
+  w_stvec(trampoline_uservec);
+
+  // set up trapframe values that uservec will need when
+  // the process next traps into the kernel.
+  p-&gt;trapframe-&gt;kernel_satp = r_satp();         // kernel page table
+  p-&gt;trapframe-&gt;kernel_sp = p-&gt;kstack + PGSIZE; // process&#39;s kernel stack
+  p-&gt;trapframe-&gt;kernel_trap = (uint64)usertrap;
+  p-&gt;trapframe-&gt;kernel_hartid = r_tp();         // hartid for cpuid()
+
+  // set up the registers that trampoline.S&#39;s sret will use
+  // to get to user space.
+
+  // set S Previous Privilege mode to User.
+  unsigned long x = r_sstatus();
+  x &amp;= ~SSTATUS_SPP; // clear SPP to 0 for user mode
+  x |= SSTATUS_SPIE; // enable interrupts in user mode
+  w_sstatus(x);
+
+  // set S Exception Program Counter to the saved user pc.
+  w_sepc(p-&gt;trapframe-&gt;epc);
+
+  // tell trampoline.S the user page table to switch to.
+  uint64 satp = MAKE_SATP(p-&gt;pagetable);
+
+  // jump to userret in trampoline.S at the top of memory, which
+  // switches to the user page table, restores user registers,
+  // and switches to user mode with sret.
+  uint64 trampoline_userret = TRAMPOLINE + (userret - trampoline);
+  ((void (*)(uint64))trampoline_userret)(satp);
+&#125;
+</code></pre>
+<p>首先关闭中断，然后将uservec写到stvec，因为返回用户态后的trap应该由uservec处理，之后保存一些内核信息到PCB中，然后设置对应的SPP与SPIE位，注意关闭中断时是清空的SIE位，这是一个全局控制，SPIE设置的是允许用户态下中断发生，因此不用担心中断会在这里发生，之后将要返回的地址写到sepc，最后制作satp作为参数调用userret，userret的功能就是从trapframe恢复寄存器，切换页表最后调用sret返回用户态，比较简单。</p>
+<ul>
+<li><p>Trap from kernel space<br>在内核状态下发生的trap会跳转到kernelvec(kernel&#x2F;kernelvec.S)，与uservec不同的是这里不需要为进入内核做准备，比如切换页表等，保存寄存器的地方就是该进程的内核栈，所以在kernelvec中可以看到一进入就为这些寄存器分配了栈空间，保存完寄存器后就直接调用kerneltrap，这个函数与usertrap类似，只是少了系统调用的判断</p>
+</li>
+<li><p>Page-fault exception<br>xv6对exception的处理非常简单，如果是用户态下发生的exception则内核会kill该进程，如果是内核发生exception则会进入panic，而现实中的操作系统往往比这复杂得多。一个常见的exception就是用户态下的page-fault exception，当用户访问没有映射的地址或者权限不匹配时就会引发该exception，RISC-V将这个exception分为了三类，分别是store page-fault， load page-fault， instruction page-fault，分别是存储，读入，指令地址无法转换时产生，scause会记录类型，stval会记录引发exception的地址。xv6的fork实现的是对父进程所有地址空间的深拷贝uvmcopy(kernel&#x2F;vm.c)。这样的策略容易造成浪费，因为fork之后的子进程往往会调用exec，这样之前的拷贝就没有用了，有一种策略就是COW(Copy On Write)，大致的思想是子进程共享父进程的所有物理页，这样就不用为子进程分配和拷贝物理页，但是子进程的页表PTE_W位不设置，也就是子进程只读不写，当需要写时就会引发相应exception，内核此时为进程分配一个新的页并拷贝父进程内容并加上对应的PTE_W，这样那些不读的页就不需要分配和拷贝，节省时间和空间。不过这样就需要记录哪些页是共享的，否则可能会出现一个进程把一个共享页释放导致其它进程发生错误。<br>另外一个跟page-fault exception相关的机制叫lazy allocation，这个机制是在用户使用sbrk申请空间时并不真正分配空间和PTE，只是增加其sz，当用户访问新的空间引起page-fault exception时再真正分配空间和PTE，这样可以减少内存的浪费，因为很多时候用户申请了空间但是并没有使用，这样就不用为这些空间分配物理页。<br>还有一个与page-fault exception相关的机制就是虚拟内存，通过将物理页的换入换出从逻辑上扩充内存大小。</p>
+</li>
+</ul>
+<h4 id="Lab-traps"><a href="#Lab-traps" class="headerlink" title="Lab: traps"></a>Lab: traps</h4><ul>
+<li><ol>
+<li>观察RISCV的汇编代码，查看其函数调用过程，回答问题<br>第一个问题是关于函数调用的，从它给的call.c编译得到的call.asm不是很能看出调用过程，因为写的函数太简单被编译器inline掉了，一些调用的地方直接被替换成了结果，下面是我写的一个测试代码:</li>
+</ol>
+</li>
+</ul>
+<pre><code class="c">int
+f(int a,int b,int c,int d,int e,int f,int g,int h,int i,int j)
+&#123;
+        int x=10;
+        for(x=0;x&lt;1024;x++)&#123;
+                if(x%2==0)
+                        a+=b;
+        &#125;
+        return a+b+c+d+e+f+g+h-i+j;
+
+&#125;
+struct node&#123;
+        int x;
+        int y;
+        int z;
+        int u;
+&#125;;
+int
+g(struct node a)
+&#123;
+        for(int i=0;i&lt;1024;i++)&#123;
+                if(i%2==0)
+                        a.x+=a.u;
+                else
+                        a.y+=a.z;
+        &#125;
+        return a.x+a.y+f(1,2,3,4,5,6,7,8,9,10);
+&#125;
+
+int
+main(int argc,char **argv)
+&#123;
+        struct node a;
+        a.x = 2;
+        a.y = 1;
+        a.z = 3;
+        a.u = 4;
+        return g(a)+f(1,2,3,4,5,6,7,8,9,10);
+&#125;
+</code></pre>
+<p>由于前面已经提过RISC-V的函数传递主要靠寄存器，但寄存器的数量是有限的，总有会用到栈的时候，所以f就是测试这个的，g主要用于测试结构体参数的传递，下面针对其部分asm代码进行分析:</p>
+<pre><code class="asm">int
+f(int a,int b,int c,int d,int e,int f,int g,int h,int i,int j)
+&#123;
+   0:    1141                    addi    sp,sp,-16
+   2:    e422                    sd    s0,8(sp)
+   4:    0800                    addi    s0,sp,16
+    int x=10;
+    for(x=0;x&lt;1024;x++)&#123;
+   6:    4301                    li    t1,0
+   8:    40000e93              li    t4,1024
+   c:    a021                    j    14 &lt;f+0x14&gt;
+   e:    2305                    addiw    t1,t1,1
+  10:    01d30863              beq    t1,t4,20 &lt;f+0x20&gt;
+        if(x%2==0)
+  14:    00137e13              andi    t3,t1,1
+  18:    fe0e1be3              bnez    t3,e &lt;f+0xe&gt;
+            a+=b;
+  1c:    9d2d                    addw    a0,a0,a1
+  1e:    bfc5                    j    e &lt;f+0xe&gt;
+    &#125;
+    return a+b+c+d+e+f+g+h-i+j;
+  20:    9d2d                    addw    a0,a0,a1
+  22:    9e29                    addw    a2,a2,a0
+  24:    9eb1                    addw    a3,a3,a2
+  26:    9f35                    addw    a4,a4,a3
+  28:    9fb9                    addw    a5,a5,a4
+  2a:    010787bb              addw    a5,a5,a6
+  2e:    011787bb              addw    a5,a5,a7
+  32:    4018                    lw    a4,0(s0)
+  34:    9f99                    subw    a5,a5,a4
+    
+&#125;
+  36:    4408                    lw    a0,8(s0)
+  38:    9d3d                    addw    a0,a0,a5
+  3a:    6422                    ld    s0,8(sp)
+  3c:    0141                    addi    sp,sp,16
+  3e:    8082                    ret
+
+0000000000000040 &lt;g&gt;:
+    int z;
+    int u;
+&#125;;
+int
+g(struct node a)
+&#123;
+  40:    7139                    addi    sp,sp,-64
+  42:    fc06                    sd    ra,56(sp)
+  44:    f822                    sd    s0,48(sp)
+  46:    f426                    sd    s1,40(sp)
+  48:    0080                    addi    s0,sp,64
+  4a:    0005069b              sext.w    a3,a0
+  4e:    42055493              srai    s1,a0,0x20
+    for(int i=0;i&lt;1024;i++)&#123;
+        if(i%2==0)
+            a.x+=a.u;
+        else
+            a.y+=a.z;
+  52:    0005851b              sext.w    a0,a1
+            a.x+=a.u;
+  56:    9581                    srai    a1,a1,0x20
+    for(int i=0;i&lt;1024;i++)&#123;
+  58:    4781                    li    a5,0
+  5a:    40000613              li    a2,1024
+  5e:    a029                    j    68 &lt;g+0x28&gt;
+            a.y+=a.z;
+  60:    9ca9                    addw    s1,s1,a0
+    for(int i=0;i&lt;1024;i++)&#123;
+  62:    2785                    addiw    a5,a5,1
+  64:    00c78763              beq    a5,a2,72 &lt;g+0x32&gt;
+        if(i%2==0)
+  68:    0017f713              andi    a4,a5,1
+  6c:    fb75                    bnez    a4,60 &lt;g+0x20&gt;
+            a.x+=a.u;
+  6e:    9ead                    addw    a3,a3,a1
+  70:    bfcd                    j    62 &lt;g+0x22&gt;
+    &#125;
+    return a.x+a.y+f(1,2,3,4,5,6,7,8,9,10);
+  72:    9cb5                    addw    s1,s1,a3
+  74:    47a9                    li    a5,10
+  76:    e43e                    sd    a5,8(sp)
+  78:    47a5                    li    a5,9
+  7a:    e03e                    sd    a5,0(sp)
+  7c:    48a1                    li    a7,8
+  7e:    481d                    li    a6,7
+  80:    4799                    li    a5,6
+  82:    4715                    li    a4,5
+  84:    4691                    li    a3,4
+  86:    460d                    li    a2,3
+  88:    4589                    li    a1,2
+  8a:    4505                    li    a0,1
+  8c:    00000097              auipc    ra,0x0
+  90:    f74080e7              jalr    -140(ra) # 0 &lt;f&gt;
+&#125;
+  94:    9d25                    addw    a0,a0,s1
+  96:    70e2                    ld    ra,56(sp)
+  98:    7442                    ld    s0,48(sp)
+  9a:    74a2                    ld    s1,40(sp)
+  9c:    6121                    addi    sp,sp,64
+  9e:    8082                    ret
+
+00000000000000a0 &lt;main&gt;:
+
+int
+main(int argc,char **argv)
+&#123;
+  a0:    7139                    addi    sp,sp,-64
+  a2:    fc06                    sd    ra,56(sp)
+  a4:    f822                    sd    s0,48(sp)
+  a6:    f426                    sd    s1,40(sp)
+  a8:    0080                    addi    s0,sp,64
+    struct node a;
+    a.x = 2;
+  aa:    4789                    li    a5,2
+  ac:    fcf42823              sw    a5,-48(s0)
+    a.y = 1;
+  b0:    4785                    li    a5,1
+  b2:    fcf42a23              sw    a5,-44(s0)
+    a.z = 3;
+  b6:    478d                    li    a5,3
+  b8:    fcf42c23              sw    a5,-40(s0)
+    a.u = 4;
+  bc:    4791                    li    a5,4
+  be:    fcf42e23              sw    a5,-36(s0)
+    return g(a)+f(1,2,3,4,5,6,7,8,9,10);
+  c2:    fd043503              ld    a0,-48(s0)
+  c6:    fd843583              ld    a1,-40(s0)
+  ca:    00000097              auipc    ra,0x0
+  ce:    f76080e7              jalr    -138(ra) # 40 &lt;g&gt;
+  d2:    84aa                    mv    s1,a0
+  d4:    47a9                    li    a5,10
+  d6:    e43e                    sd    a5,8(sp)
+  d8:    47a5                    li    a5,9
+  da:    e03e                    sd    a5,0(sp)
+  dc:    48a1                    li    a7,8
+  de:    481d                    li    a6,7
+  e0:    4799                    li    a5,6
+  e2:    4715                    li    a4,5
+  e4:    4691                    li    a3,4
+  e6:    460d                    li    a2,3
+  e8:    4589                    li    a1,2
+  ea:    4505                    li    a0,1
+  ec:    00000097              auipc    ra,0x0
+  f0:    f14080e7              jalr    -236(ra) # 0 &lt;f&gt;
+&#125;
+  f4:    9d25                    addw    a0,a0,s1
+  f6:    70e2                    ld    ra,56(sp)
+  f8:    7442                    ld    s0,48(sp)
+  fa:    74a2                    ld    s1,40(sp)
+  fc:    6121                    addi    sp,sp,64
+  fe:    8082                    ret
+</code></pre>
+<p>首先可以观察到每个函数开始都有一个对sp与s0类似的操作，这部分代码叫函数的prologue，在RISC-V下这里主要做的工作就是分配栈空间(<code>addi sp sp -64</code>)，保存一些寄存器，这类寄存器当前函数需要使用但是其内容在函数结束时需要恢复到进入函数时的内容，比如出现的ra(return address)与s0寄存器。RISC-V架构下函数的返回地址是存放在ra寄存器的，也就是说当要调用一个函数时调用者会设定ra的值然后调用函数，但是被调用的函数如果又要调用其它函数它也会用到ra，所以需要先存一下ra。从f,g,main三个函数的开头可以看出来f中没有对ra的保存，因为它没有调用其它函数，且从main和g可以看出ra会被保存到栈底的第一个位置。而从代码来看完成函数的prologue之后s0指向当前函数的栈底，所以在未完成prologue部分时s0保存的就是调用当前函数的调用者的栈底，且将被固定保存在当前函数栈底的第二个位置，有了这个内容可以从当前函数出发一步步往前追踪函数调用链。</p>
+<p>另外还可以看到函数的调用过程不是直接的一条指令而是表现为<code>auipc ra,0x0</code>与<code>jalr -206(ra)</code>的配合，auipc ra,0x0会将pc的值加上0x0然后装载到ra中，这样ra的值就变成了当前的pc值，后面的jalr -206(ra)就是直接跳转到函数的入口地址处，这与x86一条call指令有所不同。</p>
+<p>从main与f的调用可以看出，前面8个参数直接由寄存器传递(a0-a7，如果传入的是浮点数会有相应的fa寄存器)，第9个参数开始由栈传递，但是中间没有发生拷贝，调用者将参数放到了自己的栈顶(main中将9和10分别存在了sp+0与sp+8处)，而在函数f中通过s0来直接访问这两个参数，因为s0指向了当前函数的栈底，同时也是上一个调用函数的栈顶。而对于结构体的传输则比较微妙，从main中可以看到进入g之前main只用a0和a1传入了两个参数，但在g中是需要访问4个属性值的，关键就在于定义的struct中为4个int，而ld a0 -48(s0)会将一个double word的内容加载进a0，在struct node中4个int是相邻的，所以只传了两个参数进去，在g中通过<code>sext.w a3,a0</code>与<code>srai s1,a0,0x20</code>来获取a0的低32位和高32位，这两部分内容是x与y。综上可以看出RISC-V中对结构体参数的传递是通过寄存器来传递其对应的属性值的，且传递过程与结构体的内容分布相关，更具体的介绍见<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2023/readings/riscv-calling.pdf">https://pdos.csail.mit.edu/6.828/2023/readings/riscv-calling.pdf</a></p>
+<ul>
+<li><ol start="2">
+<li>实现Backtrace系统调用<br>在gdb中bt调用会打印函数调用链，本实验只要求能打印各个调用的地址即可，然后可以利用addr2line去跟踪调用的函数。前面已经介绍过每个函数的prologue都会保存ra与s0，ra就代表了上一个函数调用发生的地址，而s0可以回到上一级调用继续查找ra与s0，如此循环就可以找出调用链。另外还需要一个终止条件，由于前面的exec的设计中每个进程的stack都是一个页大小，所以所有的函数调用栈应该都在同一个页当中，随着调用链的返回查找的s0肯定会越来越大，如果下一个s0跟当前s0不在同一个页则说明已经到底。</li>
+</ol>
+</li>
+</ul>
+<p>下面是代码实现:</p>
+<pre><code class="c">void
+backtrace(void)
+&#123;
+  uint64 fp = r_fp();
+  uint64 stack_base = PGROUNDUP(fp);
+  printf(&quot;backtrace:\n&quot;);
+  while (fp &lt; stack_base)&#123;
+          printf(&quot;%p\n&quot;,*((uint64*)fp-1));
+          fp = *((uint64*)fp-2);
+  &#125;
+&#125;
+</code></pre>
+<p>按照Hint中完成其它部分即可</p>
+<ul>
+<li><ol start="3">
+<li>实现定时操作的系统调用<br>要求实现一个int sigalarm(interval,handler)的系统调用，用户成功调用该系统调用后每interval个tick就会调用一次handler函数。需要考虑的细节有:</li>
+</ol>
+</li>
+<li>进程怎么知道过了interval个tick</li>
+<li>如果要调用handler怎么保存当前环境以及handler执行完后怎么恢复</li>
+<li>不能在一个handler正在执行时又触发条件导致又调用handler，这样可能handler永远无法完成</li>
+</ul>
+<ul>
+<li>针对第一个问题，可以利用系统的时间中断，具体时间中断的发生这里不细讲，只需要知道现在每过一个tick硬件就会触发一个中断，只要在trap里识别出时间中断然后在proc中添加一个属性来记录即可知道当前进程从开始经历了几个tick，如果能被interval整除则进行sigalarm相关动作</li>
+<li>如果判定要发生handler的调用则一定是在trap那里发生的，因为只有那里才会对这个条件进行判定，而代码执行到trap时前面已经有一系列保存环境的操作了，更直接的讲整个环境已经保存在proc的TRAPFRAM处，如果以后从handler恢复那要恢复的状态应该也就是当前被保存的状态，所以需要将当前环境拷贝以备以后恢复使用。剩下的就是handler执行完后怎么恢复，lab中给出的方案是每个handler在自己结束时需要调用系统调用sigreturn来通知系统自己已经结束，因为handler清楚自己什么时候完成，sigreturn的工作也比较简单，将拷贝的环境替换到要返回的环境即可</li>
+<li>设置一个属性标记当前进程是否在进行handler即可</li>
+</ul>
+<p>下面是一些实现代码细节:</p>
+<pre><code class="c">//在kernel/proc.h中增加了以下结构体
+// Sigalarm
+struct sigalarm &#123;
+        int intval;                     // handle function interval
+        sighandler handler;             // handle function
+        int handing;                    // whether the process is in signal handle func
+        uint64 past_ticks;              // past ticks from syscall sigalarm
+        struct trapframe *trapframe;    // trapframe for sys_sigreturn
+&#125;;
+
+//在proc中添加一个结构体成员来记录这个sigalarm的相关信息，不过也可以添加一个数组
+//实现可以注册多个handler，但处理会麻烦很多，这里先完成lab要求
+
+//在kernel/proc.h中的allocproc中为sigalarm中的信息进行初始化
+//类似p-&gt;sigalarm.handler = 0;的初始化，注意此时还无需分配一个page给sigalarm
+</code></pre>
+<p>以上是关于sigalarm数据结构的初始化操作，下面是usertrap的代码(删减了一些，突出重点部分):</p>
+<pre><code class="c">void
+usertrap(void)
+&#123;
+  int which_dev = 0;
+
+  if((r_sstatus() &amp; SSTATUS_SPP) != 0)
+    panic(&quot;usertrap: not from user mode&quot;);
+
+  // send interrupts and exceptions to kerneltrap(),
+  // since we&#39;re now in the kernel.
+  w_stvec((uint64)kernelvec);
+
+  struct proc *p = myproc();
+
+  // save user program counter.
+  p-&gt;trapframe-&gt;epc = r_sepc();
+
+  if(r_scause() == 8)&#123;
+    // system call
+    // ...
+  &#125; else if((which_dev = devintr()) != 0)&#123;
+    if(which_dev == 2)&#123;
+     // timer interrupt
+      if (p-&gt;sigalarm.intval != 0) &#123;
+          // record the ticks since syscall sigalarm
+            p-&gt;sigalarm.past_ticks++;
+            if (p-&gt;sigalarm.past_ticks % p-&gt;sigalarm.intval == 0 &amp;&amp; !p-&gt;sigalarm.handing)&#123;
+                memmove(p-&gt;sigalarm.trapframe,p-&gt;trapframe,sizeof(struct trapframe));
+                p-&gt;trapframe-&gt;epc = (uint64)p-&gt;sigalarm.handler;
+                p-&gt;sigalarm.handing = 1;
+              &#125;
+      &#125;
+    &#125;
+  &#125; else &#123;
+    //...
+  &#125;
+
+  if(killed(p))
+    exit(-1);
+  // give up the CPU if this is a timer interrupt.
+  if(which_dev == 2)
+    yield();
+
+  usertrapret();
+&#125;
+</code></pre>
+<p>可以看到如果条件合适会有一个拷贝的动作以及设置epc，这里无需担心trapframe的分配，因为只要intval不为0说明调用过sigalarm，在那里会对sigalarm结构体的trapframe进行分配<br>下面就是sigalarm与sigreturn的实现:</p>
+<pre><code class="c">uint64
+sys_sigreturn(void)
+&#123;
+        struct proc *p = myproc();
+        memmove(p-&gt;trapframe,p-&gt;sigalarm.trapframe,sizeof(struct trapframe));
+        p-&gt;sigalarm.handing = 0;
+        return 0;
+&#125;
+
+uint64
+sys_sigalarm(void)
+&#123;
+        int intval;
+        uint64 handler;
+        argint(0,&amp;intval);
+        argaddr(1,&amp;handler);
+        struct proc *p = myproc();
+        if (intval == 0 &amp;&amp; handler == 0) &#123;
+                p-&gt;sigalarm.handler = 0;
+                p-&gt;sigalarm.intval = 0;
+                p-&gt;sigalarm.past_ticks = 0;
+        &#125;else if(intval &gt; 0)&#123;
+                if (p-&gt;sigalarm.trapframe == 0 &amp;&amp; (p-&gt;sigalarm.trapframe = kalloc()) == 0)
+                        return -1;
+                p-&gt;sigalarm.intval = intval;
+                p-&gt;sigalarm.handler = (sighandler)handler;
+        &#125;else
+                return -1;
+        return 0;
+&#125;
+</code></pre>
+<p>最后由于sigreturn是以系统调用的方式进行调用的，在syscall那里a0会被替换成sigreturn的返回值导致原来的环境被破坏，所以在syscall那里区别对待了sigreturn调用</p>
+<pre><code class="c">                if(num != SYS_sigreturn)
+      p-&gt;trapframe-&gt;a0 = syscalls[num]();
+                else
+                    syscalls[num]();
+</code></pre>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 2128099421@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">赏</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2022Rouze
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"left","width":200,"height":324},"mobile":{"show":true},"log":false});</script></body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().trim().split('\n').length, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: ;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+    #post .pjax article :not(pre) > code {
+        color: #24292e;
+        font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+        background-color: rgba(27,31,35,.05);
+        border-radius: 3px;
+        font-size: 85%;
+        margin: 0;
+        padding: .2em .4em;
+    }
+    
+</style>
+
+
+
+
+
+
+
+</html>
